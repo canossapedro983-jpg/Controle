@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar arquivos do repositorio
+      - name: Baixar arquivos
         uses: actions/checkout@v4
 
-      - name: Configurar Java 17
+      - name: Configurar Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -25,15 +25,24 @@ jobs:
           gradle-version: '8.7'
 
       - name: Preparar Android SDK
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)
+          yes | "$SDKMANAGER" --licenses || true
+          "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Extrair projeto
-        run: unzip -o ControleDeGastos_pronto_para_compilar.zip
+        run: |
+          ZIP=$(find . -maxdepth 1 -name 'ControleDeGastos_pronto_para_compilar*.zip' | head -1)
+          unzip -o "$ZIP"
 
       - name: Compilar APK
         working-directory: ControleDeGastos
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
         run: gradle assembleDebug
 
       - name: Salvar APK
