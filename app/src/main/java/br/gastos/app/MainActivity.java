@@ -23,6 +23,9 @@ public class MainActivity extends Activity {
     s.setJavaScriptEnabled(true);
     s.setDomStorageEnabled(true);
     s.setAllowFileAccess(true);
+    s.setDatabaseEnabled(true);
+    s.setSupportMultipleWindows(false);
+    s.setJavaScriptCanOpenWindowsAutomatically(true);
     web.addJavascriptInterface(new Ponte(), "Android");
     web.setWebChromeClient(new WebChromeClient() {
       @Override public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
@@ -36,8 +39,14 @@ public class MainActivity extends Activity {
       }
     });
     setContentView(web);
-    web.loadUrl("file:///android_asset/index.html");
+    CookieManager.getInstance().setAcceptCookie(true);
+    CookieManager.getInstance().setAcceptThirdPartyCookies(web, true);
+    s.setUserAgentString(s.getUserAgentString().replace("; wv", ""));
+    web.setWebViewClient(new WebViewClient());
+    web.loadUrl("https://claude.ai/artifact/9RgL67QPKizYzvmnLLhWus");
   }
+
+  @Override protected void onPause() { super.onPause(); CookieManager.getInstance().flush(); }
 
   @Override protected void onActivityResult(int req, int res, Intent data) {
     if (req == 1 && arquivoCb != null) {
