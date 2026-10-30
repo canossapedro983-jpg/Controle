@@ -67,6 +67,7 @@ li:first-child{border-top:0}
 .budget{display:flex;gap:8px;margin-top:12px}
 .budget button{min-width:90px}
 .ac{position:relative}
+.money{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .sugs{overscroll-behavior:contain;touch-action:pan-y;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:222px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sugs li{padding:0 14px;min-height:44px;border-top:1px solid var(--line);cursor:pointer;gap:0}
 .sugs li:first-child{border-top:0}
@@ -140,7 +141,7 @@ li:first-child{border-top:0}
       <label for="desc">Descrição</label>
       <div class="ac"><input id="desc" maxlength="60" placeholder="Toque para escolher ou digite" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="descs"><ul id="descs" class="sugs" role="listbox" hidden></ul></div>
       <div class="row2">
-        <div><label for="valor">Valor (R$)</label><input id="valor" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00"></div>
+        <div><label for="valor">Valor</label><input id="valor" class="money" type="text" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
         <div><label for="data">Data</label><input id="data" type="date"></div>
       </div>
       <div class="row2">
@@ -155,7 +156,7 @@ li:first-child{border-top:0}
       <label for="descR">Descrição</label>
       <div class="ac"><input id="descR" maxlength="60" placeholder="Toque para escolher ou digite" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="descsR"><ul id="descsR" class="sugs" role="listbox" hidden></ul></div>
       <div class="row2">
-        <div><label for="valorR">Valor (R$)</label><input id="valorR" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00"></div>
+        <div><label for="valorR">Valor</label><input id="valorR" class="money" type="text" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
         <div><label for="dataR">Data</label><input id="dataR" type="date"></div>
       </div>
       <div style="margin-top:12px"><label for="pagR">Forma de recebimento</label><select id="pagR"></select></div>
@@ -247,9 +248,16 @@ function montaSelects(){
 
 function setTipo(t){}
 
+function centavos(v){const d=String(v).replace(/\D/g,"").replace(/^0+/,"");return d?Number(d):0}
+function mascara(el){const c=centavos(el.value);el.value=c?brl(c/100):"";try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
+document.querySelectorAll(".money").forEach(el=>{
+  el.addEventListener("input",()=>{const d=el.value.replace(/\D/g,"");if(d.length>11)el.value=d.slice(0,11);mascara(el)});
+  el.addEventListener("focus",()=>setTimeout(()=>{try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}));
+  el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&el.selectionStart===el.value.length){e.preventDefault();const c=String(centavos(el.value)).slice(0,-1);el.value=c;mascara(el)}});
+});
 function lanca(tp){
   const R=tp==="in"?"R":"";
-  const desc=$("desc"+R).value.trim(),valor=parseFloat($("valor"+R).value),data=$("data"+R).value;
+  const desc=$("desc"+R).value.trim(),valor=centavos($("valor"+R).value)/100,data=$("data"+R).value;
   if(!desc||!(valor>0)||!data){$("msg"+R).textContent="Preencha descrição, valor maior que zero e data.";return}
   const it={id:Date.now()+Math.random(),tipo:tp,desc,valor,data,cat:tp==="in"?"Receita":$("cat").value,pag:$("pag"+R).value};
   S.items.push(it);grava(it);
