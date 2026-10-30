@@ -67,6 +67,12 @@ li:first-child{border-top:0}
 .budget{display:flex;gap:8px;margin-top:12px}
 .budget button{min-width:90px}
 [hidden]{display:none!important}
+.info{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.info b{font-family:var(--display)}.info .btn{width:auto;margin:0 0 0 auto;min-height:40px;padding:0 14px}
+.clk{cursor:pointer;border-radius:8px;padding:4px 6px;margin:0 -6px 8px;transition:opacity .2s}
+.clk.sel{background:var(--bg);outline:2px solid var(--ink)}
+.dim{opacity:.35}
+#rEvo .hit{fill:transparent;cursor:pointer}
 #rPer button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .tabs button{font-size:.88rem;padding:0 2px}
 .ac{position:relative}
@@ -134,11 +140,13 @@ li:first-child{border-top:0}
         <div><label for="rTipo">Tipo</label><select id="rTipo"><option value="">Todos</option><option value="out">Gastos</option><option value="in">Receitas</option></select></div>
       </div>
     </section>
+    <div class="ed" id="rChips" style="margin:12px 0 0"></div>
     <div class="kpis" id="rKpis" style="margin-top:16px"></div>
     <p class="meta" id="rObs" style="margin:12px 4px 0"></p>
-    <section class="panel" style="margin-top:16px"><h2 id="rEvoT">Evolução</h2><div class="chart" id="rEvo"></div>
+    <section class="panel" style="margin-top:16px"><h2 id="rEvoT">Evolução</h2><p class="meta" style="margin:-6px 0 8px">Toque numa barra para ver os valores e abrir o período.</p><div class="chart" id="rEvo"></div><div id="rInfo" class="info" hidden></div>
       <div class="leg"><span><i style="background:var(--in)"></i>Receitas</span><span><i style="background:var(--out)"></i>Gastos</span></div></section>
-    <section class="panel" style="margin-top:16px"><h2>Gastos por categoria</h2><div id="rCats"></div></section>
+    <div class="grid"><section class="panel"><h2>Gastos por categoria</h2><p class="meta" style="margin:-6px 0 8px">Toque para filtrar tudo por ela.</p><div id="rCats"></div></section>
+    <section class="panel"><h2>Por forma de pagamento</h2><p class="meta" style="margin:-6px 0 8px">Toque para filtrar.</p><div id="rPags"></div></section></div>
     <section class="panel" style="margin-top:16px"><h2>Lançamentos do período</h2><ul id="rLista"></ul></section>
   </div>
   <div id="vP" hidden>
@@ -469,7 +477,7 @@ function escolhe(t,x){
     else if(e.key==="Escape")fechaSug(t);
   });
 });
-let rP="d",rRef=null;
+let rP="d",rRef=null,rSel=-1;
 const SEM=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
 const MESL=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 const iso=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
@@ -491,11 +499,13 @@ function tituloPer(ref,p,[i,f]){const h=today(),x=dt0(ref);
   if(p==="s"){const [hi]=intervalo(h,"s");return[i===hi?"Esta semana":i===somaDias(hi,-7)?"Semana passada":"Semana",br(i)+" a "+br(f)]}
   if(p==="m")return[MESL[x.getMonth()][0].toUpperCase()+MESL[x.getMonth()].slice(1)+" de "+x.getFullYear(),i.slice(0,7)===h.slice(0,7)?"Este mês":""];
   return[String(x.getFullYear()),i.slice(0,4)===h.slice(0,4)?"Este ano":""]}
-document.querySelectorAll("#rPer button").forEach(b=>b.onclick=()=>{rP=b.dataset.p;document.querySelectorAll("#rPer button").forEach(o=>o.setAttribute("aria-pressed",o===b));resumo()});
-$("rAnt").onclick=()=>{rRef=anda(rRef||today(),rP,-1);resumo()};
-$("rProx").onclick=()=>{rRef=anda(rRef||today(),rP,1);resumo()};
-$("rHoje").onclick=()=>{rRef=null;resumo()};
+document.querySelectorAll("#rPer button").forEach(b=>b.onclick=()=>{rP=b.dataset.p;rSel=-1;document.querySelectorAll("#rPer button").forEach(o=>o.setAttribute("aria-pressed",o===b));resumo()});
+$("rAnt").onclick=()=>{rRef=anda(rRef||today(),rP,-1);rSel=-1;resumo()};
+$("rProx").onclick=()=>{rRef=anda(rRef||today(),rP,1);rSel=-1;resumo()};
+$("rHoje").onclick=()=>{rRef=null;rSel=-1;resumo()};
 ["rCat","rPag","rTipo"].forEach(i=>$(i).onchange=resumo);
+function irPara(p,ref){rP=p;rRef=ref;rSel=-1;document.querySelectorAll("#rPer button").forEach(o=>o.setAttribute("aria-pressed",o.dataset.p===p));resumo();$("rTit").scrollIntoView({behavior:"smooth",block:"center"})}
+function alterna(id,v){$(id).value=$(id).value===v?"":v;rSel=-1;resumo()}
 const doFiltro=i=>{const c=$("rCat").value,pg=$("rPag").value,t=$("rTipo").value;return(!c||i.cat===c)&&(!pg||i.pag===pg)&&(!t||i.tipo===t)};
 function totais(i0,f0){let g=0,r=0,n=0;S.items.forEach(i=>{if(i.data>=i0&&i.data<=f0&&doFiltro(i)){n++;if(i.tipo==="in")r+=i.valor;else g+=i.valor}});return{g,r,n}}
 function resumo(){
@@ -505,6 +515,9 @@ function resumo(){
   const fut=i0>h;$("rProx").disabled=f0>=h;$("rProx").style.opacity=f0>=h?.4:1;$("rHoje").hidden=!rRef||(h>=i0&&h<=f0);
   const it=S.items.filter(i=>i.data>=i0&&i.data<=f0&&doFiltro(i));
   const T=totais(i0,f0);
+  const ch=$("rChips");ch.innerHTML="";
+  [["rCat","Categoria"],["rPag","Pagamento"],["rTipo","Tipo"]].forEach(([id,nm])=>{const el=$(id);if(!el.value)return;
+    ch.appendChild(chip(nm+": "+el.options[el.selectedIndex].text,()=>{el.value="";rSel=-1;resumo()}))});
   const fimConta=f0>h?h:f0;const dias=Math.max(1,Math.round((dt0(fimConta)-dt0(i0))/864e5)+1);
   const ant=intervalo(anda(ref,rP,-1),rP),TA=totais(ant[0],ant[1]);
   const varr=TA.g>0?Math.round((T.g-TA.g)/TA.g*100):null;
@@ -521,20 +534,38 @@ function resumo(){
   if(cats.length)obs+=` Maior gasto em ${cats[0][0]} (${brl(cats[0][1])}, ${Math.round(cats[0][1]/T.g*100)}%).`;
   if(it.length){const mx=it.filter(i=>i.tipo==="out").sort((a,b)=>b.valor-a.valor)[0];if(mx&&rP!=="d")obs+=` Maior gasto único: ${mx.desc} (${brl(mx.valor)}, ${br(mx.data)}).`}
   $("rObs").textContent=obs;
-  $("rCats").innerHTML=cats.length?cats.map(([c,v])=>`<div class="cat"><div class="t"><span>${esc(c)}</span><span>${brl(v)} · ${Math.round(v/T.g*100)}%</span></div><div class="bar"><i style="width:${v/T.g*100}%;background:${CATS[c]||"#888"}"></i></div></div>`).join(""):'<p class="empty">Nenhum gasto neste período.</p>';
+  const fc=$("rCat").value,fpg=$("rPag").value;
+  // categorias: ignora o filtro de categoria para mostrar todas e destacar a escolhida
+  const pcAll={};S.items.forEach(i=>{if(i.tipo==="out"&&i.data>=i0&&i.data<=f0&&(!fpg||i.pag===fpg)&&(!$("rTipo").value||$("rTipo").value==="out"))pcAll[i.cat]=(pcAll[i.cat]||0)+i.valor});
+  const catsAll=Object.entries(pcAll).sort((a,b)=>b[1]-a[1]),gAll=catsAll.reduce((a,c)=>a+c[1],0);
+  $("rCats").innerHTML=catsAll.length?catsAll.map(([c,v])=>`<div class="cat clk${fc===c?" sel":fc?" dim":""}" data-c="${esc(c)}" role="button" tabindex="0"><div class="t"><span>${esc(c)}</span><span>${brl(v)} · ${Math.round(v/gAll*100)}%</span></div><div class="bar"><i style="width:${v/gAll*100}%;background:${CATS[c]||"#888"}"></i></div></div>`).join(""):'<p class="empty">Nenhum gasto neste período.</p>';
+  $("rCats").querySelectorAll(".clk").forEach(d=>{d.onclick=()=>alterna("rCat",d.dataset.c);d.onkeydown=e=>{if(e.key==="Enter")d.click()}});
+  const ppAll={};S.items.forEach(i=>{if(i.data>=i0&&i.data<=f0&&(!fc||i.cat===fc)&&(!$("rTipo").value||i.tipo===$("rTipo").value)){const k=i.pag||"";if(k)ppAll[k]=(ppAll[k]||0)+i.valor}});
+  const pagsAll=Object.entries(ppAll).sort((a,b)=>b[1]-a[1]),pAll=pagsAll.reduce((a,c)=>a+c[1],0);
+  $("rPags").innerHTML=pagsAll.length?pagsAll.map(([c,v])=>`<div class="cat clk${fpg===c?" sel":fpg?" dim":""}" data-c="${esc(c)}" role="button" tabindex="0"><div class="t"><span>${esc(c)}</span><span>${brl(v)} · ${Math.round(v/pAll*100)}%</span></div><div class="bar"><i style="width:${v/pAll*100}%;background:var(--accent)"></i></div></div>`).join(""):'<p class="empty">Nada neste período.</p>';
+  $("rPags").querySelectorAll(".clk").forEach(d=>{d.onclick=()=>alterna("rPag",d.dataset.c);d.onkeydown=e=>{if(e.key==="Enter")d.click()}});
+  if(false)$("rCats").innerHTML=cats.length?cats.map(([c,v])=>`<div class="cat"><div class="t"><span>${esc(c)}</span><span>${brl(v)} · ${Math.round(v/T.g*100)}%</span></div><div class="bar"><i style="width:${v/T.g*100}%;background:${CATS[c]||"#888"}"></i></div></div>`).join(""):'<p class="empty">Nenhum gasto neste período.</p>';
   // evolução: dia→ últimos 7 dias; semana→ dias da semana; mês→ dias do mês; ano→ meses
   let pts=[];
-  if(rP==="d"){$("rEvoT").textContent="Últimos 7 dias";for(let k=6;k>=0;k--){const d=somaDias(ref,-k);const t=totais(d,d);pts.push([SEM[dt0(d).getDay()].slice(0,3),t,d===ref])}}
-  else if(rP==="s"){$("rEvoT").textContent="Dia a dia";for(let k=0;k<7;k++){const d=somaDias(i0,k);pts.push([SEM[dt0(d).getDay()].slice(0,3),totais(d,d),d===h])}}
-  else if(rP==="m"){$("rEvoT").textContent="Dia a dia";let d=i0;while(d<=f0){const n=Number(d.slice(8));pts.push([(n===1||n%5===0)?String(n):"",totais(d,d),d===h]);d=somaDias(d,1)}}
-  else{$("rEvoT").textContent="Mês a mês";for(let k=0;k<12;k++){const a=iso(new Date(Number(i0.slice(0,4)),k,1)),b=iso(new Date(Number(i0.slice(0,4)),k+1,0));pts.push([MES[k],totais(a,b),a.slice(0,7)===h.slice(0,7)])}}
+  const nomeD=d=>SEM[dt0(d).getDay()]+", "+br(d);
+  if(rP==="d"){$("rEvoT").textContent="Últimos 7 dias";for(let k=6;k>=0;k--){const d=somaDias(ref,-k);pts.push([SEM[dt0(d).getDay()].slice(0,3),totais(d,d),d===ref,nomeD(d),"d",d])}}
+  else if(rP==="s"){$("rEvoT").textContent="Dia a dia";for(let k=0;k<7;k++){const d=somaDias(i0,k);pts.push([SEM[dt0(d).getDay()].slice(0,3),totais(d,d),d===h,nomeD(d),"d",d])}}
+  else if(rP==="m"){$("rEvoT").textContent="Dia a dia";let d=i0;while(d<=f0){const n=Number(d.slice(8));pts.push([(n===1||n%5===0)?String(n):"",totais(d,d),d===h,nomeD(d),"d",d]);d=somaDias(d,1)}}
+  else{$("rEvoT").textContent="Mês a mês";for(let k=0;k<12;k++){const a=iso(new Date(Number(i0.slice(0,4)),k,1)),b=iso(new Date(Number(i0.slice(0,4)),k+1,0));pts.push([MES[k],totais(a,b),a.slice(0,7)===h.slice(0,7),MESL[k]+" de "+a.slice(0,4),"m",a])}}
   const W=420,H=200,pl=56,pb=26,mx=Math.max(1,...pts.map(p=>Math.max(p[1].g,p[1].r))),gw=(W-pl)/pts.length,bw=Math.max(1,Math.min(16,gw/2-2));
   let g=`<svg viewBox="0 0 ${W+12} ${H}" role="img" aria-label="Evolução de receitas e gastos">`;
   for(let k=0;k<=2;k++){const y=(H-pb)-(H-pb-10)*k/2;g+=`<line x1="${pl}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${pl-6}" y="${y+4}" text-anchor="end" font-size="13" fill="var(--muted)">${curto(mx*k/2)}</text>`}
-  pts.forEach(([lb,t,hl],k)=>{const x=pl+gw*k+gw/2,h1=(H-pb-10)*t.r/mx,h2=(H-pb-10)*t.g/mx;
-    g+=`<rect x="${x-bw-1}" y="${H-pb-h1}" width="${bw}" height="${h1}" rx="2" fill="var(--in)"><title>Receitas: ${brl(t.r)}</title></rect><rect x="${x+1}" y="${H-pb-h2}" width="${bw}" height="${h2}" rx="2" fill="var(--out)"><title>Gastos: ${brl(t.g)}</title></rect>`;
+  pts.forEach(([lb,t,hl],k)=>{const x=pl+gw*k+gw/2,h1=(H-pb-10)*t.r/mx,h2=(H-pb-10)*t.g/mx,op=rSel>=0&&rSel!==k?' opacity=".3"':"";
+    if(rSel===k)g+=`<rect x="${pl+gw*k}" y="0" width="${gw}" height="${H-pb}" fill="var(--line)" opacity=".5"/>`;
+    g+=`<g${op}><rect x="${x-bw-1}" y="${H-pb-h1}" width="${bw}" height="${h1}" rx="2" fill="var(--in)"><title>Receitas: ${brl(t.r)}</title></rect><rect x="${x+1}" y="${H-pb-h2}" width="${bw}" height="${h2}" rx="2" fill="var(--out)"><title>Gastos: ${brl(t.g)}</title></rect></g><rect class="hit" data-k="${k}" x="${pl+gw*k}" y="0" width="${gw}" height="${H}"/>`;
     if(lb)g+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="13" fill="${hl?"var(--ink)":"var(--muted)"}" font-weight="${hl?700:400}">${lb}</text>`});
   $("rEvo").innerHTML=g+"</svg>";
+  $("rEvo").querySelectorAll(".hit").forEach(el=>el.addEventListener("click",()=>{const k=Number(el.dataset.k);rSel=rSel===k?-1:k;resumo()}));
+  const inf=$("rInfo");
+  if(rSel>=0&&pts[rSel]){const [,t,,nm,dp,dref]=pts[rSel];inf.hidden=false;
+    inf.innerHTML=`<b style="width:100%">${esc(nm[0].toUpperCase()+nm.slice(1))}</b><span class="in">Receitas ${brl(t.r)}</span><span class="out">Gastos ${brl(t.g)}</span><span>Saldo ${brl(t.r-t.g)}</span><span style="color:var(--muted)">${t.n} lanç.</span>`;
+    const bt=document.createElement("button");bt.className="btn";bt.type="button";bt.textContent=dp==="d"?"Abrir este dia":"Abrir este mês";bt.onclick=()=>irPara(dp,dref);inf.appendChild(bt);
+  }else inf.hidden=true;
   const ul=$("rLista");ul.innerHTML="";
   const ord=it.slice().sort((a,b)=>(b.data+(b.hora||"")).localeCompare(a.data+(a.hora||""))||b.valor-a.valor);
   if(!ord.length){ul.innerHTML='<li class="empty">Nenhum lançamento.</li>';return}
