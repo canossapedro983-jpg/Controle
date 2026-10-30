@@ -67,13 +67,15 @@ li:first-child{border-top:0}
 .budget{display:flex;gap:8px;margin-top:12px}
 .budget button{min-width:90px}
 [hidden]{display:none!important}
+#rPer button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.tabs button{font-size:.88rem;padding:0 2px}
 .ac{position:relative}
 .money{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .sugs{overscroll-behavior:contain;touch-action:pan-y;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:222px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sugs li{padding:0 14px;min-height:44px;border-top:1px solid var(--line);cursor:pointer;gap:0}
 .sugs li:first-child{border-top:0}
 .sugs li:hover,.sugs li.on{background:var(--bg)}
-.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px;background:var(--surface)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px;background:var(--surface)}
 .tabs button{border:0;background:transparent;min-height:44px;cursor:pointer;font-weight:700}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
@@ -102,6 +104,7 @@ li:first-child{border-top:0}
 
   <div class="tabs" role="tablist">
     <button role="tab" id="tabL" aria-selected="true" type="button">Lançamentos</button>
+    <button role="tab" id="tabR" aria-selected="false" type="button">Resumo</button>
     <button role="tab" id="tabP" aria-selected="false" type="button">Painel</button>
     <button role="tab" id="tabE" aria-selected="false" type="button">Listas</button>
   </div>
@@ -113,6 +116,30 @@ li:first-child{border-top:0}
     <section class="panel" style="margin-top:16px"><h2>Descrições ocultas</h2><p class="meta" style="margin:0 0 12px">Não aparecem nas sugestões. Toque no × para voltar a mostrar. Na lista de sugestões, o × ao lado de cada uma esconde ela.</p><div class="ed" id="eOc"></div></section>
     <p class="meta" id="eMsg" role="status"></p>
     <button class="ghost" id="eReset" type="button" style="margin-top:8px">Voltar às listas padrão</button>
+  </div>
+  <div id="vR" hidden>
+    <section class="panel">
+      <div class="seg" role="group" aria-label="Período" id="rPer" style="grid-template-columns:repeat(4,1fr)">
+        <button type="button" data-p="d" aria-pressed="true">Dia</button><button type="button" data-p="s" aria-pressed="false">Semana</button><button type="button" data-p="m" aria-pressed="false">Mês</button><button type="button" data-p="a" aria-pressed="false">Ano</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <button class="ghost" id="rAnt" type="button" aria-label="Período anterior" style="width:44px;min-height:44px">‹</button>
+        <div style="text-align:center"><b id="rTit" style="font:700 1.1rem var(--display)"></b><br><small id="rSub" style="color:var(--muted)"></small></div>
+        <button class="ghost" id="rProx" type="button" aria-label="Próximo período" style="width:44px;min-height:44px">›</button>
+      </div>
+      <button class="ghost" id="rHoje" type="button" style="display:block;margin:8px auto 0">Voltar para hoje</button>
+      <div class="filters" style="margin:16px 0 0">
+        <div><label for="rCat">Categoria</label><select id="rCat"></select></div>
+        <div><label for="rPag">Pagamento</label><select id="rPag"></select></div>
+        <div><label for="rTipo">Tipo</label><select id="rTipo"><option value="">Todos</option><option value="out">Gastos</option><option value="in">Receitas</option></select></div>
+      </div>
+    </section>
+    <div class="kpis" id="rKpis" style="margin-top:16px"></div>
+    <p class="meta" id="rObs" style="margin:12px 4px 0"></p>
+    <section class="panel" style="margin-top:16px"><h2 id="rEvoT">Evolução</h2><div class="chart" id="rEvo"></div>
+      <div class="leg"><span><i style="background:var(--in)"></i>Receitas</span><span><i style="background:var(--out)"></i>Gastos</span></div></section>
+    <section class="panel" style="margin-top:16px"><h2>Gastos por categoria</h2><div id="rCats"></div></section>
+    <section class="panel" style="margin-top:16px"><h2>Lançamentos do período</h2><ul id="rLista"></ul></section>
   </div>
   <div id="vP" hidden>
     <div class="kpis" id="kpis"></div>
@@ -126,16 +153,6 @@ li:first-child{border-top:0}
     <section class="panel" style="margin-top:16px"><h2>Maiores gastos do mês</h2><ul id="top"></ul></section>
   </div>
   <div id="vL">
-  <section class="panel" aria-label="Resumo do dia" style="margin-bottom:16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px">
-      <button class="ghost" id="diaAnt" type="button" aria-label="Dia anterior" style="width:44px;min-height:44px">‹</button>
-      <div style="text-align:center"><h2 style="margin:0">Resumo do dia</h2><small id="diaTit" style="color:var(--muted)"></small></div>
-      <button class="ghost" id="diaProx" type="button" aria-label="Próximo dia" style="width:44px;min-height:44px">›</button>
-    </div>
-    <div class="kpis" id="diaKpis" style="grid-template-columns:repeat(3,1fr)"></div>
-    <p class="meta" id="diaObs"></p>
-    <ul id="diaLista"></ul>
-  </section>
   <section class="hero" aria-label="Resumo do mês">
     <div style="color:var(--muted)">Saldo do mês</div>
     <div class="saldo" id="saldo">R$ 0,00</div>
@@ -253,7 +270,7 @@ const PAGS_IN=["Pix","Transferência","Dinheiro","Depósito"];
 const PADRAO={cats:{...CATS},pags:PAGS.slice(),pagsIn:PAGS_IN.slice()};
 function opt(v){const o=document.createElement("option");o.value=o.textContent=v;return o}
 function montaSelects(){
-  const L=[["cat",Object.keys(CATS),""],["fcat",Object.keys(CATS),"Todas"],["pag",PAGS,""],["pagR",PAGS_IN,""],["fpag",[...new Set(PAGS.concat(PAGS_IN))],"Todas"]];
+  const L=[["cat",Object.keys(CATS),""],["fcat",Object.keys(CATS),"Todas"],["pag",PAGS,""],["pagR",PAGS_IN,""],["fpag",[...new Set(PAGS.concat(PAGS_IN))],"Todas"],["rCat",Object.keys(CATS),"Todas"],["rPag",[...new Set(PAGS.concat(PAGS_IN))],"Todas"]];
   L.forEach(([id,arr,todos])=>{const el=$(id),v=el.value;el.innerHTML="";if(todos){const o=opt(todos);o.value="";el.appendChild(o)}arr.forEach(x=>el.appendChild(opt(x)));if([...el.options].some(o=>o.value===v))el.value=v});
 }
 
@@ -279,9 +296,9 @@ function lanca(tp){
 $("add").onclick=()=>lanca("out");$("addR").onclick=()=>lanca("in");
 ["mes","fcat","fpag","ftipo"].forEach(i=>$(i).onchange=render);
 
-function aba(x){["L","P","E"].forEach(k=>{$("tab"+k).setAttribute("aria-selected",k===x);$("v"+k).hidden=k!==x});if(x==="E")editor();try{localStorage.setItem(KEY+"-aba",x)}catch(e){}}
-$("tabL").onclick=()=>aba("L");$("tabP").onclick=()=>aba("P");$("tabE").onclick=()=>aba("E");
-try{const a=localStorage.getItem(KEY+"-aba");if(a==="p"||a==="P")setTimeout(()=>aba("P"));else if(a==="E")setTimeout(()=>aba("E"))}catch(e){}
+function aba(x){["L","R","P","E"].forEach(k=>{$("tab"+k).setAttribute("aria-selected",k===x);$("v"+k).hidden=k!==x});if(x==="E")editor();try{localStorage.setItem(KEY+"-aba",x)}catch(e){}}
+$("tabL").onclick=()=>aba("L");$("tabP").onclick=()=>aba("P");$("tabR").onclick=()=>aba("R");$("tabE").onclick=()=>aba("E");
+try{const a=localStorage.getItem(KEY+"-aba");if(a==="p"||a==="P")setTimeout(()=>aba("P"));else if(a==="E"||a==="R")setTimeout(()=>aba(a))}catch(e){}
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const curto=n=>n>=1000?"R$ "+(n/1000).toFixed(n>=10000?0:1).replace(".",",")+"k":"R$ "+Math.round(n);
@@ -452,38 +469,82 @@ function escolhe(t,x){
     else if(e.key==="Escape")fechaSug(t);
   });
 });
-let diaVer=null;
+let rP="d",rRef=null;
 const SEM=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
-function somaDias(d,n){const [y,m,dd]=d.split("-").map(Number);const x=new Date(y,m-1,dd+n);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")}
-$("diaAnt").onclick=()=>{diaVer=somaDias(diaVer||today(),-1);resumoDia()};
-$("diaProx").onclick=()=>{diaVer=somaDias(diaVer||today(),1);resumoDia()};
-function resumoDia(){
-  const d=diaVer||today(),h=today();
-  const [y,m,dd]=d.split("-").map(Number);
-  $("diaTit").textContent=(d===h?"Hoje":d===somaDias(h,-1)?"Ontem":SEM[new Date(y,m-1,dd).getDay()])+", "+String(dd).padStart(2,"0")+"/"+String(m).padStart(2,"0")+"/"+y;
-  $("diaProx").disabled=d>=h;$("diaProx").style.opacity=d>=h?.4:1;
-  const it=S.items.filter(i=>i.data===d);
-  const g=it.filter(i=>i.tipo==="out").reduce((a,i)=>a+i.valor,0),r=it.filter(i=>i.tipo==="in").reduce((a,i)=>a+i.valor,0);
-  $("diaKpis").innerHTML=[["Gastos",brl(g),"out"],["Receitas",brl(r),"in"],["Saldo",brl(r-g),r-g<0?"out":"in"]].map(([a,b,c])=>`<div class="kpi" style="padding:12px"><span>${a}</span><b class="${c}" style="font-size:1.05rem">${b}</b></div>`).join("");
-  // média diária de gastos dos 30 dias anteriores
-  const ini=somaDias(d,-30);let tot=0;S.items.forEach(i=>{if(i.tipo==="out"&&i.data>=ini&&i.data<d)tot+=i.valor});
-  const prim=S.items.reduce((m,i)=>i.data<m?i.data:m,d);
-  const nd=Math.max(1,Math.min(30,Math.round((new Date(d)-new Date(prim))/864e5)));
-  const med=prim<d?tot/nd:0;let obs=it.length+" lançamento(s).";
-  if(g>0&&med>0){const pc=Math.round((g-med)/med*100);obs+=pc>10?` Gastou ${pc}% acima da sua média diária (${brl(med)}).`:pc<-10?` Gastou ${-pc}% abaixo da sua média diária (${brl(med)}).`:` Gasto dentro da sua média diária (${brl(med)}).`}
-  if(g>0){const pc={};it.filter(i=>i.tipo==="out").forEach(i=>pc[i.cat]=(pc[i.cat]||0)+i.valor);const top=Object.entries(pc).sort((a,b)=>b[1]-a[1])[0];obs+=` Mais gasto em ${top[0]} (${brl(top[1])}).`}
-  if(!it.length)obs="Nenhum lançamento neste dia.";
-  $("diaObs").textContent=obs;
-  const ul=$("diaLista");ul.innerHTML="";
-  it.slice().sort((a,b)=>(a.tipo===b.tipo?b.valor-a.valor:a.tipo==="in"?1:-1)).forEach(i=>{
-    const li=document.createElement("li");
+const MESL=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const iso=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
+const dt0=d=>{const [y,m,dd]=d.split("-").map(Number);return new Date(y,m-1,dd)};
+function somaDias(d,n){const x=dt0(d);x.setDate(x.getDate()+n);return iso(x)}
+const br=d=>d.slice(8)+"/"+d.slice(5,7);
+function intervalo(ref,p){
+  const x=dt0(ref);
+  if(p==="d")return[ref,ref];
+  if(p==="s"){const k=(x.getDay()+6)%7;const i=somaDias(ref,-k);return[i,somaDias(i,6)]}
+  if(p==="m")return[iso(new Date(x.getFullYear(),x.getMonth(),1)),iso(new Date(x.getFullYear(),x.getMonth()+1,0))]
+  return[x.getFullYear()+"-01-01",x.getFullYear()+"-12-31"];
+}
+function anda(ref,p,n){const x=dt0(ref);
+  if(p==="d")return somaDias(ref,n);if(p==="s")return somaDias(ref,7*n);
+  if(p==="m")return iso(new Date(x.getFullYear(),x.getMonth()+n,1));return iso(new Date(x.getFullYear()+n,0,1))}
+function tituloPer(ref,p,[i,f]){const h=today(),x=dt0(ref);
+  if(p==="d"){const t=ref===h?"Hoje":ref===somaDias(h,-1)?"Ontem":SEM[x.getDay()];return[t,br(ref)+"/"+ref.slice(0,4)]}
+  if(p==="s"){const [hi]=intervalo(h,"s");return[i===hi?"Esta semana":i===somaDias(hi,-7)?"Semana passada":"Semana",br(i)+" a "+br(f)]}
+  if(p==="m")return[MESL[x.getMonth()][0].toUpperCase()+MESL[x.getMonth()].slice(1)+" de "+x.getFullYear(),i.slice(0,7)===h.slice(0,7)?"Este mês":""];
+  return[String(x.getFullYear()),i.slice(0,4)===h.slice(0,4)?"Este ano":""]}
+document.querySelectorAll("#rPer button").forEach(b=>b.onclick=()=>{rP=b.dataset.p;document.querySelectorAll("#rPer button").forEach(o=>o.setAttribute("aria-pressed",o===b));resumo()});
+$("rAnt").onclick=()=>{rRef=anda(rRef||today(),rP,-1);resumo()};
+$("rProx").onclick=()=>{rRef=anda(rRef||today(),rP,1);resumo()};
+$("rHoje").onclick=()=>{rRef=null;resumo()};
+["rCat","rPag","rTipo"].forEach(i=>$(i).onchange=resumo);
+const doFiltro=i=>{const c=$("rCat").value,pg=$("rPag").value,t=$("rTipo").value;return(!c||i.cat===c)&&(!pg||i.pag===pg)&&(!t||i.tipo===t)};
+function totais(i0,f0){let g=0,r=0,n=0;S.items.forEach(i=>{if(i.data>=i0&&i.data<=f0&&doFiltro(i)){n++;if(i.tipo==="in")r+=i.valor;else g+=i.valor}});return{g,r,n}}
+function resumo(){
+  if(!$("rTit"))return;
+  const ref=rRef||today(),[i0,f0]=intervalo(ref,rP),h=today();
+  const [t1,t2]=tituloPer(ref,rP,[i0,f0]);$("rTit").textContent=t1;$("rSub").textContent=t2;
+  const fut=i0>h;$("rProx").disabled=f0>=h;$("rProx").style.opacity=f0>=h?.4:1;$("rHoje").hidden=!rRef||(h>=i0&&h<=f0);
+  const it=S.items.filter(i=>i.data>=i0&&i.data<=f0&&doFiltro(i));
+  const T=totais(i0,f0);
+  const fimConta=f0>h?h:f0;const dias=Math.max(1,Math.round((dt0(fimConta)-dt0(i0))/864e5)+1);
+  const ant=intervalo(anda(ref,rP,-1),rP),TA=totais(ant[0],ant[1]);
+  const varr=TA.g>0?Math.round((T.g-TA.g)/TA.g*100):null;
+  const nomeAnt={d:"ontem",s:"semana anterior",m:"mês anterior",a:"ano anterior"}[rP];
+  $("rKpis").innerHTML=[
+    ["Gastos",brl(T.g),"out",varr===null?"—":(varr>0?"▲ ":varr<0?"▼ ":"")+Math.abs(varr)+"% vs "+nomeAnt],
+    ["Receitas",brl(T.r),"in",TA.r>0?brl(TA.r)+" no "+(rP==="d"?"dia":"período")+" anterior":""],
+    ["Saldo",brl(T.r-T.g),T.r-T.g<0?"out":"in",""],
+    rP==="d"?["Lançamentos",String(T.n),"",""]:["Média de gasto/dia",brl(T.g/dias),"",dias+" dia(s)"]
+  ].map(([a,b,c,d])=>`<div class="kpi"><span>${a}</span><b class="${c}">${b}</b><small>${d}</small></div>`).join("");
+  const pc={};it.filter(i=>i.tipo==="out").forEach(i=>pc[i.cat]=(pc[i.cat]||0)+i.valor);
+  const cats=Object.entries(pc).sort((a,b)=>b[1]-a[1]);
+  let obs=it.length?`${it.length} lançamento(s).`:"Nenhum lançamento neste período.";
+  if(cats.length)obs+=` Maior gasto em ${cats[0][0]} (${brl(cats[0][1])}, ${Math.round(cats[0][1]/T.g*100)}%).`;
+  if(it.length){const mx=it.filter(i=>i.tipo==="out").sort((a,b)=>b.valor-a.valor)[0];if(mx&&rP!=="d")obs+=` Maior gasto único: ${mx.desc} (${brl(mx.valor)}, ${br(mx.data)}).`}
+  $("rObs").textContent=obs;
+  $("rCats").innerHTML=cats.length?cats.map(([c,v])=>`<div class="cat"><div class="t"><span>${esc(c)}</span><span>${brl(v)} · ${Math.round(v/T.g*100)}%</span></div><div class="bar"><i style="width:${v/T.g*100}%;background:${CATS[c]||"#888"}"></i></div></div>`).join(""):'<p class="empty">Nenhum gasto neste período.</p>';
+  // evolução: dia→ últimos 7 dias; semana→ dias da semana; mês→ dias do mês; ano→ meses
+  let pts=[];
+  if(rP==="d"){$("rEvoT").textContent="Últimos 7 dias";for(let k=6;k>=0;k--){const d=somaDias(ref,-k);const t=totais(d,d);pts.push([SEM[dt0(d).getDay()].slice(0,3),t,d===ref])}}
+  else if(rP==="s"){$("rEvoT").textContent="Dia a dia";for(let k=0;k<7;k++){const d=somaDias(i0,k);pts.push([SEM[dt0(d).getDay()].slice(0,3),totais(d,d),d===h])}}
+  else if(rP==="m"){$("rEvoT").textContent="Dia a dia";let d=i0;while(d<=f0){const n=Number(d.slice(8));pts.push([(n===1||n%5===0)?String(n):"",totais(d,d),d===h]);d=somaDias(d,1)}}
+  else{$("rEvoT").textContent="Mês a mês";for(let k=0;k<12;k++){const a=iso(new Date(Number(i0.slice(0,4)),k,1)),b=iso(new Date(Number(i0.slice(0,4)),k+1,0));pts.push([MES[k],totais(a,b),a.slice(0,7)===h.slice(0,7)])}}
+  const W=420,H=200,pl=56,pb=26,mx=Math.max(1,...pts.map(p=>Math.max(p[1].g,p[1].r))),gw=(W-pl)/pts.length,bw=Math.max(1,Math.min(16,gw/2-2));
+  let g=`<svg viewBox="0 0 ${W+12} ${H}" role="img" aria-label="Evolução de receitas e gastos">`;
+  for(let k=0;k<=2;k++){const y=(H-pb)-(H-pb-10)*k/2;g+=`<line x1="${pl}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${pl-6}" y="${y+4}" text-anchor="end" font-size="13" fill="var(--muted)">${curto(mx*k/2)}</text>`}
+  pts.forEach(([lb,t,hl],k)=>{const x=pl+gw*k+gw/2,h1=(H-pb-10)*t.r/mx,h2=(H-pb-10)*t.g/mx;
+    g+=`<rect x="${x-bw-1}" y="${H-pb-h1}" width="${bw}" height="${h1}" rx="2" fill="var(--in)"><title>Receitas: ${brl(t.r)}</title></rect><rect x="${x+1}" y="${H-pb-h2}" width="${bw}" height="${h2}" rx="2" fill="var(--out)"><title>Gastos: ${brl(t.g)}</title></rect>`;
+    if(lb)g+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="13" fill="${hl?"var(--ink)":"var(--muted)"}" font-weight="${hl?700:400}">${lb}</text>`});
+  $("rEvo").innerHTML=g+"</svg>";
+  const ul=$("rLista");ul.innerHTML="";
+  const ord=it.slice().sort((a,b)=>(b.data+(b.hora||"")).localeCompare(a.data+(a.hora||""))||b.valor-a.valor);
+  if(!ord.length){ul.innerHTML='<li class="empty">Nenhum lançamento.</li>';return}
+  ord.slice(0,200).forEach(i=>{const li=document.createElement("li");
     li.innerHTML=`<span class="dot" style="background:${i.tipo==="in"?"var(--in)":(CATS[i.cat]||"#888")}"></span><div class="d"><span></span><small></small></div><span class="v ${i.tipo}">${i.tipo==="in"?"+":"−"} ${brl(i.valor)}</span>`;
-    li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"");
-    ul.appendChild(li);
-  });
+    li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"")+" · "+br(i.data);ul.appendChild(li)});
+  if(ord.length>200){const li=document.createElement("li");li.className="empty";li.textContent="Mostrando os 200 mais recentes de "+ord.length+".";ul.appendChild(li)}
 }
 function render(){
-  resumoDia();
+  resumo();
   listaDesc();
   const mes=$("mes").value;
   const doMes=S.items.filter(i=>i.data.slice(0,7)===mes);
