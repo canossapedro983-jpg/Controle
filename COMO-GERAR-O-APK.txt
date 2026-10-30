@@ -1,0 +1,6 @@
+1. Instale o Android Studio: https://developer.android.com/studio
+2. Descompacte este .zip e, no Android Studio, use File > Open e escolha a pasta ControleGastos.
+3. Espere a sincronização terminar (a primeira vez baixa vários arquivos e pode demorar).
+4. Menu Build > Build App Bundle(s) / APK(s) > Build APK(s).
+5. Clique em "locate" no aviso que aparece: o arquivo é app/build/outputs/apk/debug/app-debug.apk
+6. Passe o APK para o celular e instale (permita "fontes desconhecidas").
