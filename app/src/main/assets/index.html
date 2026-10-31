@@ -212,6 +212,8 @@ li:first-child{border-top:0}
     <input id="arq" type="file" accept=".pdf,.csv,.ofx,.txt,application/pdf,text/csv,text/plain">
     <div style="margin-top:12px"><label for="colar">Ou cole o extrato aqui</label>
       <textarea id="colar" rows="4" placeholder="Data;Descrição;Valor&#10;28/09/2026;Mercado;-152,30" style="width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;color:inherit"></textarea></div>
+    <div style="margin-top:12px;max-width:260px"><label for="desde">Importar só a partir de</label><input id="desde" type="date"></div>
+    <p class="meta" style="margin:4px 0 0">Lançamentos do extrato com data anterior ficam de fora. Deixe em branco para importar tudo.</p>
     <button class="btn" id="ler" type="button" style="margin-top:12px">Ler extrato</button>
     <div id="prev" role="status"></div>
     <button class="btn" id="imp" type="button" hidden>Importar lançamentos</button>
@@ -262,7 +264,9 @@ async function apaga(id){if(OFFLINE){const f=lerFila(),k=f.add.findIndex(x=>x.id
 async function gravaMeta(){if(!COL){save();return}try{await COL.doc("config").set(S.listas?{budget:S.budget,listas:S.listas}:{budget:S.budget})}catch(e){syncMsg("Não foi possível sincronizar agora.")}}
 
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
-$("mes").value=today().slice(0,7);$("data").value=today();$("dataR").value=today();
+$("mes").value=today().slice(0,7);
+try{const d=localStorage.getItem(KEY+"-desde");$("desde").value=d!==null?d:today().slice(0,8)+"01"}catch(e){$("desde").value=today().slice(0,8)+"01"}
+$("data").value=today();$("dataR").value=today();
 let diaAberto=today();
 function viraDia(){
   const h=today();if(h===diaAberto)return;
@@ -722,7 +726,9 @@ async function ler(){
   }catch(e){$("prev").innerHTML='<p class="meta">Não foi possível ler o arquivo.'+(ehPdf?" Se o PDF não abrir, baixe o extrato em CSV ou OFX no app do banco.":"")+"</p>";return}}
   if(!t||!t.trim()){$("prev").innerHTML='<p class="meta">Escolha um arquivo ou cole o texto do extrato.</p>';return}
   const cru=ehPdf?lerPDF(t):/<STMTTRN>/i.test(t)?lerOFX(t):lerCSV(t);
-  const ok=cru.filter(r=>r.data&&!isNaN(r.v)&&r.v!==0&&!/^saldo/i.test(r.desc));
+  const ok0=cru.filter(r=>r.data&&!isNaN(r.v)&&r.v!==0&&!/^saldo/i.test(r.desc));
+  const desde=$("desde").value;try{localStorage.setItem(KEY+"-desde",desde)}catch(e){}
+  const ok=desde?ok0.filter(r=>r.data>=desde):ok0,antes=ok0.length-ok.length;
   const ja=new Set(S.items.map(chave));
   let dup=0;
   ok.forEach(r=>{
@@ -733,8 +739,8 @@ async function ler(){
   });
   const box=$("prev");box.innerHTML="";
   const p=document.createElement("p");p.className="meta";
-  p.textContent=pend.length?`${pend.length} lançamento(s) novo(s) encontrado(s)`+(dup?`; ${dup} já existia(m) e será(ão) ignorado(s)`:"")+". Prévia dos primeiros:"
-    :(ok.length?"Todos os lançamentos desse extrato já estão no app.":"Não encontrei lançamentos. Confira se o extrato tem colunas de data, descrição e valor.");
+  p.textContent=pend.length?`${pend.length} lançamento(s) novo(s) encontrado(s)`+(dup?`; ${dup} já existia(m) e será(ão) ignorado(s)`:"")+(antes?`; ${antes} anterior(es) a ${br(desde)}/${desde.slice(0,4)} ficaram de fora`:"")+". Prévia dos primeiros:"
+    :(ok.length?"Todos os lançamentos desse extrato já estão no app.":antes?`Todos os ${antes} lançamento(s) do extrato são anteriores a ${br(desde)}/${desde.slice(0,4)}. Mude a data para importá-los.`:"Não encontrei lançamentos. Confira se o extrato tem colunas de data, descrição e valor.");
   box.appendChild(p);
   if(pend.length){
     const ul=document.createElement("ul");
