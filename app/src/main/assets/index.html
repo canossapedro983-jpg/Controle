@@ -603,6 +603,7 @@ function render(){
   if(!lista.length){ul.innerHTML='<li class="empty">Nenhum lançamento encontrado. Adicione o primeiro ao lado.</li>';return}
   lista.forEach(i=>{
     const li=document.createElement("li");
+    if(editId===i.id){li.appendChild(formEdit(i));ul.appendChild(li);return}
     const [y,m,d]=i.data.split("-");
     li.innerHTML=`<span class="dot" style="background:${i.tipo==="in"?"var(--in)":(CATS[i.cat]||"#888")}"></span><div class="d"><span></span><small>${i.cat}${i.pag?" · "+i.pag:""} · ${d}/${m}/${y}</small></div><span class="v ${i.tipo}">${i.tipo==="in"?"+":"−"} ${brl(i.valor)}</span>`;
     li.querySelector(".d span").textContent=i.desc;
@@ -613,8 +614,38 @@ function render(){
         tc=setTimeout(()=>{conf=false;b.textContent="Excluir";b.style.cssText="";b.setAttribute("aria-label","Excluir "+i.desc)},4000);return}
       clearTimeout(tc);S.items=S.items.filter(x=>x.id!==i.id);apaga(i.id);render();
     };
-    li.appendChild(b);ul.appendChild(li);
+    const eb=document.createElement("button");eb.className="ghost";eb.type="button";eb.textContent="Editar";eb.setAttribute("aria-label","Editar "+i.desc);
+    eb.onclick=()=>{editId=i.id;render()};
+    const bx=document.createElement("div");bx.style.cssText="display:flex;flex-direction:column;gap:6px";bx.append(eb,b);
+    li.appendChild(bx);ul.appendChild(li);
   });
+}
+let editId=null;
+function formEdit(i){
+  const f=document.createElement("div");f.style.cssText="width:100%;display:grid;gap:10px";
+  const L=i.tipo==="in"?PAGS_IN:PAGS;
+  const opts=(arr,v)=>{const a=arr.slice();if(v&&!a.includes(v))a.unshift(v);return a.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")};
+  f.innerHTML=`<b class="${i.tipo}">Editar ${i.tipo==="in"?"receita":"gasto"}</b>
+    <div><label>Descrição</label><input class="eDesc" maxlength="60"></div>
+    <div class="row2" style="margin:0"><div><label>Valor</label><input class="eVal money" type="text" inputmode="numeric" autocomplete="off"></div><div><label>Data</label><input class="eData" type="date"></div></div>
+    <div class="row2" style="margin:0">${i.tipo==="out"?`<div><label>Categoria</label><select class="eCat">${opts(Object.keys(CATS),i.cat)}</select></div>`:""}<div><label>${i.tipo==="in"?"Forma de recebimento":"Forma de pagamento"}</label><select class="ePag">${opts(L,i.pag)}</select></div></div>
+    <div style="display:flex;gap:8px"><button type="button" class="btn eOk" style="margin:0;background:var(--${i.tipo});color:#fff">Salvar</button><button type="button" class="ghost eNo" style="min-height:46px;padding:0 16px">Cancelar</button></div>
+    <p class="meta eMsg" style="margin:0"></p>`;
+  const q=c=>f.querySelector(c);
+  q(".eDesc").value=i.desc;q(".eData").value=i.data;q(".eVal").value=brl(i.valor);
+  const v=q(".eVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v)});
+  v.addEventListener("keydown",e=>{if(e.key==="Backspace"&&v.selectionStart===v.value.length){e.preventDefault();v.value=String(centavos(v.value)).slice(0,-1);mascara(v)}});
+  q(".eNo").onclick=()=>{editId=null;render()};
+  q(".eOk").onclick=()=>{
+    const desc=q(".eDesc").value.trim(),valor=centavos(v.value)/100,data=q(".eData").value;
+    if(!desc||!(valor>0)||!data){q(".eMsg").textContent="Preencha descrição, valor maior que zero e data.";return}
+    const novo={...i,desc,valor,data,pag:q(".ePag").value};if(i.tipo==="out")novo.cat=q(".eCat").value;
+    S.items=S.items.map(x=>x.id===i.id?novo:x);editId=null;
+    if(data.slice(0,7)!==$("mes").value)$("mes").value=data.slice(0,7);
+    grava(novo);render();$("msg").textContent="";
+  };
+  setTimeout(()=>q(".eDesc").focus(),0);
+  return f;
 }
 let pend=[];
 function num(s){
