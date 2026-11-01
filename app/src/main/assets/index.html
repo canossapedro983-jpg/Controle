@@ -162,11 +162,13 @@ li:first-child{border-top:0}
   </div>
   <div id="vL">
   <section class="hero" aria-label="Resumo do mês">
-    <div style="color:var(--muted)">Saldo do mês</div>
+    <div style="color:var(--muted)" id="saldoLbl">Saldo</div>
     <div class="saldo" id="saldo">R$ 0,00</div>
+    <div class="meta" id="saldoAnt" style="margin:-8px 0 16px"></div>
     <div class="duo">
       <div><span style="color:var(--muted)">Receitas</span><b class="in" id="rec">R$ 0,00</b></div>
       <div><span style="color:var(--muted)">Gastos</span><b class="out" id="gas">R$ 0,00</b></div>
+      <div><span style="color:var(--muted)">Resultado do mês</span><b id="resMes">R$ 0,00</b></div>
     </div>
   </section>
 
@@ -585,7 +587,11 @@ function render(){
   const doMes=S.items.filter(i=>i.data.slice(0,7)===mes);
   const rec=doMes.filter(i=>i.tipo==="in").reduce((a,i)=>a+i.valor,0);
   const gas=doMes.filter(i=>i.tipo==="out").reduce((a,i)=>a+i.valor,0);
-  const sal=rec-gas;
+  const ini=mes+"-01";let ant=0;S.items.forEach(i=>{if(i.data<ini)ant+=i.tipo==="in"?i.valor:-i.valor});
+  const sal=ant+rec-gas;
+  $("saldoLbl").textContent=mes===today().slice(0,7)?"Saldo atual":"Saldo no fim do mês";
+  $("saldoAnt").innerHTML=`Sobrou dos meses anteriores: <b class="${ant<0?"out":"in"}">${brl(ant)}</b>`;
+  $("resMes").textContent=(rec-gas>0?"+ ":"")+brl(rec-gas);$("resMes").className=rec-gas<0?"out":"in";
   $("rec").textContent=brl(rec);$("gas").textContent=brl(gas);
   $("saldo").textContent=brl(sal);$("saldo").classList.toggle("neg",sal<0);
 
