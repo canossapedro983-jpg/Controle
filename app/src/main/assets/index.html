@@ -67,6 +67,10 @@ li:first-child{border-top:0}
 .budget{display:flex;gap:8px;margin-top:12px}
 .budget button{min-width:90px}
 [hidden]{display:none!important}
+.tabs button{position:relative}
+.badge{position:absolute;top:3px;right:3px;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--out);color:#fff;font-size:.7rem;margin-left:4px;padding:0 5px;vertical-align:middle}
+.apr{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;display:grid;gap:10px}
+.apr .raw{font-size:.82rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere}
 .info{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
 .info b{font-family:var(--display)}.info .btn{width:auto;margin:0 0 0 auto;min-height:40px;padding:0 14px}
 .clk{cursor:pointer;border-radius:8px;padding:4px 6px;margin:0 -6px 8px;transition:opacity .2s}
@@ -81,7 +85,7 @@ li:first-child{border-top:0}
 .sugs li{padding:0 14px;min-height:44px;border-top:1px solid var(--line);cursor:pointer;gap:0}
 .sugs li:first-child{border-top:0}
 .sugs li:hover,.sugs li.on{background:var(--bg)}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px;background:var(--surface)}
+.tabs{display:grid;grid-template-columns:repeat(var(--nt,4),1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px;background:var(--surface)}
 .tabs button{border:0;background:transparent;min-height:44px;cursor:pointer;font-weight:700}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
@@ -112,7 +116,16 @@ li:first-child{border-top:0}
     <button role="tab" id="tabL" aria-selected="true" type="button">Lançamentos</button>
     <button role="tab" id="tabR" aria-selected="false" type="button">Resumo</button>
     <button role="tab" id="tabP" aria-selected="false" type="button">Painel</button>
+    <button role="tab" id="tabA" aria-selected="false" type="button" hidden>Aprovar<span id="aBadge" class="badge" hidden></span></button>
     <button role="tab" id="tabE" aria-selected="false" type="button">Listas</button>
+  </div>
+  <div id="vA" hidden>
+    <section class="panel" id="aPerm" hidden style="margin-bottom:16px;border-top:4px solid var(--warn)">
+      <h2>Ativar leitura das notificações</h2>
+      <p class="meta" style="margin:0 0 12px">Para as compras do PicPay aparecerem aqui sozinhas, permita que o Controle de gastos leia as notificações. Na tela que abrir, ative "Controle de gastos".</p>
+      <button class="btn" id="aAtivar" type="button" style="margin:0">Abrir configuração</button>
+    </section>
+    <section class="panel"><h2>Aprovar transações</h2><p class="meta" style="margin:-6px 0 12px">Compras avisadas pelo PicPay. Confira, ajuste se precisar e confirme para virar lançamento.</p><div id="aLista"></div></section>
   </div>
   <div id="vE" hidden>
     <section class="panel"><h2>Categorias</h2><p class="meta" style="margin:0 0 12px">Toque na bolinha para mudar a cor.</p><div class="ed" id="eCat"></div>
@@ -310,9 +323,9 @@ function lanca(tp){
 $("add").onclick=()=>lanca("out");$("addR").onclick=()=>lanca("in");
 ["mes","fcat","fpag","ftipo"].forEach(i=>$(i).onchange=render);
 
-function aba(x){["L","R","P","E"].forEach(k=>{$("tab"+k).setAttribute("aria-selected",k===x);$("v"+k).hidden=k!==x});if(x==="E")editor();try{localStorage.setItem(KEY+"-aba",x)}catch(e){}}
-$("tabL").onclick=()=>aba("L");$("tabP").onclick=()=>aba("P");$("tabR").onclick=()=>aba("R");$("tabE").onclick=()=>aba("E");
-try{const a=localStorage.getItem(KEY+"-aba");if(a==="p"||a==="P")setTimeout(()=>aba("P"));else if(a==="E"||a==="R")setTimeout(()=>aba(a))}catch(e){}
+function aba(x){["L","R","P","A","E"].forEach(k=>{$("tab"+k).setAttribute("aria-selected",k===x);$("v"+k).hidden=k!==x});if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor();try{localStorage.setItem(KEY+"-aba",x)}catch(e){}}
+$("tabL").onclick=()=>aba("L");$("tabP").onclick=()=>aba("P");$("tabR").onclick=()=>aba("R");$("tabA").onclick=()=>aba("A");$("tabE").onclick=()=>aba("E");
+try{const a=localStorage.getItem(KEY+"-aba");if(a==="p"||a==="P")setTimeout(()=>aba("P"));else if(a==="E"||a==="R"||a==="A")setTimeout(()=>aba(a))}catch(e){}
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const curto=n=>n>=1000?"R$ "+(n/1000).toFixed(n>=10000?0:1).replace(".",",")+"k":"R$ "+Math.round(n);
@@ -580,6 +593,59 @@ function resumo(){
     li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"")+" · "+br(i.data);ul.appendChild(li)});
   if(ord.length>200){const li=document.createElement("li");li.className="empty";li.textContent="Mostrando os 200 mais recentes de "+ord.length+".";ul.appendChild(li)}
 }
+const TEM_NOTIF=!!(AND&&typeof AND.getNotifs==="function");
+if(TEM_NOTIF){$("tabA").hidden=false;document.documentElement.style.setProperty("--nt",5)}
+let aEdit={};
+function parseNotif(n){
+  const t=(n.titulo+" "+n.texto).replace(/\s+/g," ");
+  const mv=t.match(/R\$\s*([\d.]+,\d{2})/);const valor=mv?centavos(mv[1])/100:0;
+  let loja="";
+  const pats=[/\bem\s+(.+?)(?:\s+(?:no|na|com|foi|via|às|as|em)\b|[.,!]|\s+R\$|$)/i,/\bpara\s+(.+?)(?:[.,!]|\s+R\$|$)/i,/(?:estabelecimento|loja)[:\s]+(.+?)(?:[.,!]|$)/i];
+  for(const re of pats){const m=n.texto.match(re)||t.match(re);if(m&&m[1]&&!/R\$/.test(m[1])&&m[1].length<50){loja=m[1].trim();break}}
+  const pag=/cr[eé]dito/i.test(t)?"Cartão de crédito":/pix/i.test(t)&&!/cart[aã]o/i.test(t)?"Pix":"Cartão de débito";
+  const tipo=/recebe|recebid|caiu|dep[oó]sito/i.test(t)&&!/compra/i.test(t)?"in":"out";
+  const d=new Date(Number(n.ts)||Date.now());
+  const desc=(loja||n.titulo||"Compra PicPay").slice(0,60);
+  const ant=ultDesc&&ultDesc[tipo+"|"+desc];
+  return{id:n.id,tipo,desc,valor,data:iso(d),hora:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),cat:tipo==="in"?"Receita":(ant&&CATS[ant.cat]?ant.cat:"Outros"),pag,raw:(n.titulo?n.titulo+" — ":"")+n.texto};
+}
+function lerNotifs(){if(!TEM_NOTIF)return[];try{return JSON.parse(AND.getNotifs()||"[]")}catch(e){return[]}}
+window.atualizaAprovar=function(){
+  if(!TEM_NOTIF)return;
+  const ns=lerNotifs();const b=$("aBadge");b.hidden=!ns.length;b.textContent=ns.length;
+  let perm=true;try{perm=AND.notifPermitida()}catch(e){}
+  $("aPerm").hidden=perm;
+  const box=$("aLista");if(!box||$("vA").hidden&&box.childElementCount)return;
+  box.innerHTML="";
+  if(!ns.length){box.innerHTML='<p class="empty">Nenhuma transação para aprovar. As compras do PicPay aparecem aqui quando chegar a notificação.</p>';return}
+  ns.slice().sort((a,b)=>b.ts-a.ts).forEach(n=>{
+    const it=aEdit[n.id]||parseNotif(n);aEdit[n.id]=it;
+    const c=document.createElement("div");c.className="apr";
+    const L=it.tipo==="in"?PAGS_IN:PAGS,opts=(arr,v)=>{const a=arr.slice();if(v&&!a.includes(v))a.unshift(v);return a.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")};
+    c.innerHTML=`<div class="raw"></div>
+      <div><label>Descrição</label><input class="aDesc" maxlength="60"></div>
+      <div class="row2" style="margin:0"><div><label>Valor</label><input class="aVal money" type="text" inputmode="numeric" autocomplete="off"></div><div><label>Data</label><input class="aData" type="date"></div></div>
+      <div class="row2" style="margin:0"><div><label>Tipo</label><select class="aTipo"><option value="out"${it.tipo==="out"?" selected":""}>Gasto</option><option value="in"${it.tipo==="in"?" selected":""}>Receita</option></select></div>${it.tipo==="out"?`<div><label>Categoria</label><select class="aCat">${opts(Object.keys(CATS),it.cat)}</select></div>`:""}</div>
+      <div><label>${it.tipo==="in"?"Forma de recebimento":"Forma de pagamento"}</label><select class="aPag">${opts(L,it.pag)}</select></div>
+      <div style="display:flex;gap:8px"><button type="button" class="btn aOk" style="margin:0;background:var(--in);color:#fff">Confirmar</button><button type="button" class="ghost aNo" style="min-height:46px;padding:0 16px;color:var(--out);border-color:var(--out)">Excluir</button></div>
+      <p class="meta aMsg" style="margin:0"></p>`;
+    const q=k=>c.querySelector(k);
+    q(".raw").textContent="Notificação: "+it.raw;q(".aDesc").value=it.desc;q(".aData").value=it.data;q(".aVal").value=it.valor?brl(it.valor):"";
+    const v=q(".aVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v);it.valor=centavos(v.value)/100});
+    q(".aDesc").oninput=()=>{it.desc=q(".aDesc").value};q(".aData").onchange=()=>{it.data=q(".aData").value};
+    q(".aPag").onchange=()=>{it.pag=q(".aPag").value};if(q(".aCat"))q(".aCat").onchange=()=>{it.cat=q(".aCat").value};
+    q(".aTipo").onchange=()=>{it.tipo=q(".aTipo").value;it.cat=it.tipo==="in"?"Receita":"Outros";it.pag=(it.tipo==="in"?PAGS_IN:PAGS)[0];atualizaAprovar()};
+    q(".aOk").onclick=()=>{
+      it.desc=q(".aDesc").value.trim();it.valor=centavos(v.value)/100;it.data=q(".aData").value;
+      if(!it.desc||!(it.valor>0)||!it.data){q(".aMsg").textContent="Preencha descrição, valor e data.";return}
+      const novo={id:Date.now()+Math.random(),tipo:it.tipo,desc:it.desc,valor:it.valor,data:it.data,hora:it.hora||"",cat:it.tipo==="in"?"Receita":(q(".aCat")?q(".aCat").value:it.cat),pag:q(".aPag").value};
+      S.items.push(novo);grava(novo);AND.removerNotif(n.id);delete aEdit[n.id];render();atualizaAprovar();
+    };
+    let cf=false;q(".aNo").onclick=()=>{if(!cf){cf=true;q(".aNo").textContent="Confirmar exclusão";setTimeout(()=>{cf=false;q(".aNo").textContent="Excluir"},4000);return}AND.removerNotif(n.id);delete aEdit[n.id];atualizaAprovar()};
+    box.appendChild(c);
+  });
+};
+if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEventListener("visibilitychange",()=>{if(!document.hidden)atualizaAprovar()});setInterval(()=>{if(document.hidden)return;const n=lerNotifs().length;if(String(n)!==($("aBadge").hidden?"0":$("aBadge").textContent))atualizaAprovar()},5000)}
 function render(){
   resumo();
   listaDesc();
@@ -843,6 +909,7 @@ function gerarCSV(itens){
   }catch(e){}
 })();
 render();
+try{atualizaAprovar()}catch(e){}
 if(OFFLINE){msgFila();$("online").onclick=()=>AND.irOnline()}
 (async()=>{
   try{

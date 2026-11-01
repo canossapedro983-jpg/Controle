@@ -86,6 +86,8 @@ public class MainActivity extends Activity {
     super.onDestroy();
   }
 
+  @Override protected void onResume() { super.onResume(); if (web != null) web.evaluateJavascript("window.atualizaAprovar&&atualizaAprovar()", null); }
+
   @Override protected void onPause() { super.onPause(); CookieManager.getInstance().flush(); }
 
   @Override protected void onActivityResult(int req, int res, Intent data) {
@@ -98,6 +100,25 @@ public class MainActivity extends Activity {
   @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 
   class Ponte {
+    @JavascriptInterface public String getNotifs() { return prefs.getString("notifs", "[]"); }
+    @JavascriptInterface public void removerNotif(String id) {
+      synchronized (NotifService.class) {
+        try {
+          org.json.JSONArray a = new org.json.JSONArray(prefs.getString("notifs", "[]")), b = new org.json.JSONArray();
+          org.json.JSONArray v = new org.json.JSONArray(prefs.getString("notifsVistas", "[]"));
+          for (int i = 0; i < a.length(); i++) { org.json.JSONObject o = a.getJSONObject(i); if (id.equals(o.optString("id"))) v.put(o.optString("chave")); else b.put(o); }
+          org.json.JSONArray v2 = new org.json.JSONArray(); for (int i = Math.max(0, v.length() - 300); i < v.length(); i++) v2.put(v.get(i));
+          prefs.edit().putString("notifs", b.toString()).putString("notifsVistas", v2.toString()).commit();
+        } catch (Exception e) { }
+      }
+    }
+    @JavascriptInterface public boolean notifPermitida() {
+      String s = android.provider.Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+      return s != null && s.contains(getPackageName());
+    }
+    @JavascriptInterface public void abrirPermissaoNotif() {
+      runOnUiThread(() -> { try { startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")); } catch (Exception e) { } });
+    }
     @JavascriptInterface public boolean modoOffline() { return offline; }
     @JavascriptInterface public String getFila() { return prefs.getString("fila", "{}"); }
     @JavascriptInterface public void setFila(String s) { prefs.edit().putString("fila", s).commit(); }
