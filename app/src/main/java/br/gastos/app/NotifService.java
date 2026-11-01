@@ -9,6 +9,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class NotifService extends NotificationListenerService {
+  // Ao conectar, guarda também as notificações que já estão na barra (caso o serviço tenha reiniciado).
+  @Override public void onListenerConnected() {
+    try { StatusBarNotification[] ativas = getActiveNotifications(); if (ativas != null) for (StatusBarNotification s : ativas) onNotificationPosted(s); } catch (Exception e) { }
+  }
+
+  // Apagar a notificação da barra NÃO remove a transação pendente: ela só sai do app ao confirmar ou excluir na aba Aprovar.
+  @Override public void onNotificationRemoved(StatusBarNotification sbn) { }
+
   @Override public void onNotificationPosted(StatusBarNotification sbn) {
     try {
       String pkg = sbn.getPackageName();

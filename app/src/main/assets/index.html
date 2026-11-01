@@ -67,8 +67,17 @@ li:first-child{border-top:0}
 .budget{display:flex;gap:8px;margin-top:12px}
 .budget button{min-width:90px}
 [hidden]{display:none!important}
-.tabs button{position:relative}
-.badge{position:absolute;top:3px;right:3px;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--out);color:#fff;font-size:.7rem;margin-left:4px;padding:0 5px;vertical-align:middle}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.tabs button{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 16px;min-height:120px;cursor:pointer;color:var(--ink)}
+.tabs button svg{color:var(--in)}
+.tabs button b{font:700 1.05rem var(--display)}
+.tabs button small{color:var(--muted);font-size:.82rem;line-height:1.3}
+.tabs button:active{transform:scale(.98)}
+.topo{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.topo h2{margin:0;font-size:1.3rem}
+.home{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;flex:none}
+
+.badge{position:absolute;top:10px;right:10px;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--out);color:#fff;font-size:.7rem;margin-left:4px;padding:0 5px;vertical-align:middle}
 .apr{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;display:grid;gap:10px}
 .apr .raw{font-size:.82rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere}
 .info{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
@@ -77,17 +86,17 @@ li:first-child{border-top:0}
 .clk.sel{background:var(--bg);outline:2px solid var(--ink)}
 .dim{opacity:.35}
 #rEvo .hit{fill:transparent;cursor:pointer}
-#rPer button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-.tabs button{font-size:.88rem;padding:0 2px}
+#rPer button[aria-pressed="true"],#estPer button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
 .ac{position:relative}
 .money{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .sugs{overscroll-behavior:contain;touch-action:pan-y;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:222px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sugs li{padding:0 14px;min-height:44px;border-top:1px solid var(--line);cursor:pointer;gap:0}
 .sugs li:first-child{border-top:0}
 .sugs li:hover,.sugs li.on{background:var(--bg)}
-.tabs{display:grid;grid-template-columns:repeat(var(--nt,4),1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px;background:var(--surface)}
-.tabs button{border:0;background:transparent;min-height:44px;cursor:pointer;font-weight:700}
-.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+
+
+
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
 .kpi span{color:var(--muted);font-size:.85rem}.kpi b{display:block;font:700 1.35rem var(--display);margin-top:4px}
@@ -112,13 +121,14 @@ li:first-child{border-top:0}
     <div style="min-width:170px"><label for="mes" class="sr" style="position:absolute;left:-9999px">Mês</label><input type="month" id="mes"></div>
   </header>
 
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tabL" aria-selected="true" type="button">Lançamentos</button>
-    <button role="tab" id="tabR" aria-selected="false" type="button">Resumo</button>
-    <button role="tab" id="tabP" aria-selected="false" type="button">Painel</button>
-    <button role="tab" id="tabA" aria-selected="false" type="button">Aprovar<span id="aBadge" class="badge" hidden></span></button>
-    <button role="tab" id="tabE" aria-selected="false" type="button">Listas</button>
-  </div>
+  <nav class="tabs" id="menu" aria-label="Menu" hidden>
+    <button id="tabL" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><b>Lançamentos</b><small>Novo gasto, receita e extrato</small></button>
+    <button id="tabR" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Resumo</b><small>Dia, semana, mês e ano</small></button>
+    <button id="tabP" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg><b>Painel</b><small>Gráficos do mês</small></button>
+    <button id="tabA" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg><b>Aprovar</b><small>Compras do PicPay</small><span id="aBadge" class="badge" hidden></span></button>
+    <button id="tabE" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><b>Listas</b><small>Categorias e sugestões</small></button>
+  </nav>
+  <div class="topo" id="topo"><button class="home" id="home" type="button" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button><h2 id="topoT">Lançamentos</h2></div>
   <div id="vA" hidden>
     <section class="panel" id="aPerm" hidden style="margin-bottom:16px;border-top:4px solid var(--warn)">
       <h2>Ativar leitura das notificações</h2>
@@ -217,6 +227,16 @@ li:first-child{border-top:0}
     <section class="panel" aria-label="Gastos por categoria" style="grid-column:1/-1">
       <h2>Gastos por categoria</h2>
       <div id="cats"></div>
+    </section>
+    <section class="panel" aria-label="Estabelecimentos" style="grid-column:1/-1">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <h2 style="margin:0">Onde você mais compra</h2>
+        <div class="seg" role="group" aria-label="Período" id="estPer" style="margin:0;grid-template-columns:1fr 1fr;min-width:170px">
+          <button type="button" data-v="m" aria-pressed="true">Este mês</button><button type="button" data-v="t" aria-pressed="false">Sempre</button>
+        </div>
+      </div>
+      <p class="meta" style="margin:0 0 8px">Toque num local para lançar um gasto nele.</p>
+      <ul id="estLista"></ul>
     </section>
   </div>
 
@@ -323,9 +343,18 @@ function lanca(tp){
 $("add").onclick=()=>lanca("out");$("addR").onclick=()=>lanca("in");
 ["mes","fcat","fpag","ftipo"].forEach(i=>$(i).onchange=render);
 
-function aba(x){["L","R","P","A","E"].forEach(k=>{$("tab"+k).setAttribute("aria-selected",k===x);$("v"+k).hidden=k!==x});if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor();try{localStorage.setItem(KEY+"-aba",x)}catch(e){}}
+const NOMES={L:"Lançamentos",R:"Resumo",P:"Painel",A:"Aprovar transações",E:"Listas"};
+function aba(x){
+  const menu=x==="M"||!NOMES[x];
+  $("menu").hidden=!menu;$("topo").hidden=menu;
+  ["L","R","P","A","E"].forEach(k=>$("v"+k).hidden=menu||k!==x);
+  if(!menu){$("topoT").textContent=NOMES[x];if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor()}
+  try{localStorage.setItem(KEY+"-aba",menu?"M":x)}catch(e){}
+  window.scrollTo(0,0);
+}
+$("home").onclick=()=>aba("M");
 $("tabL").onclick=()=>aba("L");$("tabP").onclick=()=>aba("P");$("tabR").onclick=()=>aba("R");$("tabA").onclick=()=>aba("A");$("tabE").onclick=()=>aba("E");
-try{const a=localStorage.getItem(KEY+"-aba");if(a==="p"||a==="P")setTimeout(()=>aba("P"));else if(a==="E"||a==="R"||a==="A")setTimeout(()=>aba(a))}catch(e){}
+
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const curto=n=>n>=1000?"R$ "+(n/1000).toFixed(n>=10000?0:1).replace(".",",")+"k":"R$ "+Math.round(n);
@@ -594,7 +623,6 @@ function resumo(){
   if(ord.length>200){const li=document.createElement("li");li.className="empty";li.textContent="Mostrando os 200 mais recentes de "+ord.length+".";ul.appendChild(li)}
 }
 const TEM_NOTIF=!!(AND&&typeof AND.getNotifs==="function");
-document.documentElement.style.setProperty("--nt",5);
 let PEND=[];
 let aEdit={};
 function parseNotif(n){
@@ -655,9 +683,26 @@ window.atualizaAprovar=function(){
   });
 };
 if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEventListener("visibilitychange",()=>{if(!document.hidden){subirNotifs();atualizaAprovar()}});setInterval(()=>{if(document.hidden)return;const n=lerNotifs().length+PEND.length;if(n&&COL&&lerNotifs().length)subirNotifs();if(String(n)!==($("aBadge").hidden?"0":$("aBadge").textContent))atualizaAprovar()},5000)}
+let estP="m";
+document.querySelectorAll("#estPer button").forEach(b=>b.onclick=()=>{estP=b.dataset.v;document.querySelectorAll("#estPer button").forEach(o=>o.setAttribute("aria-pressed",o===b));estabelecimentos()});
+function estabelecimentos(){
+  const mes=$("mes").value,g={};
+  S.items.forEach(i=>{if(i.tipo!=="out"||(estP==="m"&&i.data.slice(0,7)!==mes))return;const k=i.desc.trim();if(!k||oculta(k))return;const n=semAc(k);
+    if(!g[n])g[n]={nome:k,n:0,v:0,cat:i.cat,ult:i.data};const o=g[n];o.n++;o.v+=i.valor;if(i.data>=o.ult){o.ult=i.data;o.nome=k;o.cat=i.cat}});
+  const top=Object.values(g).sort((a,b)=>b.n-a.n||b.v-a.v).slice(0,10);
+  const ul=$("estLista");ul.innerHTML="";
+  if(!top.length){ul.innerHTML='<li class="empty">Nenhum gasto '+(estP==="m"?"neste mês":"ainda")+'.</li>';return}
+  const mx=top[0].n;
+  top.forEach((o,k)=>{const li=document.createElement("li");li.style.cursor="pointer";li.setAttribute("role","button");li.tabIndex=0;
+    li.innerHTML=`<span style="width:22px;color:var(--muted);font-weight:700;flex:none">${k+1}</span><div class="d"><span></span><small>${o.n} compra(s) · média ${brl(o.v/o.n)}</small><div class="bar" style="height:6px;margin-top:6px"><i style="width:${o.n/mx*100}%;background:${CATS[o.cat]||"var(--accent)"}"></i></div></div><span class="v out">${brl(o.v)}</span>`;
+    li.querySelector(".d span").textContent=o.nome;
+    li.onclick=()=>{$("desc").value=o.nome;const it=ultDesc["out|"+o.nome];if(it){if(CATS[it.cat])$("cat").value=it.cat;if(it.pag&&PAGS.includes(it.pag))$("pag").value=it.pag}$("desc").scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>$("valor").focus(),300)};
+    li.onkeydown=e=>{if(e.key==="Enter")li.click()};ul.appendChild(li)});
+}
 function render(){
   resumo();
   listaDesc();
+  estabelecimentos();
   const mes=$("mes").value;
   const doMes=S.items.filter(i=>i.data.slice(0,7)===mes);
   const rec=doMes.filter(i=>i.tipo==="in").reduce((a,i)=>a+i.valor,0);
