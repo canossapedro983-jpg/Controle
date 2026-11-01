@@ -20,13 +20,18 @@ public class NotifService extends NotificationListenerService {
   @Override public void onNotificationPosted(StatusBarNotification sbn) {
     try {
       String pkg = sbn.getPackageName();
-      if (pkg == null || !pkg.toLowerCase().contains("picpay")) return;
+      if (pkg == null) return;
+      String pk = pkg.toLowerCase();
+      boolean picpay = pk.contains("picpay");
+      boolean gmail = pk.equals("com.google.android.gm");
+      if (!picpay && !gmail) return;
       Bundle ex = sbn.getNotification().extras;
       String titulo = String.valueOf(ex.getCharSequence(Notification.EXTRA_TITLE, ""));
       CharSequence big = ex.getCharSequence(Notification.EXTRA_BIG_TEXT);
       String texto = String.valueOf(big != null ? big : ex.getCharSequence(Notification.EXTRA_TEXT, ""));
       String tudo = (titulo + " " + texto);
       if (!tudo.contains("R$")) return;
+      if (gmail && !tudo.toLowerCase().contains("pix")) return;
       SharedPreferences p = getSharedPreferences("gastos", MODE_PRIVATE);
       synchronized (NotifService.class) {
         JSONArray arr = new JSONArray(p.getString("notifs", "[]"));
@@ -40,6 +45,7 @@ public class NotifService extends NotificationListenerService {
         o.put("titulo", titulo);
         o.put("texto", texto);
         o.put("chave", chave);
+        o.put("pkg", pkg);
         arr.put(o);
         p.edit().putString("notifs", arr.toString()).commit();
       }
