@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Controle de gastos</title>
-<meta name="theme-color" content="#16241D">
+<meta name="theme-color" content="#0F1713">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -67,6 +67,7 @@ li:first-child{border-top:0}
 .budget{display:flex;gap:8px;margin-top:12px}
 .budget button{min-width:90px}
 [hidden]{display:none!important}
+:root[data-theme="dark"]{color-scheme:dark}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .tabs button{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 16px;min-height:120px;cursor:pointer;color:var(--ink)}
 .tabs button svg{color:var(--in)}
