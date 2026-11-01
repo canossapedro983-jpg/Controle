@@ -115,6 +115,18 @@ li:first-child{border-top:0}
 </style>
 </head>
 <body>
+<div id="login" hidden style="position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:16px;overflow:auto">
+  <div class="panel" style="width:100%;max-width:380px">
+    <h2 style="font-size:1.4rem">Controle de gastos</h2>
+    <p class="meta" style="margin:0 0 16px">Entre para ver seus lançamentos em qualquer aparelho.</p>
+    <label for="lgEmail">E-mail</label><input id="lgEmail" type="email" autocomplete="email" inputmode="email">
+    <div style="margin-top:12px"><label for="lgSenha">Senha</label><input id="lgSenha" type="password" autocomplete="current-password"></div>
+    <button class="btn" id="lgEntrar" type="button">Entrar</button>
+    <button class="ghost" id="lgCriar" type="button" style="width:100%;margin-top:8px;min-height:44px">Criar conta</button>
+    <button class="ghost" id="lgEsqueci" type="button" style="width:100%;margin-top:8px;min-height:36px;border:0">Esqueci a senha</button>
+    <p class="meta" id="lgMsg" role="status"></p>
+  </div>
+</div>
 <main>
   <header>
     <div><h1>Controle de gastos</h1><small id="sync" style="color:var(--muted)">Salvo só neste aparelho</small><button id="online" class="ghost" type="button" hidden style="display:block;margin-top:6px;color:var(--in);border-color:var(--in)">Internet voltou – sincronizar agora</button></div>
@@ -135,7 +147,7 @@ li:first-child{border-top:0}
       <p class="meta" style="margin:0 0 12px">Para as compras do PicPay e os Pix do Gmail aparecerem aqui sozinhos, permita que o Controle de gastos leia as notificações. Na tela que abrir, ative "Controle de gastos".</p>
       <button class="btn" id="aAtivar" type="button" style="margin:0">Abrir configuração</button>
     </section>
-    <section class="panel"><h2>Aprovar transações</h2><p class="meta" style="margin:-6px 0 12px">Compras avisadas pelo PicPay e Pix que chegam no Gmail. Confira, ajuste se precisar e confirme para virar lançamento.</p><div id="aLista"></div></section>
+    <section class="panel"><h2>Aprovar transações</h2><p class="meta" style="margin:-6px 0 12px">Compras avisadas pelo PicPay e Pix que chegam no Gmail. Confira, ajuste se precisar e confirme para virar lançamento.</p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="gBusca" type="button" style="min-height:40px">Buscar Pix no Gmail</button><small id="gMsg" style="color:var(--muted)"></small></div><div id="aLista"></div></section>
   </div>
   <div id="vE" hidden>
     <section class="panel"><h2>Categorias</h2><p class="meta" style="margin:0 0 12px">Toque na bolinha para mudar a cor.</p><div class="ed" id="eCat"></div>
@@ -145,6 +157,11 @@ li:first-child{border-top:0}
     <section class="panel" style="margin-top:16px"><h2>Descrições ocultas</h2><p class="meta" style="margin:0 0 12px">Não aparecem nas sugestões. Toque no × para voltar a mostrar. Na lista de sugestões, o × ao lado de cada uma esconde ela.</p><div class="ed" id="eOc"></div></section>
     <p class="meta" id="eMsg" role="status"></p>
     <button class="ghost" id="eReset" type="button" style="margin-top:8px">Voltar às listas padrão</button>
+    <section class="panel" style="margin-top:16px"><h2>Backup</h2><p class="meta" style="margin:0 0 12px">Guarda todos os lançamentos e listas num arquivo. Serve para levar seus dados para outro lugar.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" id="bkExp" type="button" style="min-height:44px">Baixar backup</button>
+      <label class="ghost" style="display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:0;cursor:pointer;color:var(--muted)">Importar backup<input id="bkImp" type="file" accept=".json,application/json" style="display:none"></label></div>
+      <p class="meta" id="bkMsg" role="status"></p>
+      <div id="contaBox" hidden style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px"><small id="contaEmail" style="color:var(--muted)"></small> <button class="ghost" id="sair" type="button">Sair da conta</button></div></section>
   </div>
   <div id="vR" hidden>
     <section class="panel">
@@ -639,7 +656,39 @@ function parseNotif(n){
   const ant=ultDesc&&ultDesc[tipo+"|"+desc];
   return{id:n.id,fonte:gm?"gmail":"picpay",tipo,desc,valor,data:iso(d),hora:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),cat:tipo==="in"?"Receita":(ant&&CATS[ant.cat]?ant.cat:"Outros"),pag,raw:(n.titulo?n.titulo+" — ":"")+n.texto};
 }
-function lerNotifs(){if(!TEM_NOTIF)return[];try{return JSON.parse(AND.getNotifs()||"[]")}catch(e){return[]}}
+function lerNotifs(){if(!TEM_NOTIF)return[];let a=[];try{a=JSON.parse(AND.getNotifs()||"[]")}catch(e){return[]}
+  // Pix do Gmail agora vem direto do Gmail; descarta as notificações do app Gmail para não duplicar.
+  return a}
+let gBuscando=false;
+function parsePixEmail(m){
+  const sub=m.subject||"",sn=(m.snippet||"").replace(/\s+/g," ");
+  const mv=sn.match(/R\$\s*([\d.]+,\d{2})/);const valor=mv?centavos(mv[1])/100:0;
+  const nm=sn.match(/Pix (?:para|de)\s+(.+?)\s+Valor/i);
+  const md=sn.match(/(\d{2})\/(\d{2})\/(\d{4})\s*às\s*(\d{2}:\d{2})/);
+  const tipo=/recebid/i.test(sub)?"in":"out";
+  const desc=(nm?nm[1].trim():/devolu/i.test(sub)?"Devolução Pix":"Pix").slice(0,60);
+  const ant=ultDesc&&ultDesc[tipo+"|"+desc];
+  return{fonte:"gmail",tipo,desc,valor,data:md?md[3]+"-"+md[2]+"-"+md[1]:today(),hora:md?md[4]:"",cat:tipo==="in"?"Receita":(ant&&CATS[ant.cat]?ant.cat:"Outros"),pag:"Pix",raw:sub+" — "+sn.slice(0,160)};
+}
+async function buscarGmail(manual){
+  const msg=t=>{const e=$("gMsg");if(e)e.textContent=t};
+  if(gBuscando)return;if(!(window.claude&&claude.use))return;if(!COL){if(manual)msg(OFFLINE?"Sem internet: a busca no Gmail volta quando você estiver online.":"Entre na sua conta para buscar no Gmail.");return}
+  gBuscando=true;msg("Buscando Pix no Gmail…");
+  try{
+    const mcp=await claude.use("mcp");if(!mcp){msg("Não foi possível acessar o Gmail daqui.");return}
+    const cfgRef=COL.doc("gmail");const cfg=(await cfgRef.get()).data()||{};
+    const vistos=new Set(cfg.vistos||[]);const desde=cfg.desde||today().slice(0,8).replace(/-/g,"/")+"01";
+    const res=await mcp.callTool("Gmail","search_threads",{query:"from:no-reply@picpay.com subject:pix after:"+desde,pageSize:50},{cache:false});
+    const ths=(res.payload&&res.payload.threads)||[];let novos=0;
+    for(const t of ths){for(const m of (t.messages||[])){const id=m.id||t.id;if(!id||vistos.has(id))continue;vistos.add(id);
+      const it=parsePixEmail(m);if(!(it.valor>0))continue;
+      const dup=S.items.some(x=>x.tipo===it.tipo&&Math.abs(x.valor-it.valor)<.005&&x.data===it.data);
+      await COL.doc("pend_g_"+id.replace(/[^0-9A-Za-z]/g,"")).set({...it,pendente:true,jaLancado:dup});novos++}}
+    await cfgRef.set({desde,vistos:[...vistos].slice(-500),ultima:new Date().toISOString()});
+    msg(novos?novos+" Pix novo(s) do Gmail para aprovar.":"Nenhum Pix novo no Gmail. Última busca: agora.");
+  }catch(e){msg(e&&e.code==="not_granted"||e&&e.code==="denied"?"Acesso ao Gmail não autorizado.":"Não foi possível buscar no Gmail agora.")}
+  finally{gBuscando=false}
+}
 let subindo=false;
 async function subirNotifs(){
   if(!TEM_NOTIF||!COL||subindo)return;subindo=true;
@@ -668,7 +717,7 @@ window.atualizaAprovar=function(){
       <div style="display:flex;gap:8px"><button type="button" class="btn aOk" style="margin:0;background:var(--in);color:#fff">Confirmar</button><button type="button" class="ghost aNo" style="min-height:46px;padding:0 16px;color:var(--out);border-color:var(--out)">Excluir</button></div>
       <p class="meta aMsg" style="margin:0"></p>`;
     const q=k=>c.querySelector(k);
-    q(".raw").textContent=(it.fonte==="gmail"?"E-mail (Gmail): ":"Notificação PicPay: ")+it.raw;q(".aDesc").value=it.desc;q(".aData").value=it.data;q(".aVal").value=it.valor?brl(it.valor):"";
+    q(".raw").textContent=(it.fonte==="gmail"?"E-mail (Gmail): ":"Notificação PicPay: ")+it.raw+(it.jaLancado?"  ⚠ Já existe um lançamento com esse valor nesse dia.":"");q(".aDesc").value=it.desc;q(".aData").value=it.data;q(".aVal").value=it.valor?brl(it.valor):"";
     const v=q(".aVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v);it.valor=centavos(v.value)/100});
     q(".aDesc").oninput=()=>{it.desc=q(".aDesc").value};q(".aData").onchange=()=>{it.data=q(".aData").value};
     q(".aPag").onchange=()=>{it.pag=q(".aPag").value};if(q(".aCat"))q(".aCat").onchange=()=>{it.cat=q(".aCat").value};
@@ -683,6 +732,8 @@ window.atualizaAprovar=function(){
     box.appendChild(c);
   });
 };
+$("gBusca").onclick=()=>buscarGmail(true);if(!(window.claude&&claude.use))$("gBusca").hidden=true;
+setInterval(()=>{if(!document.hidden&&COL)buscarGmail(false)},10*60*1000);
 if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEventListener("visibilitychange",()=>{if(!document.hidden){subirNotifs();atualizaAprovar()}});setInterval(()=>{if(document.hidden)return;const n=lerNotifs().length+PEND.length;if(n&&COL&&lerNotifs().length)subirNotifs();if(String(n)!==($("aBadge").hidden?"0":$("aBadge").textContent))atualizaAprovar()},5000)}
 let estP="m";
 document.querySelectorAll("#estPer button").forEach(b=>b.onclick=()=>{estP=b.dataset.v;document.querySelectorAll("#estPer button").forEach(o=>o.setAttribute("aria-pressed",o===b));estabelecimentos()});
@@ -946,34 +997,90 @@ function gerarCSV(itens){
   });
   return "\uFEFF"+[cab.join(";")].concat(linhas).join("\r\n");
 }
-(async()=>{
+async function salvarArquivo(nome,texto,mime){
+  if(window.Android&&typeof Android.salvar==="function"){if(Android.salvar(nome,texto))return"Salvo na pasta Downloads.";throw new Error("falhou")}
+  if(window.claude&&claude.use){const dl=await claude.use("downloads");if(dl){await dl.save({filename:nome,data:texto});return"Arquivo salvo."}}
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([texto],{type:mime||"text/plain"}));a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);return"Arquivo baixado.";
+}
+$("exp").hidden=false;
+$("exp").onclick=async()=>{
+  if(!atual.length){$("expMsg").textContent="Não há lançamentos para exportar neste filtro.";return}
+  try{const m=await salvarArquivo("extrato-"+$("mes").value+".csv",gerarCSV(atual),"text/csv");$("expMsg").textContent=m+" "+atual.length+" lançamento(s)."}
+  catch(e){$("expMsg").textContent=e&&e.code==="declined"?"Exportação cancelada.":"Não foi possível exportar o extrato agora."}
+};
+// Backup completo
+$("bkExp").onclick=async()=>{
+  const dados={app:"controle-gastos",versao:1,gerado:new Date().toISOString(),items:S.items,listas:listasAtuais()};
+  try{$("bkMsg").textContent=await salvarArquivo("backup-gastos-"+today()+".json",JSON.stringify(dados),"application/json")+" "+S.items.length+" lançamento(s)."}
+  catch(e){$("bkMsg").textContent=e&&e.code==="declined"?"Cancelado.":"Não foi possível salvar o backup."}
+};
+$("bkImp").onchange=async()=>{
+  const f=$("bkImp").files[0];if(!f)return;
   try{
-    if(!(window.claude&&claude.use))return;
-    const dl=await claude.use("downloads");
-    if(!dl)return;
-    $("exp").hidden=false;
-    $("exp").onclick=async()=>{
-      if(!atual.length){$("expMsg").textContent="Não há lançamentos para exportar neste filtro.";return}
-      try{
-        await dl.save({filename:"extrato-"+$("mes").value+".csv",data:gerarCSV(atual)});
-        $("expMsg").textContent="Extrato exportado: "+atual.length+" lançamento(s).";
-      }catch(e){
-        $("expMsg").textContent=e&&e.code==="declined"?"Exportação cancelada.":"Não foi possível exportar o extrato agora.";
-      }
-    };
-  }catch(e){}
-})();
+    const d=JSON.parse(await f.text());if(!d||!Array.isArray(d.items))throw 0;
+    const ids=new Set(S.items.map(i=>String(i.id))),novos=d.items.filter(i=>i&&i.data&&i.tipo&&!ids.has(String(i.id)));
+    $("bkMsg").textContent="Importando "+novos.length+" lançamento(s)…";
+    S.items.push(...novos);if(!COL)save();
+    for(let k=0;k<novos.length;k++){await grava(novos[k]);if(k%20===0)$("bkMsg").textContent="Importando… "+(k+1)+"/"+novos.length}
+    if(d.listas){aplicaListas(d.listas);await gravaListas()}
+    render();$("bkMsg").textContent=novos.length+" lançamento(s) importado(s)"+(d.items.length-novos.length?"; "+(d.items.length-novos.length)+" já existiam":"")+".";
+  }catch(e){$("bkMsg").textContent="Arquivo de backup inválido."}
+  $("bkImp").value="";
+};
 render();
 try{atualizaAprovar()}catch(e){}
 if(OFFLINE){msgFila();$("online").onclick=()=>AND.irOnline()}
+const SB_URL="https://gpjsvrvuchmicyiuczcf.supabase.co",SB_KEY="sb_publishable_WahALizhzR61l4AJniCPdA_Hcdeg3QP";
+function carregaSB(){return new Promise((ok,err)=>{if(window.supabase)return ok();const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js";s.onload=ok;s.onerror=err;document.head.appendChild(s)})}
+function colSupabase(SB,uid){
+  const snapOf=rows=>({docs:rows.map(r=>({id:r.id,data:()=>r.data}))});
+  const col={
+    doc:id=>({
+      async set(v){const {error}=await SB.from("docs").upsert({user_id:uid,id,data:v,updated_at:new Date().toISOString()});if(error)throw error},
+      async delete(){const {error}=await SB.from("docs").delete().eq("id",id);if(error)throw error},
+      async get(){const {data}=await SB.from("docs").select("data").eq("id",id).maybeSingle();return{exists:!!data,data:()=>data?data.data:undefined}}
+    }),
+    async get(){let rows=[],k=0;for(;;){const {data,error}=await SB.from("docs").select("id,data").range(k,k+999);if(error)throw error;rows=rows.concat(data);if(data.length<1000)break;k+=1000}return snapOf(rows)},
+    onSnapshot(cb,err){
+      let t=null,ocupado=false;
+      const load=async()=>{if(ocupado)return;ocupado=true;try{cb(await col.get())}catch(e){err&&err(e)}ocupado=false};
+      load();
+      SB.channel("docs-"+uid).on("postgres_changes",{event:"*",schema:"public",table:"docs",filter:"user_id=eq."+uid},()=>{clearTimeout(t);t=setTimeout(load,500)}).subscribe();
+      document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
+      setInterval(()=>{if(!document.hidden)load()},60000);
+    }
+  };
+  return col;
+}
+function telaLogin(SB){
+  return new Promise(ok=>{
+    const L=$("login");L.hidden=false;const m=t=>$("lgMsg").textContent=t;
+    const pega=()=>({email:$("lgEmail").value.trim(),password:$("lgSenha").value});
+    $("lgEntrar").onclick=async()=>{const c=pega();if(!c.email||!c.password)return m("Preencha e-mail e senha.");m("Entrando…");
+      const {data,error}=await SB.auth.signInWithPassword(c);
+      if(error)return m(/confirm/i.test(error.message)?"Confirme seu e-mail primeiro (veja sua caixa de entrada).":"E-mail ou senha incorretos.");
+      L.hidden=true;ok(data.user)};
+    $("lgCriar").onclick=async()=>{const c=pega();if(!c.email||c.password.length<6)return m("Use um e-mail válido e senha com pelo menos 6 caracteres.");m("Criando conta…");
+      const {data,error}=await SB.auth.signUp({...c,options:{emailRedirectTo:location.origin+location.pathname}});
+      if(error)return m(/registered/i.test(error.message)?"Esse e-mail já tem conta. Toque em Entrar.":"Não foi possível criar a conta: "+error.message);
+      if(data.session){L.hidden=true;ok(data.user)}else m("Conta criada! Abra o e-mail de confirmação que enviamos, toque no link e depois volte aqui e toque em Entrar.")};
+    $("lgEsqueci").onclick=async()=>{const e=$("lgEmail").value.trim();if(!e)return m("Digite seu e-mail acima.");await SB.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname});m("Se o e-mail tiver conta, enviamos um link para criar nova senha.")};
+  });
+}
 (async()=>{
   try{
     if(OFFLINE)return;
-    if(!(window.claude&&claude.use))return;
-    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
-    if(!db||!user)return;
-    const uid=await user.id();if(!uid)return;
-    const col=db.collection("data/users/"+uid);
+    syncMsg("Conectando…");
+    await carregaSB();
+    const SB=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    SB.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY"){const n=prompt("Digite a nova senha (mínimo 6 caracteres):");if(n&&n.length>=6)SB.auth.updateUser({password:n}).then(()=>alert("Senha alterada."))}});
+    let {data:{session}}=await SB.auth.getSession();
+    let user=session&&session.user;
+    if(!user)user=await telaLogin(SB);
+    const uid=user.id;
+    $("contaBox").hidden=false;$("contaEmail").textContent="Conta: "+user.email;
+    $("sair").onclick=async()=>{await SB.auth.signOut();try{localStorage.removeItem(KEY)}catch(e){}location.reload()};
+    const col=colSupabase(SB,uid);
     const snap=await col.get();
     const naNuvem=new Set();let temConfig=false;
     snap.docs.forEach(d=>{if(d.id==="config")temConfig=true;else naNuvem.add(d.id)});
@@ -1001,8 +1108,9 @@ if(OFFLINE){msgFila();$("online").onclick=()=>AND.irOnline()}
       if(AND)try{AND.salvarCache(JSON.stringify(S))}catch(e){}
       if(lis){aplicaListas(lis);if(!$("vE").hidden)editor()}
       syncMsg("Sincronizado com sua conta");render();try{subirNotifs();atualizaAprovar()}catch(e){}
+      if(!window._gIni){window._gIni=1;setTimeout(()=>buscarGmail(false),1500)}
     },()=>syncMsg("Sincronização interrompida. Recarregue a página."));
-  }catch(e){syncMsg("Salvo só neste aparelho")}
+  }catch(e){syncMsg("Sem conexão com o servidor. Salvo só neste aparelho.")}
 })();
 </script>
 </body>

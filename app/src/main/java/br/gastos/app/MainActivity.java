@@ -18,7 +18,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
-  static final String URL_ONLINE = "https://claude.ai/artifact/9RgL67QPKizYzvmnLLhWus";
+  static final String URL_ONLINE = "https://canossapedro983-jpg.github.io/Controle/";
   static final String URL_OFFLINE = "file:///android_asset/index.html";
   private WebView web;
   private ValueCallback<Uri[]> arquivoCb;
