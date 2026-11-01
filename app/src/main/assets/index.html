@@ -116,7 +116,7 @@ li:first-child{border-top:0}
     <button role="tab" id="tabL" aria-selected="true" type="button">Lançamentos</button>
     <button role="tab" id="tabR" aria-selected="false" type="button">Resumo</button>
     <button role="tab" id="tabP" aria-selected="false" type="button">Painel</button>
-    <button role="tab" id="tabA" aria-selected="false" type="button" hidden>Aprovar<span id="aBadge" class="badge" hidden></span></button>
+    <button role="tab" id="tabA" aria-selected="false" type="button">Aprovar<span id="aBadge" class="badge" hidden></span></button>
     <button role="tab" id="tabE" aria-selected="false" type="button">Listas</button>
   </div>
   <div id="vA" hidden>
@@ -594,7 +594,8 @@ function resumo(){
   if(ord.length>200){const li=document.createElement("li");li.className="empty";li.textContent="Mostrando os 200 mais recentes de "+ord.length+".";ul.appendChild(li)}
 }
 const TEM_NOTIF=!!(AND&&typeof AND.getNotifs==="function");
-if(TEM_NOTIF){$("tabA").hidden=false;document.documentElement.style.setProperty("--nt",5)}
+document.documentElement.style.setProperty("--nt",5);
+let PEND=[];
 let aEdit={};
 function parseNotif(n){
   const t=(n.titulo+" "+n.texto).replace(/\s+/g," ");
@@ -610,16 +611,24 @@ function parseNotif(n){
   return{id:n.id,tipo,desc,valor,data:iso(d),hora:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),cat:tipo==="in"?"Receita":(ant&&CATS[ant.cat]?ant.cat:"Outros"),pag,raw:(n.titulo?n.titulo+" — ":"")+n.texto};
 }
 function lerNotifs(){if(!TEM_NOTIF)return[];try{return JSON.parse(AND.getNotifs()||"[]")}catch(e){return[]}}
+let subindo=false;
+async function subirNotifs(){
+  if(!TEM_NOTIF||!COL||subindo)return;subindo=true;
+  try{for(const n of lerNotifs()){const it=parseNotif(n);await COL.doc("pend_"+String(n.id).replace(/[^0-9A-Za-z_]/g,"_")).set({...it,pendente:true});AND.removerNotif(n.id)}}catch(e){}
+  subindo=false;
+}
 window.atualizaAprovar=function(){
-  if(!TEM_NOTIF)return;
-  const ns=lerNotifs();const b=$("aBadge");b.hidden=!ns.length;b.textContent=ns.length;
-  let perm=true;try{perm=AND.notifPermitida()}catch(e){}
+  const loc=lerNotifs().map(n=>({n,it:null})),rem=PEND.map(v=>({n:{id:v._doc,ts:0},it:v,doc:v._doc}));
+  const todos=rem.concat(loc);
+  const b=$("aBadge");b.hidden=!todos.length;b.textContent=todos.length;
+  let perm=true;if(TEM_NOTIF){try{perm=AND.notifPermitida()}catch(e){}}
   $("aPerm").hidden=perm;
   const box=$("aLista");if(!box||$("vA").hidden&&box.childElementCount)return;
   box.innerHTML="";
-  if(!ns.length){box.innerHTML='<p class="empty">Nenhuma transação para aprovar. As compras do PicPay aparecem aqui quando chegar a notificação.</p>';return}
-  ns.slice().sort((a,b)=>b.ts-a.ts).forEach(n=>{
-    const it=aEdit[n.id]||parseNotif(n);aEdit[n.id]=it;
+  if(!todos.length){box.innerHTML='<p class="empty">Nenhuma transação para aprovar. As compras do PicPay aparecem aqui quando a notificação chega no celular com o APK.</p>';return}
+  todos.forEach(({n,it:base,doc})=>{
+    const it=aEdit[n.id]||(base?{...base}:parseNotif(n));aEdit[n.id]=it;
+    const tira=()=>{if(doc){PEND=PEND.filter(x=>x._doc!==doc);if(COL)COL.doc(doc).delete().catch(()=>{})}else AND.removerNotif(n.id)};
     const c=document.createElement("div");c.className="apr";
     const L=it.tipo==="in"?PAGS_IN:PAGS,opts=(arr,v)=>{const a=arr.slice();if(v&&!a.includes(v))a.unshift(v);return a.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")};
     c.innerHTML=`<div class="raw"></div>
@@ -639,13 +648,13 @@ window.atualizaAprovar=function(){
       it.desc=q(".aDesc").value.trim();it.valor=centavos(v.value)/100;it.data=q(".aData").value;
       if(!it.desc||!(it.valor>0)||!it.data){q(".aMsg").textContent="Preencha descrição, valor e data.";return}
       const novo={id:Date.now()+Math.random(),tipo:it.tipo,desc:it.desc,valor:it.valor,data:it.data,hora:it.hora||"",cat:it.tipo==="in"?"Receita":(q(".aCat")?q(".aCat").value:it.cat),pag:q(".aPag").value};
-      S.items.push(novo);grava(novo);AND.removerNotif(n.id);delete aEdit[n.id];render();atualizaAprovar();
+      S.items.push(novo);grava(novo);tira();delete aEdit[n.id];render();atualizaAprovar();
     };
-    let cf=false;q(".aNo").onclick=()=>{if(!cf){cf=true;q(".aNo").textContent="Confirmar exclusão";setTimeout(()=>{cf=false;q(".aNo").textContent="Excluir"},4000);return}AND.removerNotif(n.id);delete aEdit[n.id];atualizaAprovar()};
+    let cf=false;q(".aNo").onclick=()=>{if(!cf){cf=true;q(".aNo").textContent="Confirmar exclusão";setTimeout(()=>{cf=false;q(".aNo").textContent="Excluir"},4000);return}tira();delete aEdit[n.id];atualizaAprovar()};
     box.appendChild(c);
   });
 };
-if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEventListener("visibilitychange",()=>{if(!document.hidden)atualizaAprovar()});setInterval(()=>{if(document.hidden)return;const n=lerNotifs().length;if(String(n)!==($("aBadge").hidden?"0":$("aBadge").textContent))atualizaAprovar()},5000)}
+if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEventListener("visibilitychange",()=>{if(!document.hidden){subirNotifs();atualizaAprovar()}});setInterval(()=>{if(document.hidden)return;const n=lerNotifs().length+PEND.length;if(n&&COL&&lerNotifs().length)subirNotifs();if(String(n)!==($("aBadge").hidden?"0":$("aBadge").textContent))atualizaAprovar()},5000)}
 function render(){
   resumo();
   listaDesc();
@@ -941,11 +950,11 @@ if(OFFLINE){msgFila();$("online").onclick=()=>AND.irOnline()}
     }
     col.onSnapshot(q=>{
       const its=[];let bud=0,lis=null;
-      q.docs.forEach(d=>{const v=d.data();if(d.id==="config"){bud=Number(v.budget)||0;lis=v.listas||null}else if(v&&v.data)its.push({...v})});
+      const pd=[];q.docs.forEach(d=>{const v=d.data();if(d.id==="config"){bud=Number(v.budget)||0;lis=v.listas||null}else if(d.id.startsWith("pend_")){pd.push({...v,_doc:d.id})}else if(v&&v.data)its.push({...v})});PEND=pd;
       S={items:its,budget:bud};if(lis)S.listas=lis;save();
       if(AND)try{AND.salvarCache(JSON.stringify(S))}catch(e){}
       if(lis){aplicaListas(lis);if(!$("vE").hidden)editor()}
-      syncMsg("Sincronizado com sua conta");render();
+      syncMsg("Sincronizado com sua conta");render();try{subirNotifs();atualizaAprovar()}catch(e){}
     },()=>syncMsg("Sincronização interrompida. Recarregue a página."));
   }catch(e){syncMsg("Salvo só neste aparelho")}
 })();

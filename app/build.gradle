@@ -2,7 +2,7 @@ plugins{id 'com.android.application'}
 android{
   namespace 'br.gastos.app'
   compileSdk 34
-  defaultConfig{applicationId 'br.gastos.app';minSdk 24;targetSdk 34;versionCode 12;versionName "4.0"}
+  defaultConfig{applicationId 'br.gastos.app';minSdk 24;targetSdk 34;versionCode 13;versionName "4.1"}
   signingConfigs{fixa{storeFile file('gastos.jks');storePassword 'gastos123';keyAlias 'gastos';keyPassword 'gastos123'}}
   buildTypes{debug{signingConfig signingConfigs.fixa}}
   compileOptions{sourceCompatibility JavaVersion.VERSION_17;targetCompatibility JavaVersion.VERSION_17}
