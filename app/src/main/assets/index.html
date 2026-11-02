@@ -16,9 +16,9 @@
   --body:"DM Sans","Segoe UI",system-ui,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{font-size:16px;scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--body)}
 main{max-width:920px;margin:0 auto;padding:24px 16px 48px}
 h1,h2{font-family:var(--display);margin:0;letter-spacing:-.02em}
 h1{font-size:1.1rem;font-weight:700;color:var(--muted)}
@@ -85,6 +85,7 @@ li:first-child{border-top:0}
 #rPer button[aria-pressed="true"],#estPer button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 
 .ac{position:relative}
+html.privado .saldo,html.privado .v,html.privado .kpi b,html.privado .duo b,html.privado #saldoAnt b,html.privado .cat .t span:last-child{filter:blur(7px);user-select:none}
 .cfg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
 .cfg:first-of-type{border-top:0}
 .cfg b{display:block;font-weight:600}.cfg small{color:var(--muted);font-size:.82rem}
@@ -158,6 +159,18 @@ html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--l
       <div class="cfg"><div><b>Mostrar "Sua semana"</b><small>Resumo da semana passada no topo</small></div><label class="sw"><input type="checkbox" id="cSemana"><span></span></label></div>
       <div class="cfg"><div><b>Categoria automática</b><small>Usa a última categoria de cada estabelecimento</small></div><label class="sw"><input type="checkbox" id="cAuto"><span></span></label></div>
       <div class="cfg"><div><b>Pedir confirmação ao excluir</b><small>Toque duas vezes para apagar</small></div><label class="sw"><input type="checkbox" id="cConf"><span></span></label></div>
+    </section>
+    <section class="panel" style="margin-top:16px"><h2>Exibição</h2>
+      <div class="cfg"><div><b>Tamanho da letra</b><small>Para ler melhor</small></div><select id="cFonte"><option value="pequena">Pequena</option><option value="normal">Normal</option><option value="grande">Grande</option></select></div>
+      <div class="cfg"><div><b>Esconder valores</b><small>Borra saldos e valores (bom em público)</small></div><label class="sw"><input type="checkbox" id="cPriv"><span></span></label></div>
+      <div class="cfg"><div><b>Ordem dos lançamentos</b><small>Na lista de Lançamentos</small></div><select id="cOrdem"><option value="recentes">Mais recentes</option><option value="antigos">Mais antigos</option><option value="valor">Maior valor</option></select></div>
+      <div class="cfg"><div><b>Mostrar "Onde você mais compra"</b><small>Ranking de estabelecimentos</small></div><label class="sw"><input type="checkbox" id="cOnde"><span></span></label></div>
+    </section>
+    <section class="panel" style="margin-top:16px"><h2>Cálculos e importação</h2>
+      <div class="cfg"><div><b>Somar o que sobrou dos meses anteriores</b><small>Saldo acumulado de um mês para o outro</small></div><label class="sw"><input type="checkbox" id="cAcum"><span></span></label></div>
+      <div class="cfg"><div><b>Semana começa no</b><small>Usado em Resumo e "Sua semana"</small></div><select id="cSem"><option value="seg">Segunda</option><option value="dom">Domingo</option></select></div>
+      <div class="cfg"><div><b>Importar extrato a partir de</b><small>Data que já vem preenchida</small></div><select id="cImp"><option value="mes">Início do mês</option><option value="tudo">Importar tudo</option></select></div>
+      <div class="cfg" id="cGmailRow"><div><b>Buscar Pix no Gmail</b><small>Procura e-mails de Pix ao abrir o app</small></div><label class="sw"><input type="checkbox" id="cGmail"><span></span></label></div>
       <p class="meta" id="cMsg" role="status"></p>
     </section>
     <section class="panel" style="margin-top:16px" id="cNotif" hidden><h2>Leitura de notificações</h2><p class="meta" id="cNotifTxt" style="margin:0 0 12px"></p><button class="ghost" id="cNotifBtn" type="button" style="min-height:44px">Abrir configuração do Android</button></section>
@@ -347,7 +360,7 @@ async function gravaMeta(){if(!COL){save();return}try{await COL.doc("config").se
 
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 $("mes").value=today().slice(0,7);
-try{const d=localStorage.getItem(KEY+"-desde");$("desde").value=d!==null?d:today().slice(0,8)+"01"}catch(e){$("desde").value=today().slice(0,8)+"01"}
+function desdePadrao(){$("desde").value=PREFS.importa==="tudo"?"":today().slice(0,8)+"01"}
 $("data").value=today();$("dataR").value=today();
 let diaAberto=today();
 function viraDia(){
@@ -469,11 +482,11 @@ function aplicaListas(l){
   montaSelects();
 }
 let OCULTAS=["Compra realiza"];
-const PREFS_PADRAO={tema:"escuro",inicio:"L",pagPadrao:"Cartão de débito",pagPadraoR:"Pix",semana:true,auto:true,confirma:true};
+const PREFS_PADRAO={tema:"escuro",inicio:"L",pagPadrao:"Cartão de débito",pagPadraoR:"Pix",semana:true,auto:true,confirma:true,iniSemana:"seg",privado:false,fonte:"normal",acumula:true,onde:true,ordem:"recentes",importa:"mes",gmail:true};
 let PREFS={...PREFS_PADRAO};
-function aplicaTema(){const t=PREFS.tema==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"claro":"escuro"):PREFS.tema;document.documentElement.classList.toggle("claro",t==="claro")}
+function aplicaTema(){document.documentElement.classList.toggle("privado",!!PREFS.privado);document.documentElement.style.fontSize=PREFS.fonte==="grande"?"18px":PREFS.fonte==="pequena"?"14.5px":"";const t=PREFS.tema==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"claro":"escuro"):PREFS.tema;document.documentElement.classList.toggle("claro",t==="claro")}
 try{const p=JSON.parse(localStorage.getItem(KEY+"-prefs")||"null");if(p)PREFS={...PREFS_PADRAO,...p}}catch(e){}
-aplicaTema();
+aplicaTema();desdePadrao();
 const oculta=x=>{const n=semAc(x);return OCULTAS.some(h=>{const k=semAc(h);return k&&n.startsWith(k)})};
 function listasAtuais(){return{cats:{...CATS},pags:PAGS.slice(),sugs:SUG.slice(),pagsIn:PAGS_IN.slice(),sugsIn:SUG_IN.slice(),ocultas:OCULTAS.slice(),prefs:{...PREFS}}}
 async function gravaListas(){S.listas=listasAtuais();montaSelects();editor();render();if(OFFLINE){const f=lerFila();f.listas=S.listas;salvaFila(f);return}if(!COL){save();return}try{await COL.doc("config").set({budget:S.budget,listas:S.listas})}catch(e){syncMsg("Não foi possível sincronizar agora.")}}
@@ -591,7 +604,7 @@ const br=d=>d.slice(8)+"/"+d.slice(5,7);
 function intervalo(ref,p){
   const x=dt0(ref);
   if(p==="d")return[ref,ref];
-  if(p==="s"){const k=(x.getDay()+6)%7;const i=somaDias(ref,-k);return[i,somaDias(i,6)]}
+  if(p==="s"){const k=PREFS.iniSemana==="dom"?x.getDay():(x.getDay()+6)%7;const i=somaDias(ref,-k);return[i,somaDias(i,6)]}
   if(p==="m")return[iso(new Date(x.getFullYear(),x.getMonth(),1)),iso(new Date(x.getFullYear(),x.getMonth()+1,0))]
   return[x.getFullYear()+"-01-01",x.getFullYear()+"-12-31"];
 }
@@ -714,7 +727,7 @@ function parsePixEmail(m){
 }
 async function buscarGmail(manual){
   const msg=t=>{const e=$("gMsg");if(e)e.textContent=t};
-  if(gBuscando)return;if(!(window.claude&&claude.use))return;if(!COL){if(manual)msg(OFFLINE?"Sem internet: a busca no Gmail volta quando você estiver online.":"Entre na sua conta para buscar no Gmail.");return}
+  if(gBuscando||!PREFS.gmail)return;if(!(window.claude&&claude.use))return;if(!COL){if(manual)msg(OFFLINE?"Sem internet: a busca no Gmail volta quando você estiver online.":"Entre na sua conta para buscar no Gmail.");return}
   gBuscando=true;msg("Buscando Pix no Gmail…");
   try{
     const mcp=await claude.use("mcp");if(!mcp){msg("Não foi possível acessar o Gmail daqui.");return}
@@ -738,7 +751,7 @@ async function subirNotifs(){
   subindo=false;
 }
 const GS_URL="https://script.google.com/macros/s/AKfycbwtGNCrC2WN4B2wEWQyyxsw8n2b2UidlgdYbjlH0xGh7LcDqJL0txD40FOC70dGpeDF/exec";
-let gsUlt=0;function pedirBuscaGmail(){if(OFFLINE||Date.now()-gsUlt<20000)return;gsUlt=Date.now();try{fetch(GS_URL,{mode:"no-cors"}).catch(()=>{})}catch(e){}}
+let gsUlt=0;function pedirBuscaGmail(){if(OFFLINE||!PREFS.gmail||Date.now()-gsUlt<20000)return;gsUlt=Date.now();try{fetch(GS_URL,{mode:"no-cors"}).catch(()=>{})}catch(e){}}
 window.atualizaAprovar=function(){
   if(!$("vA").hidden)pedirBuscaGmail();
   const loc=lerNotifs().map(n=>({n,it:null})),rem=PEND.map(v=>({n:{id:v._doc,ts:0},it:v,doc:v._doc}));
@@ -786,6 +799,7 @@ if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEve
 let estP="m";
 document.querySelectorAll("#estPer button").forEach(b=>b.onclick=()=>{estP=b.dataset.v;document.querySelectorAll("#estPer button").forEach(o=>o.setAttribute("aria-pressed",o===b));estabelecimentos()});
 function estabelecimentos(){
+  const sec=$("estLista").closest("section");if(sec)sec.hidden=!PREFS.onde;if(!PREFS.onde)return;
   const mes=$("mes").value,g={};
   S.items.forEach(i=>{if(i.tipo!=="out"||(estP==="m"&&i.data.slice(0,7)!==mes))return;const k=i.desc.trim();if(!k||oculta(k))return;const n=semAc(k);
     if(!g[n])g[n]={nome:k,n:0,v:0,cat:i.cat,ult:i.data};const o=g[n];o.n++;o.v+=i.valor;if(i.data>=o.ult){o.ult=i.data;o.nome=k;o.cat=i.cat}});
@@ -822,13 +836,13 @@ function resumoSemana(){
 function telaConfig(){
   const fill=(id,arr,v)=>{$(id).innerHTML="";arr.forEach(x=>{const o=document.createElement("option");o.value=o.textContent=x;$(id).appendChild(o)});$(id).value=v};
   fill("cfgPag",PAGS,PREFS.pagPadrao);fill("cfgPagR",PAGS_IN,PREFS.pagPadraoR);
-  $("cTema").value=PREFS.tema;$("cInicio").value=PREFS.inicio;$("cSemana").checked=PREFS.semana;$("cAuto").checked=PREFS.auto;$("cConf").checked=PREFS.confirma;
+  $("cTema").value=PREFS.tema;$("cFonte").value=PREFS.fonte;$("cOrdem").value=PREFS.ordem;$("cSem").value=PREFS.iniSemana;$("cImp").value=PREFS.importa;$("cPriv").checked=PREFS.privado;$("cOnde").checked=PREFS.onde;$("cAcum").checked=PREFS.acumula;$("cGmail").checked=PREFS.gmail;$("cInicio").value=PREFS.inicio;$("cSemana").checked=PREFS.semana;$("cAuto").checked=PREFS.auto;$("cConf").checked=PREFS.confirma;
   const tn=typeof TEM_NOTIF!=="undefined"&&TEM_NOTIF;$("cNotif").hidden=!tn;
   if(tn){let ok=true;try{ok=AND.notifPermitida()}catch(e){}$("cNotifTxt").textContent=ok?"Ativa: compras do PicPay e da Carteira do Google chegam na aba Aprovar.":"Desativada: ative para as compras chegarem sozinhas na aba Aprovar.";$("cNotifBtn").onclick=()=>AND.abrirPermissaoNotif()}
 }
-function salvaPrefs(){try{localStorage.setItem(KEY+"-prefs",JSON.stringify(PREFS))}catch(e){}aplicaTema();padraoPag();gravaListas();$("cMsg").textContent="Salvo.";setTimeout(()=>$("cMsg").textContent="",1500)}
-[["cTema","tema"],["cInicio","inicio"],["cfgPag","pagPadrao"],["cfgPagR","pagPadraoR"]].forEach(([id,k])=>$(id).onchange=()=>{PREFS[k]=$(id).value;salvaPrefs()});
-[["cSemana","semana"],["cAuto","auto"],["cConf","confirma"]].forEach(([id,k])=>$(id).onchange=()=>{PREFS[k]=$(id).checked;salvaPrefs()});
+function salvaPrefs(){desdePadrao();render();try{localStorage.setItem(KEY+"-prefs",JSON.stringify(PREFS))}catch(e){}aplicaTema();padraoPag();gravaListas();$("cMsg").textContent="Salvo.";setTimeout(()=>$("cMsg").textContent="",1500)}
+[["cTema","tema"],["cInicio","inicio"],["cfgPag","pagPadrao"],["cfgPagR","pagPadraoR"],["cFonte","fonte"],["cOrdem","ordem"],["cSem","iniSemana"],["cImp","importa"]].forEach(([id,k])=>$(id).onchange=()=>{PREFS[k]=$(id).value;salvaPrefs()});
+[["cSemana","semana"],["cAuto","auto"],["cConf","confirma"],["cPriv","privado"],["cOnde","onde"],["cAcum","acumula"],["cGmail","gmail"]].forEach(([id,k])=>$(id).onchange=()=>{PREFS[k]=$(id).checked;salvaPrefs()});
 try{matchMedia("(prefers-color-scheme: light)").addEventListener("change",aplicaTema)}catch(e){}
 function render(){
   try{resumoSemana()}catch(e){}
@@ -839,10 +853,10 @@ function render(){
   const doMes=S.items.filter(i=>i.data.slice(0,7)===mes);
   const rec=doMes.filter(i=>i.tipo==="in").reduce((a,i)=>a+i.valor,0);
   const gas=doMes.filter(i=>i.tipo==="out").reduce((a,i)=>a+i.valor,0);
-  const ini=mes+"-01";let ant=0;S.items.forEach(i=>{if(i.data<ini)ant+=i.tipo==="in"?i.valor:-i.valor});
+  const ini=mes+"-01";let ant=0;if(PREFS.acumula)S.items.forEach(i=>{if(i.data<ini)ant+=i.tipo==="in"?i.valor:-i.valor});
   const sal=ant+rec-gas;
-  $("saldoLbl").textContent=mes===today().slice(0,7)?"Saldo atual":"Saldo no fim do mês";
-  $("saldoAnt").innerHTML=`Sobrou dos meses anteriores: <b class="${ant<0?"out":"in"}">${brl(ant)}</b>`;
+  $("saldoLbl").textContent=!PREFS.acumula?"Saldo do mês":mes===today().slice(0,7)?"Saldo atual":"Saldo no fim do mês";
+  $("saldoAnt").hidden=!PREFS.acumula;$("saldoAnt").innerHTML=`Sobrou dos meses anteriores: <b class="${ant<0?"out":"in"}">${brl(ant)}</b>`;
   $("resMes").textContent=(rec-gas>0?"+ ":"")+brl(rec-gas);$("resMes").className=rec-gas<0?"out":"in";
   $("rec").textContent=brl(rec);$("gas").textContent=brl(gas);
   $("saldo").textContent=brl(sal);$("saldo").classList.toggle("neg",sal<0);
@@ -855,7 +869,7 @@ function render(){
 
   painel(mes);
   const fc=$("fcat").value,ft=$("ftipo").value,fp=$("fpag").value;
-  const lista=doMes.filter(i=>(!fc||i.cat===fc)&&(!fp||i.pag===fp)&&(!ft||i.tipo===ft)).sort((a,b)=>(b.data+(b.hora||"")).localeCompare(a.data+(a.hora||"")));
+  const lista=doMes.filter(i=>(!fc||i.cat===fc)&&(!fp||i.pag===fp)&&(!ft||i.tipo===ft)).sort(PREFS.ordem==="antigos"?(a,b)=>(a.data+(a.hora||"")).localeCompare(b.data+(b.hora||"")):PREFS.ordem==="valor"?(a,b)=>b.valor-a.valor:(a,b)=>(b.data+(b.hora||"")).localeCompare(a.data+(a.hora||"")));
   atual=lista;
   const ul=$("lista");ul.innerHTML="";
   if(!lista.length){ul.innerHTML='<li class="empty">Nenhum lançamento encontrado. Adicione o primeiro ao lado.</li>';return}
@@ -1016,7 +1030,7 @@ async function ler(){
   if(!t||!t.trim()){$("prev").innerHTML='<p class="meta">Escolha um arquivo ou cole o texto do extrato.</p>';return}
   const cru=ehPdf?lerPDF(t):/<STMTTRN>/i.test(t)?lerOFX(t):lerCSV(t);
   const ok0=cru.filter(r=>r.data&&!isNaN(r.v)&&r.v!==0&&!/^saldo/i.test(r.desc));
-  const desde=$("desde").value;try{localStorage.setItem(KEY+"-desde",desde)}catch(e){}
+  const desde=$("desde").value;
   const ok=desde?ok0.filter(r=>r.data>=desde):ok0,antes=ok0.length-ok.length;
   const ja=new Set(S.items.map(chave));
   let dup=0;
