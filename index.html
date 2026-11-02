@@ -204,6 +204,13 @@ li:first-child{border-top:0}
     <section class="panel" style="margin-top:16px"><h2>Maiores gastos do mês</h2><ul id="top"></ul></section>
   </div>
   <div id="vL">
+  <section class="panel" id="semBox" hidden aria-label="Resumo da semana" style="margin-bottom:16px;border-top:4px solid var(--in)">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="margin:0">Sua semana</h2><button class="ghost" id="semX" type="button" aria-label="Fechar resumo da semana" style="width:36px">×</button></div>
+    <small id="semSub" style="color:var(--muted)"></small>
+    <div class="kpis" id="semKpis" style="margin-top:12px;grid-template-columns:repeat(2,1fr)"></div>
+    <p class="meta" id="semObs"></p>
+    <button class="ghost" id="semVer" type="button" style="min-height:40px">Ver detalhes no Resumo</button>
+  </section>
   <section class="hero" aria-label="Resumo do mês">
     <div style="color:var(--muted)" id="saldoLbl">Saldo</div>
     <div class="saldo" id="saldo">R$ 0,00</div>
@@ -492,6 +499,8 @@ const PAG_PADRAO="Cartão de débito";
 function padraoPag(){if(PAGS.includes(PAG_PADRAO))$("pag").value=PAG_PADRAO}
 padraoPag();
 let todasDesc={out:[],in:[]},ultDesc={};
+let CAT_LOJA={};
+function catDe(desc,padrao){const k=semAc(String(desc||"").trim());return CAT_LOJA[k]||padrao||"Outros"}
 function listaDesc(){
   const cont={out:{},in:{}},ult={};
   S.items.forEach(i=>{const k=i.desc.trim();if(!k)return;const c=cont[i.tipo]||cont.out;c[k]=(c[k]||0)+1;const u=i.tipo+"|"+k;if(!ult[u]||i.data>=ult[u].data)ult[u]=i});
@@ -501,6 +510,7 @@ function listaDesc(){
     todasDesc[t]=usadas.concat((t==="in"?SUG_IN:SUG).filter(x=>!vistos.has(x.toLowerCase())));
   });
   ultDesc=ult;filtraDesc("out");filtraDesc("in");
+  CAT_LOJA={};S.items.slice().sort((a,b)=>a.data.localeCompare(b.data)).forEach(i=>{if(i.tipo==="out"&&i.cat&&i.cat!=="Outros"&&CATS[i.cat])CAT_LOJA[semAc(i.desc.trim())]=i.cat});
 }
 const MAXD=()=>40;
 const semAc=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
@@ -714,7 +724,9 @@ window.atualizaAprovar=function(){
   box.innerHTML="";
   if(!todos.length){box.innerHTML='<p class="empty">Nenhuma transação para aprovar. Elas aparecem aqui quando chega a notificação do PicPay ou o e-mail de Pix no Gmail, no celular com o APK.</p>';return}
   todos.forEach(({n,it:base,doc})=>{
-    const it=aEdit[n.id]||(base?{...base}:parseNotif(n));aEdit[n.id]=it;
+    const it=aEdit[n.id]||(base?{...base}:parseNotif(n));
+    if(!aEdit[n.id]&&it.tipo==="out"&&(!it.cat||it.cat==="Outros")){const c=catDe(it.desc);if(c!=="Outros"){it.cat=c;it.catAuto=true}}
+    aEdit[n.id]=it;
     const tira=()=>{if(doc){PEND=PEND.filter(x=>x._doc!==doc);if(COL)COL.doc(doc).delete().catch(()=>{})}else AND.removerNotif(n.id)};
     const c=document.createElement("div");c.className="apr";
     const L=it.tipo==="in"?PAGS_IN:PAGS,opts=(arr,v)=>{const a=arr.slice();if(v&&!a.includes(v))a.unshift(v);return a.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")};
@@ -726,6 +738,7 @@ window.atualizaAprovar=function(){
       <div style="display:flex;gap:8px"><button type="button" class="btn aOk" style="margin:0;background:var(--in);color:#fff">Confirmar</button><button type="button" class="ghost aNo" style="min-height:46px;padding:0 16px;color:var(--out);border-color:var(--out)">Excluir</button></div>
       <p class="meta aMsg" style="margin:0"></p>`;
     const q=k=>c.querySelector(k);
+    if(it.catAuto&&q(".aCat"))q(".aCat").insertAdjacentHTML("afterend",'<small style="color:var(--muted)">Categoria automática</small>');
     q(".raw").textContent=(it.fonte==="gmail"?"E-mail (Gmail): ":it.fonte==="carteira"?"Carteira do Google: ":"Notificação PicPay: ")+it.raw+(it.jaLancado?"  ⚠ Já existe um lançamento com esse valor nesse dia.":"");q(".aDesc").value=it.desc;q(".aData").value=it.data;q(".aVal").value=it.valor?brl(it.valor):"";
     const v=q(".aVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v);it.valor=centavos(v.value)/100});
     q(".aDesc").oninput=()=>{it.desc=q(".aDesc").value};q(".aData").onchange=()=>{it.data=q(".aData").value};
@@ -760,7 +773,27 @@ function estabelecimentos(){
     li.onclick=()=>{$("desc").value=o.nome;const it=ultDesc["out|"+o.nome];if(it){if(CATS[it.cat])$("cat").value=it.cat;if(it.pag&&PAGS.includes(it.pag))$("pag").value=it.pag}$("desc").scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>$("valor").focus(),300)};
     li.onkeydown=e=>{if(e.key==="Enter")li.click()};ul.appendChild(li)});
 }
+function resumoSemana(){
+  const h=today(),[ini]=intervalo(h,"s"),a0=somaDias(ini,-7),a1=somaDias(ini,-1),b0=somaDias(ini,-14),b1=somaDias(ini,-8);
+  let dis="";try{dis=localStorage.getItem(KEY+"-semX")||""}catch(e){}
+  const its=S.items.filter(i=>i.tipo==="out"&&i.data>=a0&&i.data<=a1);
+  if(dis===a0||!S.items.some(i=>i.data<ini)){$("semBox").hidden=true;return}
+  const g=its.reduce((s,i)=>s+i.valor,0),gb=S.items.filter(i=>i.tipo==="out"&&i.data>=b0&&i.data<=b1).reduce((s,i)=>s+i.valor,0);
+  const rec=S.items.filter(i=>i.tipo==="in"&&i.data>=a0&&i.data<=a1).reduce((s,i)=>s+i.valor,0);
+  const pc={},pl={};its.forEach(i=>{pc[i.cat]=(pc[i.cat]||0)+i.valor;const k=i.desc.trim();pl[k]=(pl[k]||0)+1});
+  const tc=Object.entries(pc).sort((a,b)=>b[1]-a[1])[0],tl=Object.entries(pl).sort((a,b)=>b[1]-a[1])[0];
+  const v=gb>0?Math.round((g-gb)/gb*100):null;
+  $("semBox").hidden=false;$("semSub").textContent="Semana passada: "+br(a0)+" a "+br(a1);
+  $("semKpis").innerHTML=[["Gastos",brl(g),"out",v===null?"":(v>0?"▲ ":v<0?"▼ ":"")+Math.abs(v)+"% vs semana anterior"],["Receitas",brl(rec),"in",its.length+" compra(s)"]].map(([a,b,c,d])=>`<div class="kpi" style="padding:12px"><span>${a}</span><b class="${c}" style="font-size:1.1rem">${b}</b><small>${d}</small></div>`).join("");
+  let o=its.length?"":"Nenhum gasto na semana passada.";
+  if(tc)o+=`Mais gasto em ${tc[0]} (${brl(tc[1])}). `;if(tl&&tl[1]>1)o+=`Lugar mais frequente: ${tl[0]} (${tl[1]}x). `;
+  if(v!==null)o+=v>10?"Gastou mais que na semana anterior.":v<-10?"Boa! Gastou menos que na semana anterior.":"Gastos parecidos com a semana anterior.";
+  $("semObs").textContent=o.trim();
+  $("semX").onclick=()=>{try{localStorage.setItem(KEY+"-semX",a0)}catch(e){}$("semBox").hidden=true};
+  $("semVer").onclick=()=>{aba("R");irPara("s",a0)};
+}
 function render(){
+  try{resumoSemana()}catch(e){}
   resumo();
   listaDesc();
   estabelecimentos();
@@ -950,7 +983,7 @@ async function ler(){
   const ja=new Set(S.items.map(chave));
   let dup=0;
   ok.forEach(r=>{
-    const it={id:Date.now()+Math.random(),tipo:r.v>0?"in":"out",desc:(r.desc||"Sem descrição").slice(0,60),valor:Math.abs(r.v),data:r.data,hora:r.hora||"",cat:"Outros",pag:pagDe(r.desc||"")};
+    const it={id:Date.now()+Math.random(),tipo:r.v>0?"in":"out",desc:(r.desc||"Sem descrição").slice(0,60),valor:Math.abs(r.v),data:r.data,hora:r.hora||"",cat:r.v>0?"Outros":catDe(r.desc),pag:pagDe(r.desc||"")};
     const k=chave(it);
     if(ja.has(k)){dup++;return}
     pend.push(it);
