@@ -87,9 +87,15 @@ li:first-child{border-top:0}
 #rPer button[aria-pressed="true"],#estPer button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 
 .ac{position:relative}
+.semN{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.semN div{background:var(--bg);border-radius:10px;padding:10px}
+.semN span{display:block;font-size:.78rem;color:var(--muted)}
+.semN b{display:block;font:700 1.05rem var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.semVar{display:inline-block;margin-top:10px;font-size:.85rem;font-weight:600;padding:3px 10px;border-radius:99px}
+.semL{margin:10px 0 0;padding:0}.semL li{display:block;border:0;padding:3px 0;font-size:.9rem;color:var(--muted)}.semL li b{color:var(--ink);font-weight:600}
 #trTecl button{height:64px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1.4rem var(--display);cursor:pointer}
 #trPontos i{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);display:block}#trPontos i.on{background:var(--ink);border-color:var(--ink)}
-html.privado .saldo,html.privado .v,html.privado .kpi b,html.privado .duo b,html.privado #saldoAnt b,html.privado .cat .t span:last-child{filter:blur(7px);user-select:none}
+html.privado .saldo,html.privado .semN b,html.privado .v,html.privado .kpi b,html.privado .duo b,html.privado #saldoAnt b,html.privado .cat .t span:last-child{filter:blur(7px);user-select:none}
 .cfg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
 .cfg:first-of-type{border-top:0}
 .cfg b{display:block;font-weight:600}.cfg small{color:var(--muted);font-size:.82rem}
@@ -302,12 +308,15 @@ html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--l
     <section class="panel" style="margin-top:16px"><h2>Maiores gastos do mês</h2><ul id="top"></ul></section>
   </div>
   <div id="vL">
-  <section class="panel" id="semBox" hidden aria-label="Resumo da semana" style="margin-bottom:16px;border-top:4px solid var(--in)">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="margin:0">Sua semana</h2><button class="ghost" id="semX" type="button" aria-label="Fechar resumo da semana" style="width:36px">×</button></div>
-    <small id="semSub" style="color:var(--muted)"></small>
-    <div class="kpis" id="semKpis" style="margin-top:12px;grid-template-columns:repeat(2,1fr)"></div>
-    <p class="meta" id="semObs"></p>
-    <button class="ghost" id="semVer" type="button" style="min-height:40px">Ver detalhes no Resumo</button>
+  <section class="panel" id="semBox" hidden aria-label="Resumo da semana" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div><h2 style="margin:0">Sua semana</h2><small id="semSub" style="color:var(--muted)"></small></div>
+      <button class="ghost" id="semX" type="button" aria-label="Fechar resumo da semana" style="width:36px;min-height:36px;padding:0;flex:none">×</button>
+    </div>
+    <div class="semN" id="semKpis"></div>
+    <div id="semVar"></div>
+    <ul class="semL" id="semObs"></ul>
+    <button class="ghost" id="semVer" type="button" style="width:100%;min-height:42px;margin-top:12px">Ver detalhes no Resumo</button>
   </section>
   <section class="hero" aria-label="Resumo do mês">
     <div style="color:var(--muted)" id="saldoLbl">Saldo</div>
@@ -903,12 +912,15 @@ function resumoSemana(){
   const pc={},pl={};its.forEach(i=>{pc[i.cat]=(pc[i.cat]||0)+i.valor;const k=i.desc.trim();pl[k]=(pl[k]||0)+1});
   const tc=Object.entries(pc).sort((a,b)=>b[1]-a[1])[0],tl=Object.entries(pl).sort((a,b)=>b[1]-a[1])[0];
   const v=gb>0?Math.round((g-gb)/gb*100):null;
-  $("semBox").hidden=false;$("semSub").textContent="Semana passada: "+br(a0)+" a "+br(a1);
-  $("semKpis").innerHTML=[["Gastos",brl(g),"out",v===null?"":(v>0?"▲ ":v<0?"▼ ":"")+Math.abs(v)+"% vs semana anterior"],["Receitas",brl(rec),"in",its.length+" compra(s)"]].map(([a,b,c,d])=>`<div class="kpi" style="padding:12px"><span>${a}</span><b class="${c}" style="font-size:1.1rem">${b}</b><small>${d}</small></div>`).join("");
-  let o=its.length?"":"Nenhum gasto na semana passada.";
-  if(tc)o+=`Mais gasto em ${tc[0]} (${brl(tc[1])}). `;if(tl&&tl[1]>1)o+=`Lugar mais frequente: ${tl[0]} (${tl[1]}x). `;
-  if(v!==null)o+=v>10?"Gastou mais que na semana anterior.":v<-10?"Boa! Gastou menos que na semana anterior.":"Gastos parecidos com a semana anterior.";
-  $("semObs").textContent=o.trim();
+  $("semBox").hidden=false;$("semSub").textContent=br(a0)+" a "+br(a1);
+  $("semKpis").innerHTML=`<div><span>Gastos</span><b class="out">${brl(g)}</b></div><div><span>Receitas</span><b class="in">${brl(rec)}</b></div><div><span>Compras</span><b>${its.length}</b></div>`;
+  $("semVar").innerHTML=v===null?"":`<span class="semVar" style="background:${v>0?"color-mix(in srgb,var(--out) 18%,transparent)":"color-mix(in srgb,var(--in) 18%,transparent)"};color:${v>0?"var(--out)":"var(--in)"}">${v>0?"▲":"▼"} ${Math.abs(v)}% vs semana anterior</span>`;
+  const ob=[];
+  if(!its.length)ob.push("Nenhum gasto na semana passada.");
+  if(tc)ob.push(`Mais gasto em <b>${esc(tc[0])}</b> · ${brl(tc[1])}`);
+  if(tl&&tl[1]>1)ob.push(`Lugar mais frequente: <b>${esc(tl[0])}</b> · ${tl[1]}x`);
+  if(v!==null)ob.push(v>10?"Gastou mais que na semana anterior.":v<-10?"Boa! Gastou menos que na semana anterior.":"Gastos parecidos com a semana anterior.");
+  $("semObs").innerHTML=ob.map(t=>`<li>${t}</li>`).join("");
   $("semX").onclick=()=>{try{localStorage.setItem(KEY+"-semX",a0)}catch(e){}$("semBox").hidden=true};
   $("semVer").onclick=()=>{aba("R");irPara("s",a0)};
 }
