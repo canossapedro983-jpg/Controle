@@ -90,6 +90,17 @@ li:first-child{border-top:0}
 #rPer button[aria-pressed="true"],#estPer button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 
 .ac{position:relative}
+.cfg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.cfg:first-of-type{border-top:0}
+.cfg b{display:block;font-weight:600}.cfg small{color:var(--muted);font-size:.82rem}
+.cfg select{width:auto;max-width:48%;min-width:140px}
+.sw{position:relative;width:52px;height:30px;flex:none;margin:0}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw span{position:absolute;inset:0;border-radius:99px;background:var(--track);border:1px solid var(--line);cursor:pointer;transition:.2s}
+.sw span:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:.2s}
+.sw input:checked+span{background:var(--in)}.sw input:checked+span:before{transform:translateX(22px);background:#fff}
+.sw input:focus-visible+span{outline:3px solid var(--in);outline-offset:2px}
+html.claro{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--line:#D6DED9;--in:#1B7F4F;--out:#C23B32;--accent:#16241D;--accent-ink:#FFFFFF;--warn:#B7791F;--track:#E1E8E3;color-scheme:light}
 .money{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .sugs{overscroll-behavior:contain;touch-action:pan-y;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:222px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sugs li{padding:0 14px;min-height:44px;border-top:1px solid var(--line);cursor:pointer;gap:0}
@@ -140,8 +151,28 @@ li:first-child{border-top:0}
     <button id="tabP" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg><b>Painel</b><small>Gráficos do mês</small></button>
     <button id="tabA" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg><b>Aprovar</b><small>Cartão (Carteira do Google), PicPay e Pix</small><span id="aBadge" class="badge" hidden></span></button>
     <button id="tabE" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><b>Listas</b><small>Categorias e sugestões</small></button>
+    <button id="tabC" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><b>Configurações</b><small>Preferências, conta e backup</small></button>
   </nav>
-  <div class="topo" id="topo"><button class="home" id="home" type="button" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button><h2 id="topoT">Lançamentos</h2></div>
+  <div class="topo" id="topo"><button class="home" id="home" type="button" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button><h2 id="topoT" style="flex:1">Lançamentos</h2><button class="home" id="gear" type="button" aria-label="Configurações"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  <div id="vC" hidden>
+    <section class="panel"><h2>Preferências</h2>
+      <div class="cfg"><div><b>Tema</b><small>Aparência do app</small></div><select id="cTema"><option value="escuro">Escuro</option><option value="claro">Claro</option><option value="auto">Igual ao celular</option></select></div>
+      <div class="cfg"><div><b>Abrir o app em</b><small>Tela que aparece primeiro</small></div><select id="cInicio"><option value="L">Lançamentos</option><option value="M">Menu</option><option value="R">Resumo</option><option value="A">Aprovar</option></select></div>
+      <div class="cfg"><div><b>Pagamento padrão do gasto</b><small>Já vem marcado no Novo gasto</small></div><select id="cfgPag"></select></div>
+      <div class="cfg"><div><b>Recebimento padrão da receita</b><small>Já vem marcado na Nova receita</small></div><select id="cfgPagR"></select></div>
+      <div class="cfg"><div><b>Mostrar "Sua semana"</b><small>Resumo da semana passada no topo</small></div><label class="sw"><input type="checkbox" id="cSemana"><span></span></label></div>
+      <div class="cfg"><div><b>Categoria automática</b><small>Usa a última categoria de cada estabelecimento</small></div><label class="sw"><input type="checkbox" id="cAuto"><span></span></label></div>
+      <div class="cfg"><div><b>Pedir confirmação ao excluir</b><small>Toque duas vezes para apagar</small></div><label class="sw"><input type="checkbox" id="cConf"><span></span></label></div>
+      <p class="meta" id="cMsg" role="status"></p>
+    </section>
+    <section class="panel" style="margin-top:16px" id="cNotif" hidden><h2>Leitura de notificações</h2><p class="meta" id="cNotifTxt" style="margin:0 0 12px"></p><button class="ghost" id="cNotifBtn" type="button" style="min-height:44px">Abrir configuração do Android</button></section>
+    <section class="panel" style="margin-top:16px"><h2>Backup e conta</h2><p class="meta" style="margin:0 0 12px">Guarda todos os lançamentos e listas num arquivo. Serve para levar seus dados para outro lugar.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" id="bkExp" type="button" style="min-height:44px">Baixar backup</button>
+      <label class="ghost" style="display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:0;cursor:pointer;color:var(--muted)">Importar backup<input id="bkImp" type="file" accept=".json,application/json" style="display:none"></label></div>
+      <p class="meta" id="bkMsg" role="status"></p>
+      <div id="contaBox" hidden style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px"><small id="contaEmail" style="color:var(--muted)"></small> <button class="ghost" id="sair" type="button">Sair da conta</button></div></section>
+    <p class="meta" style="text-align:center;margin-top:16px">Controle de gastos</p>
+  </div>
   <div id="vA" hidden>
     <section class="panel" id="aPerm" hidden style="margin-bottom:16px;border-top:4px solid var(--warn)">
       <h2>Ativar leitura das notificações</h2>
@@ -158,11 +189,7 @@ li:first-child{border-top:0}
     <section class="panel" style="margin-top:16px"><h2>Descrições ocultas</h2><p class="meta" style="margin:0 0 12px">Não aparecem nas sugestões. Toque no × para voltar a mostrar. Na lista de sugestões, o × ao lado de cada uma esconde ela.</p><div class="ed" id="eOc"></div></section>
     <p class="meta" id="eMsg" role="status"></p>
     <button class="ghost" id="eReset" type="button" style="margin-top:8px">Voltar às listas padrão</button>
-    <section class="panel" style="margin-top:16px"><h2>Backup</h2><p class="meta" style="margin:0 0 12px">Guarda todos os lançamentos e listas num arquivo. Serve para levar seus dados para outro lugar.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" id="bkExp" type="button" style="min-height:44px">Baixar backup</button>
-      <label class="ghost" style="display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:0;cursor:pointer;color:var(--muted)">Importar backup<input id="bkImp" type="file" accept=".json,application/json" style="display:none"></label></div>
-      <p class="meta" id="bkMsg" role="status"></p>
-      <div id="contaBox" hidden style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px"><small id="contaEmail" style="color:var(--muted)"></small> <button class="ghost" id="sair" type="button">Sair da conta</button></div></section>
+
   </div>
   <div id="vR" hidden>
     <section class="panel">
@@ -368,17 +395,17 @@ function lanca(tp){
 $("add").onclick=()=>lanca("out");$("addR").onclick=()=>lanca("in");
 ["mes","fcat","fpag","ftipo"].forEach(i=>$(i).onchange=render);
 
-const NOMES={L:"Lançamentos",R:"Resumo",P:"Painel",A:"Aprovar transações",E:"Listas"};
+const NOMES={L:"Lançamentos",R:"Resumo",P:"Painel",A:"Aprovar transações",E:"Listas",C:"Configurações"};
 function aba(x){
   const menu=x==="M"||!NOMES[x];
   $("menu").hidden=!menu;$("topo").hidden=menu;
-  ["L","R","P","A","E"].forEach(k=>$("v"+k).hidden=menu||k!==x);
-  if(!menu){$("topoT").textContent=NOMES[x];if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor()}
+  ["L","R","P","A","E","C"].forEach(k=>$("v"+k).hidden=menu||k!==x);$("gear").hidden=x==="C";
+  if(!menu){$("topoT").textContent=NOMES[x];if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor();if(x==="C")telaConfig()}
   try{localStorage.setItem(KEY+"-aba",menu?"M":x)}catch(e){}
   window.scrollTo(0,0);
 }
 $("home").onclick=()=>aba("M");
-$("tabL").onclick=()=>aba("L");$("tabP").onclick=()=>aba("P");$("tabR").onclick=()=>aba("R");$("tabA").onclick=()=>aba("A");$("tabE").onclick=()=>aba("E");
+$("tabL").onclick=()=>aba("L");$("tabP").onclick=()=>aba("P");$("tabR").onclick=()=>aba("R");$("tabA").onclick=()=>aba("A");$("tabE").onclick=()=>aba("E");$("tabC").onclick=()=>aba("C");$("gear").onclick=()=>aba("C");
 
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
@@ -443,11 +470,17 @@ function aplicaListas(l){
   if(Array.isArray(l.pagsIn)&&l.pagsIn.length){PAGS_IN.length=0;l.pagsIn.forEach(x=>PAGS_IN.push(String(x)))}
   if(Array.isArray(l.sugsIn))SUG_IN=l.sugsIn.map(String);
   if(Array.isArray(l.ocultas))OCULTAS=l.ocultas.map(String);
+  if(l.prefs&&typeof l.prefs==="object"){PREFS={...PREFS_PADRAO,...l.prefs};try{localStorage.setItem(KEY+"-prefs",JSON.stringify(PREFS))}catch(e){}aplicaTema()}
   montaSelects();
 }
 let OCULTAS=["Compra realiza"];
+const PREFS_PADRAO={tema:"escuro",inicio:"L",pagPadrao:"Cartão de débito",pagPadraoR:"Pix",semana:true,auto:true,confirma:true};
+let PREFS={...PREFS_PADRAO};
+function aplicaTema(){const t=PREFS.tema==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"claro":"escuro"):PREFS.tema;document.documentElement.classList.toggle("claro",t==="claro")}
+try{const p=JSON.parse(localStorage.getItem(KEY+"-prefs")||"null");if(p)PREFS={...PREFS_PADRAO,...p}}catch(e){}
+aplicaTema();
 const oculta=x=>{const n=semAc(x);return OCULTAS.some(h=>{const k=semAc(h);return k&&n.startsWith(k)})};
-function listasAtuais(){return{cats:{...CATS},pags:PAGS.slice(),sugs:SUG.slice(),pagsIn:PAGS_IN.slice(),sugsIn:SUG_IN.slice(),ocultas:OCULTAS.slice()}}
+function listasAtuais(){return{cats:{...CATS},pags:PAGS.slice(),sugs:SUG.slice(),pagsIn:PAGS_IN.slice(),sugsIn:SUG_IN.slice(),ocultas:OCULTAS.slice(),prefs:{...PREFS}}}
 async function gravaListas(){S.listas=listasAtuais();montaSelects();editor();render();if(OFFLINE){const f=lerFila();f.listas=S.listas;salvaFila(f);return}if(!COL){save();return}try{await COL.doc("config").set({budget:S.budget,listas:S.listas})}catch(e){syncMsg("Não foi possível sincronizar agora.")}}
 function chip(txt,onDel,cor,onCor){
   const c=document.createElement("span");c.className="chip";
@@ -493,12 +526,12 @@ $("eReset").onclick=()=>{
   aplicaListas({cats:PADRAO.cats,pags:PADRAO.pags,sugs:PADRAO_SUG,pagsIn:PADRAO.pagsIn,sugsIn:PADRAO_SUG_IN});gravaListas();$("eMsg").textContent="Listas restauradas.";
 };
 aplicaListas(S.listas);montaSelects();
-const PAG_PADRAO="Cartão de débito";
-function padraoPag(){if(PAGS.includes(PAG_PADRAO))$("pag").value=PAG_PADRAO}
+function padraoPag(){if(PAGS.includes(PREFS.pagPadrao))$("pag").value=PREFS.pagPadrao;if(PAGS_IN.includes(PREFS.pagPadraoR))$("pagR").value=PREFS.pagPadraoR}
 padraoPag();
+if(PREFS.inicio&&PREFS.inicio!=="L")setTimeout(()=>aba(PREFS.inicio));
 let todasDesc={out:[],in:[]},ultDesc={};
 let CAT_LOJA={};
-function catDe(desc,padrao){const k=semAc(String(desc||"").trim());return CAT_LOJA[k]||padrao||"Outros"}
+function catDe(desc,padrao){if(!PREFS.auto)return padrao||"Outros";const k=semAc(String(desc||"").trim());return CAT_LOJA[k]||padrao||"Outros"}
 function listaDesc(){
   const cont={out:{},in:{}},ult={};
   S.items.forEach(i=>{const k=i.desc.trim();if(!k)return;const c=cont[i.tipo]||cont.out;c[k]=(c[k]||0)+1;const u=i.tipo+"|"+k;if(!ult[u]||i.data>=ult[u].data)ult[u]=i});
@@ -773,6 +806,7 @@ function estabelecimentos(){
 }
 function resumoSemana(){
   const h=today(),[ini]=intervalo(h,"s"),a0=somaDias(ini,-7),a1=somaDias(ini,-1),b0=somaDias(ini,-14),b1=somaDias(ini,-8);
+  if(!PREFS.semana){$("semBox").hidden=true;return}
   let dis="";try{dis=localStorage.getItem(KEY+"-semX")||""}catch(e){}
   const its=S.items.filter(i=>i.tipo==="out"&&i.data>=a0&&i.data<=a1);
   if(dis===a0||!S.items.some(i=>i.data<ini)){$("semBox").hidden=true;return}
@@ -790,6 +824,17 @@ function resumoSemana(){
   $("semX").onclick=()=>{try{localStorage.setItem(KEY+"-semX",a0)}catch(e){}$("semBox").hidden=true};
   $("semVer").onclick=()=>{aba("R");irPara("s",a0)};
 }
+function telaConfig(){
+  const fill=(id,arr,v)=>{$(id).innerHTML="";arr.forEach(x=>{const o=document.createElement("option");o.value=o.textContent=x;$(id).appendChild(o)});$(id).value=v};
+  fill("cfgPag",PAGS,PREFS.pagPadrao);fill("cfgPagR",PAGS_IN,PREFS.pagPadraoR);
+  $("cTema").value=PREFS.tema;$("cInicio").value=PREFS.inicio;$("cSemana").checked=PREFS.semana;$("cAuto").checked=PREFS.auto;$("cConf").checked=PREFS.confirma;
+  const tn=typeof TEM_NOTIF!=="undefined"&&TEM_NOTIF;$("cNotif").hidden=!tn;
+  if(tn){let ok=true;try{ok=AND.notifPermitida()}catch(e){}$("cNotifTxt").textContent=ok?"Ativa: compras do PicPay e da Carteira do Google chegam na aba Aprovar.":"Desativada: ative para as compras chegarem sozinhas na aba Aprovar.";$("cNotifBtn").onclick=()=>AND.abrirPermissaoNotif()}
+}
+function salvaPrefs(){try{localStorage.setItem(KEY+"-prefs",JSON.stringify(PREFS))}catch(e){}aplicaTema();padraoPag();gravaListas();$("cMsg").textContent="Salvo.";setTimeout(()=>$("cMsg").textContent="",1500)}
+[["cTema","tema"],["cInicio","inicio"],["cfgPag","pagPadrao"],["cfgPagR","pagPadraoR"]].forEach(([id,k])=>$(id).onchange=()=>{PREFS[k]=$(id).value;salvaPrefs()});
+[["cSemana","semana"],["cAuto","auto"],["cConf","confirma"]].forEach(([id,k])=>$(id).onchange=()=>{PREFS[k]=$(id).checked;salvaPrefs()});
+try{matchMedia("(prefers-color-scheme: light)").addEventListener("change",aplicaTema)}catch(e){}
 function render(){
   try{resumoSemana()}catch(e){}
   resumo();
@@ -828,7 +873,7 @@ function render(){
     const b=document.createElement("button");b.className="ghost";b.textContent="Excluir";b.setAttribute("aria-label","Excluir "+i.desc);
     let conf=false,tc=null;
     b.onclick=()=>{
-      if(!conf){conf=true;b.textContent="Confirmar exclusão";b.style.cssText="background:var(--out);color:#fff;border-color:var(--out)";b.setAttribute("aria-label","Confirmar exclusão de "+i.desc);
+      if(!conf&&PREFS.confirma){conf=true;b.textContent="Confirmar exclusão";b.style.cssText="background:var(--out);color:#fff;border-color:var(--out)";b.setAttribute("aria-label","Confirmar exclusão de "+i.desc);
         tc=setTimeout(()=>{conf=false;b.textContent="Excluir";b.style.cssText="";b.setAttribute("aria-label","Excluir "+i.desc)},4000);return}
       clearTimeout(tc);S.items=S.items.filter(x=>x.id!==i.id);apaga(i.id);render();
     };
