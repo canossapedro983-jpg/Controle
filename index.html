@@ -699,7 +699,10 @@ async function subirNotifs(){
   try{for(const n of lerNotifs()){const it=parseNotif(n);await COL.doc("pend_"+String(n.id).replace(/[^0-9A-Za-z_]/g,"_")).set({...it,pendente:true});AND.removerNotif(n.id)}}catch(e){}
   subindo=false;
 }
+const GS_URL="https://script.google.com/macros/s/AKfycbwtGNCrC2WN4B2wEWQyyxsw8n2b2UidlgdYbjlH0xGh7LcDqJL0txD40FOC70dGpeDF/exec";
+let gsUlt=0;function pedirBuscaGmail(){if(OFFLINE||Date.now()-gsUlt<20000)return;gsUlt=Date.now();try{fetch(GS_URL,{mode:"no-cors"}).catch(()=>{})}catch(e){}}
 window.atualizaAprovar=function(){
+  if(!$("vA").hidden)pedirBuscaGmail();
   const loc=lerNotifs().map(n=>({n,it:null})),rem=PEND.map(v=>({n:{id:v._doc,ts:0},it:v,doc:v._doc}));
   const todos=rem.concat(loc);
   const b=$("aBadge");b.hidden=!todos.length;b.textContent=todos.length;
@@ -1084,7 +1087,7 @@ function telaLogin(SB){
     const uid=user.id;
     $("contaBox").hidden=false;$("contaEmail").textContent="Conta: "+user.email;
     $("sair").onclick=async()=>{await SB.auth.signOut();try{localStorage.removeItem(KEY)}catch(e){}location.reload()};
-    const col=colSupabase(SB,uid);
+    const col=colSupabase(SB,uid);pedirBuscaGmail();
     const snap=await col.get();
     const naNuvem=new Set();let temConfig=false;
     snap.docs.forEach(d=>{if(d.id==="config")temConfig=true;else naNuvem.add(d.id)});
