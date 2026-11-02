@@ -24,7 +24,8 @@ public class NotifService extends NotificationListenerService {
       String pk = pkg.toLowerCase();
       boolean picpay = pk.contains("picpay");
       boolean gmail = pk.equals("com.google.android.gm");
-      if (!picpay && !gmail) return;
+      boolean carteira = pk.contains("walletnfcrel") || pk.equals("com.google.android.apps.wallet") || pk.contains("google.android.apps.nbu.paisa");
+      if (!picpay && !gmail && !carteira) return;
       Bundle ex = sbn.getNotification().extras;
       String titulo = String.valueOf(ex.getCharSequence(Notification.EXTRA_TITLE, ""));
       StringBuilder sb = new StringBuilder();
