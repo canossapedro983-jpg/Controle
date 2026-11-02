@@ -132,6 +132,7 @@ html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--l
     <div id="trPontos" style="display:flex;gap:12px;justify-content:center;margin-bottom:20px"></div>
     <div id="trTecl" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"></div>
     <button class="ghost" id="trBio" type="button" hidden style="margin-top:16px;min-height:44px;width:100%">Usar digital</button>
+    <button class="ghost" id="trCancel" type="button" hidden style="margin-top:8px;min-height:44px;width:100%">Cancelar</button>
   </div>
 </div>
 <div id="login" hidden style="position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:16px;overflow:auto">
@@ -173,6 +174,7 @@ html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--l
     </section>
     <section class="panel" style="margin-top:16px"><h2>Segurança</h2>
       <div class="cfg"><div><b>Bloqueio ao abrir</b><small>Neste aparelho</small></div><select id="cTrava"><option value="">Nenhum</option><option value="pin">PIN</option><option value="bio">Digital (ou PIN)</option></select></div>
+      <div class="cfg" id="cTrocaRow"><div><b>Trocar PIN</b><small>Pede o PIN atual</small></div><button class="ghost" id="cTrocaPin" type="button" style="min-height:40px">Trocar</button></div>
       <div id="cPinBox" hidden style="padding:0 0 12px"><label for="cPin1">Novo PIN (4 a 6 números)</label><input id="cPin1" type="password" inputmode="numeric" maxlength="6" autocomplete="new-password"><div style="margin-top:8px"><label for="cPin2">Repita o PIN</label><input id="cPin2" type="password" inputmode="numeric" maxlength="6" autocomplete="new-password"></div><button class="btn" id="cPinOk" type="button">Salvar PIN</button><p class="meta" id="cPinMsg"></p></div>
       <div class="cfg"><div><b>Esconder valores ao abrir</b><small>Sempre começa com o olho fechado</small></div><label class="sw"><input type="checkbox" id="cOcAbrir"><span></span></label></div>
     </section>
@@ -876,7 +878,7 @@ function telaConfig(){
   fill("cfgPag",PAGS,PREFS.pagPadrao);fill("cfgPagR",PAGS_IN,PREFS.pagPadraoR);
   $("cTema").value=PREFS.tema;$("cOcAbrir").checked=PREFS.ocultaAbrir;$("cFPic").checked=PREFS.fPicpay;$("cFCart").checked=PREFS.fCarteira;$("cFGm").checked=PREFS.fGmail;
   const tl=PREFS.telas||{};["R","P","A","E"].forEach(k=>$("cT"+k).checked=tl[k]!==false);
-  const tv=travaCfg();$("cTrava").value=tv.modo||"";$("cPinBox").hidden=true;
+  const tv=travaCfg();$("cTrava").value=tv.modo||"";$("cPinBox").hidden=true;$("cTrocaRow").hidden=!tv.pin||!tv.modo;
   const temBio=!!(window.Android&&typeof Android.temBiometria==="function"&&Android.temBiometria());$("cTrava").querySelector('[value="bio"]').hidden=!temBio;
   const temLemb=!!(window.Android&&typeof Android.lembrete==="function");$("cLembBox").hidden=!temLemb;$("cLemb").checked=PREFS.lembrete;$("cLembH").value=PREFS.lembreteHora;$("cFonte").value=PREFS.fonte;$("cOrdem").value=PREFS.ordem;$("cSem").value=PREFS.iniSemana;$("cImp").value=PREFS.importa;$("cPriv").checked=PREFS.privado;$("cOnde").checked=PREFS.onde;$("cAcum").checked=PREFS.acumula;$("cGmail").checked=PREFS.gmail;$("cInicio").value=PREFS.inicio;$("cSemana").checked=PREFS.semana;$("cAuto").checked=PREFS.auto;$("cConf").checked=PREFS.confirma;
   const tn=typeof TEM_NOTIF!=="undefined"&&TEM_NOTIF;$("cNotif").hidden=!tn;
@@ -890,20 +892,31 @@ $("cLembH").onchange=()=>{PREFS.lembreteHora=$("cLembH").value||"20:00";agendaLe
 // ---- Bloqueio (guardado só neste aparelho) ----
 function travaCfg(){try{return JSON.parse(localStorage.getItem(KEY+"-trava")||"{}")}catch(e){return{}}}
 function hashPin(p){let h=2166136261;for(const c of "cg:"+p){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h.toString(16)}
+let travaAnterior="";
+$("cTrava").onfocus=()=>{travaAnterior=travaCfg().modo||""};
 $("cTrava").onchange=()=>{const v=$("cTrava").value,t=travaCfg();
+  if(t.pin&&t.modo&&v!==t.modo){const ant=t.modo;$("cTrava").value=ant;
+    pedirPin("Digite o PIN atual para "+(v?"mudar":"desligar")+" o bloqueio",()=>{$("cTrava").value=v;aplicaTravaModo(v)});return}
+  aplicaTravaModo(v)};
+$("cTrocaPin").onclick=()=>{const t=travaCfg();if(!t.pin)return;pedirPin("Digite o PIN atual para trocar",()=>{$("cPinBox").hidden=false;$("cPin1").focus()})};
+function aplicaTravaModo(v){const t=travaCfg();
   if(!v){localStorage.setItem(KEY+"-trava","{}");$("cPinBox").hidden=true;$("cMsg").textContent="Bloqueio desligado.";return}
   if(t.pin){t.modo=v;localStorage.setItem(KEY+"-trava",JSON.stringify(t));$("cMsg").textContent="Bloqueio ligado.";return}
-  $("cPinBox").hidden=false;$("cPin1").focus()};
+  $("cPinBox").hidden=false;$("cPin1").focus()}
+let aoConfirmar=null;
+function pedirPin(msg,ok){aoConfirmar=ok;$("trava").hidden=false;$("trMsg").textContent=msg;digitado="";pontos();$("trCancel").hidden=false;
+  const t=travaCfg(),temBio=t.modo==="bio"&&window.Android&&typeof Android.biometria==="function";$("trBio").hidden=!temBio}
+$("trCancel").onclick=()=>{aoConfirmar=null;$("trava").hidden=true;$("trCancel").hidden=true;$("trMsg").textContent="Digite seu PIN";telaConfig()};
 $("cPinOk").onclick=()=>{const a=$("cPin1").value,b=$("cPin2").value;
   if(!/^\d{4,6}$/.test(a))return $("cPinMsg").textContent="Use de 4 a 6 números.";if(a!==b)return $("cPinMsg").textContent="Os dois PINs não são iguais.";
-  localStorage.setItem(KEY+"-trava",JSON.stringify({modo:$("cTrava").value||"pin",pin:hashPin(a)}));$("cPin1").value=$("cPin2").value="";$("cPinBox").hidden=true;$("cPinMsg").textContent="";$("cMsg").textContent="PIN salvo. O app vai pedir ao abrir."};
+  localStorage.setItem(KEY+"-trava",JSON.stringify({modo:$("cTrava").value||"pin",pin:hashPin(a)}));$("cTrocaRow").hidden=false;$("cPin1").value=$("cPin2").value="";$("cPinBox").hidden=true;$("cPinMsg").textContent="";$("cMsg").textContent="PIN salvo. O app vai pedir ao abrir."};
 let digitado="",saiuEm=0;
-function mostraTrava(){const t=travaCfg();if(!t.modo||!t.pin)return;
+function mostraTrava(){const t=travaCfg();if(!t.modo||!t.pin)return;aoConfirmar=null;$("trCancel").hidden=true;$("trMsg").textContent="Digite seu PIN";
   $("trava").hidden=false;digitado="";pontos();
   const temBio=t.modo==="bio"&&window.Android&&typeof Android.biometria==="function";$("trBio").hidden=!temBio;
   if(temBio)setTimeout(()=>Android.biometria(),300)}
 function pontos(){$("trPontos").innerHTML=Array.from({length:Math.max(4,digitado.length)},(_,k)=>`<i class="${k<digitado.length?"on":""}"></i>`).join("")}
-function destrava(){$("trava").hidden=true;digitado=""}
+function destrava(){$("trava").hidden=true;digitado="";$("trCancel").hidden=true;$("trMsg").textContent="Digite seu PIN";if(aoConfirmar){const f=aoConfirmar;aoConfirmar=null;f()}}
 window.bioResultado=ok=>{if(ok)destrava();else $("trMsg").textContent="Não reconheceu. Digite seu PIN."};
 ["1","2","3","4","5","6","7","8","9","","0","⌫"].forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=k;if(!k){b.style.visibility="hidden"}
   b.onclick=()=>{if(k==="⌫")digitado=digitado.slice(0,-1);else if(digitado.length<6)digitado+=k;pontos();
