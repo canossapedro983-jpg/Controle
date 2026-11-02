@@ -21,18 +21,18 @@ html{font-size:16px;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--body)}
 main{max-width:920px;margin:0 auto;padding:24px 16px 48px}
 h1,h2{font-family:var(--display);margin:0;letter-spacing:-.02em}
-h1{font-size:1.1rem;font-weight:700;color:var(--muted)}
-h2{font-size:1.15rem;font-weight:700;margin-bottom:12px}
+h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+h2{font-size:1.15rem;font-weight:600;margin-bottom:12px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
 input,select,button{font:inherit;color:inherit}
 input,select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;width:100%}
 label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
 :focus-visible{outline:3px solid var(--in);outline-offset:2px}
 .hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
-.saldo{font:800 clamp(2.4rem,9vw,4rem)/1 var(--display);letter-spacing:-.03em;margin:4px 0 16px}
+.saldo{font:600 clamp(2.4rem,9vw,4rem)/1 var(--display);letter-spacing:-.03em;margin:4px 0 16px}
 .saldo.neg{color:var(--out)}
 .duo{display:flex;gap:32px;flex-wrap:wrap}
-.duo b{display:block;font:700 1.3rem var(--display)}
+.duo b{display:block;font:600 1.3rem var(--display)}
 .in{color:var(--in)}.out{color:var(--out)}
 .grid{display:grid;gap:16px;margin-top:16px;grid-template-columns:1fr}
 @media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
@@ -42,10 +42,10 @@ label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
 .seg button{border:0;background:transparent;min-height:44px;cursor:pointer;font-weight:500}
 .seg button[aria-pressed="true"].s-out{background:var(--out);color:#fff}
 .seg button[aria-pressed="true"].s-in{background:var(--in);color:#fff}
-.btn{width:100%;margin-top:16px;min-height:46px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-weight:700;cursor:pointer}
+.btn{width:100%;margin-top:16px;min-height:46px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-weight:600;cursor:pointer}
 .ghost{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;min-height:36px;padding:0 10px;cursor:pointer}
 .bar{height:10px;border-radius:99px;background:var(--track);overflow:hidden}
-.bar i{display:block;height:100%;border-radius:99px;background:var(--in);transition:width .3s}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--in);transition:none}
 .bar i.warn{background:var(--warn)}.bar i.over{background:var(--out)}
 .meta{font-size:.9rem;color:var(--muted);margin:8px 0 0}
 .cat{margin-bottom:12px}
@@ -58,22 +58,27 @@ li:first-child{border-top:0}
 .d{flex:1;min-width:0}
 .d span{display:block;overflow-wrap:anywhere}
 .d small{color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v{font-weight:700;white-space:nowrap}
+.v{font-weight:600;white-space:nowrap}
 .empty{color:var(--muted);padding:12px 0}
 .budget{display:flex;gap:8px;margin-top:12px}
 .budget button{min-width:90px}
 [hidden]{display:none!important}
+input[aria-invalid="true"]{border-color:var(--out)!important}
+[data-tip]{position:relative}
+[data-tip]:focus-visible::after,[data-tip]:hover::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:0;white-space:nowrap;background:var(--ink);color:var(--bg);font:500 .75rem/1.2 var(--body);padding:6px 8px;border-radius:6px;pointer-events:none;z-index:40}
+@media (hover:none){[data-tip]:hover:not(:focus-visible)::after{display:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .tabs button{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 16px;min-height:120px;cursor:pointer;color:var(--ink)}
 .tabs button svg{color:var(--in)}
-.tabs button b{font:700 1.05rem var(--display)}
+.tabs button b{font:600 1.05rem var(--display)}
 .tabs button small{color:var(--muted);font-size:.82rem;line-height:1.3}
 .tabs button:active{transform:scale(.98)}
 .topo{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .topo h2{margin:0;font-size:1.3rem}
 .home{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;flex:none}
 
-.badge{position:absolute;top:10px;right:10px;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--out);color:#fff;font-size:.7rem;margin-left:4px;padding:0 5px;vertical-align:middle}
+.badge{position:absolute;top:10px;right:10px;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--out);color:#fff;font-size:.75rem;margin-left:4px;padding:0 5px;vertical-align:middle}
 .apr{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;display:grid;gap:10px}
 .apr .raw{font-size:.82rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere}
 .info{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
@@ -91,12 +96,12 @@ li:first-child{border-top:0}
 .tit{flex:1;min-width:0}.tit h2{margin:0;font-size:1.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tit small{display:block;color:var(--muted);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mesnav{display:flex;align-items:center;gap:8px;margin-top:10px}
 .mesnav .home{width:40px;height:40px;font-size:1.3rem}
-.mesbox{position:relative;flex:1;height:40px;border:1px solid var(--line);border-radius:12px;background:var(--surface);display:grid;place-items:center;font-weight:600}
+.mesbox{position:relative;flex:1;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);display:grid;place-items:center;font-weight:600}
 .mesbox input{position:absolute;inset:0;opacity:0;width:100%;height:100%;min-height:0;cursor:pointer;padding:0;border:0}
 .semN{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .semN div{background:var(--bg);border-radius:10px;padding:10px}
 .semN span{display:block;font-size:.78rem;color:var(--muted)}
-.semN b{display:block;font:700 1.05rem var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.semN b{display:block;font:600 1.05rem var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .semVar{display:inline-block;margin-top:10px;font-size:.85rem;font-weight:600;padding:3px 10px;border-radius:99px}
 .semL{margin:10px 0 0;padding:0}.semL li{display:block;border:0;padding:3px 0;font-size:.9rem;color:var(--muted)}.semL li b{color:var(--ink);font-weight:600}
 #trTecl button{height:64px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1.4rem var(--display);cursor:pointer}
@@ -109,12 +114,12 @@ html.privado .saldo,html.privado .semN b,html.privado .v,html.privado .kpi b,htm
 .cfg>div:first-child{min-width:0;flex:1}
 .sw{position:relative;width:52px;height:30px;flex:none;margin:0}
 .sw input{opacity:0;width:0;height:0;position:absolute}
-.sw span{position:absolute;inset:0;border-radius:99px;background:var(--track);border:1px solid var(--line);cursor:pointer;transition:.2s}
-.sw span:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:.2s}
+.sw span{position:absolute;inset:0;border-radius:99px;background:var(--track);border:1px solid var(--line);cursor:pointer}
+.sw span:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:transform .15s ease-out}
 .sw input:checked+span{background:var(--in)}.sw input:checked+span:before{transform:translateX(22px);background:#fff}
 .sw input:focus-visible+span{outline:3px solid var(--in);outline-offset:2px}
 html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--line:#D6DED9;--in:#1B7F4F;--out:#C23B32;--accent:#16241D;--accent-ink:#FFFFFF;--warn:#B7791F;--track:#E1E8E3;color-scheme:light}
-.money{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.money{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .sugs{overscroll-behavior:contain;touch-action:pan-y;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:222px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sugs li{padding:0 14px;min-height:44px;border-top:1px solid var(--line);cursor:pointer;gap:0}
 .sugs li:first-child{border-top:0}
@@ -124,7 +129,7 @@ html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--l
 
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
-.kpi span{color:var(--muted);font-size:.85rem}.kpi b{display:block;font:700 1.35rem var(--display);margin-top:4px}
+.kpi span{color:var(--muted);font-size:.85rem}.kpi b{display:block;font:600 1.35rem var(--display);margin-top:4px}
 .kpi small{color:var(--muted)}
 .chart svg{width:100%;height:auto;display:block}
 .leg{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-top:8px}
@@ -133,8 +138,8 @@ html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--l
 .donut svg{width:150px;height:150px;flex:none}
 .ed{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:4px 4px 4px 12px;background:var(--bg);font-size:.92rem}
-.chip input[type=color]{width:24px;height:24px;min-height:0;padding:0;border:0;border-radius:50%;background:none}
-.chip button{border:0;background:transparent;color:var(--muted);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1.1rem}
+.chip input[type=color]{width:44px;height:44px;margin:-10px -8px -10px -10px;min-height:0;padding:0;border:0;border-radius:50%;background:none}
+.chip button{border:0;background:transparent;color:var(--muted);width:44px;height:44px;margin:-8px -4px -8px 0;border-radius:50%;cursor:pointer;font-size:1.1rem}
 .addrow{display:flex;gap:8px}.addrow button{min-width:90px}
 .donut ul{flex:1;min-width:160px}.donut li{padding:6px 0;font-size:.92rem}
 /* ===== Redesenho: ergonomia de uma mão ===== */
@@ -149,7 +154,9 @@ h2{font-size:1.1rem;margin-bottom:12px}
 .panel+.panel,.panel+.grid,.grid+.panel,.kpis+.panel,section.panel{margin-top:0}
 #vL>div>*+*,#vR>*+*,#vP>*+*,#vB>*+*,#vX>*+*,#vC>*+*,#vA>*+*,#vE>*+*{margin-top:var(--gap)!important}
 .grid{gap:var(--gap);margin-top:0}
-.ghost{border-radius:12px;min-height:40px;padding:0 14px;font-weight:500}
+.ghost{border-radius:12px;min-height:44px;padding:0 14px;font-weight:500}
+button.ghost{min-height:44px!important}
+#semX{width:44px!important;height:44px}
 .ghost.perigo{color:var(--out);border-color:color-mix(in srgb,var(--out) 55%,transparent)}
 .btn{border-radius:14px;min-height:52px;font-size:1.02rem;letter-spacing:.01em}
 input,select,textarea{border-radius:12px!important}
@@ -159,24 +166,24 @@ textarea{width:100%;background:var(--surface);border:1px solid var(--line);paddi
 .barra{margin:0 -16px 16px;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 14px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .barra1{align-items:flex-start}
 .barra #home{display:none}
-.tit .kicker{display:block;font:700 .7rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--in)}
-.tit h2{font-size:1.85rem!important;line-height:1.1;margin:2px 0 2px!important;font-weight:800}
-.barra .home{width:42px;height:42px;border-radius:14px}
+.tit .kicker{display:block;font:600 .75rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--in)}
+.tit h2{font-size:1.85rem!important;line-height:1.1;margin:2px 0 2px!important;font-weight:600}
+.barra .home{width:44px;height:44px;border-radius:14px}
 .mesnav{margin-top:12px}
-.mesbox{border-radius:14px;font-family:var(--display);font-weight:700;letter-spacing:-.01em}
-.mesnav .home{width:44px;height:40px}
+.mesbox{border-radius:14px;font-family:var(--display);font-weight:600;letter-spacing:-.01em}
+.mesnav .home{width:44px;height:44px}
 body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-R .mesnav{display:none}
 
 /* Saldo (hero) */
 .hero{position:relative;overflow:hidden;padding:22px 20px 18px;background:
  radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--in) 22%,transparent),transparent 60%),var(--surface)}
-.hero:after{content:"";position:absolute;right:-40px;bottom:-60px;width:180px;height:180px;border-radius:50%;border:26px solid color-mix(in srgb,var(--in) 9%,transparent);pointer-events:none}
-#saldoLbl{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+
+#saldoLbl{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
 .saldo{font-size:clamp(2.5rem,12vw,3.6rem);margin:6px 0 14px}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .duo>div:last-child{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline}
 .duo>div{background:var(--bg);border-radius:12px;padding:10px;min-width:0}
-.duo span{font-size:.74rem}
+.duo span{font-size:.75rem}
 .duo b{font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #cbAbrir{position:relative;z-index:1}
 .swdica{display:block;margin-top:10px;font-size:.75rem;color:var(--muted)}
@@ -207,13 +214,13 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
 .dica{font-size:.78rem;color:var(--muted);margin:6px 0 4px}
 #lista li.dia{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:18px 2px 6px;border-top:0;position:relative}
 #lista li.dia:first-child{padding-top:6px}
-#lista li.dia b{font:800 .95rem var(--display);letter-spacing:-.01em}
+#lista li.dia b{font:600 .95rem var(--display);letter-spacing:-.01em}
 #lista li.dia b em{font-style:normal;font-weight:500;color:var(--muted);font-family:var(--body);font-size:.82rem;margin-left:6px}
 #lista li.dia span{font-size:.82rem;white-space:nowrap}
-#lista li.dia span .v{font-weight:700}
+#lista li.dia span .v{font-weight:600}
 #lista li.dia+li{border-top:0}
 #lista li.it{cursor:pointer;flex-wrap:wrap;padding:12px 4px;border-radius:12px}
-#lista li.it .dot{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font:800 .9rem var(--display);color:#fff}
+#lista li.it .dot{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font:600 .9rem var(--display);color:#fff}
 #lista li.it .acts{display:none!important;flex-direction:row!important;width:100%;gap:8px!important;padding-left:48px}
 #lista li.it .acts button{flex:1;min-height:42px}
 #lista li.it.aberto{background:var(--bg)}
@@ -228,19 +235,19 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
 /* Navegação inferior (zona do polegar) */
 #bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:1fr 1fr 84px 1fr 1fr;align-items:end;
  padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
-.bn{position:relative;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;justify-content:center;cursor:pointer;font:600 .72rem var(--body);border-radius:14px}
+.bn{position:relative;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;justify-content:center;cursor:pointer;font:600 .75rem var(--body);border-radius:14px}
 .bn[aria-current="page"]{color:var(--ink)}
 .bn[aria-current="page"] svg{color:var(--in)}
 .bn[aria-current="page"]:before{content:"";position:absolute;top:2px;width:24px;height:3px;border-radius:3px;background:var(--in)}
-.nb{position:absolute;top:6px;right:calc(50% - 20px);min-width:18px;height:18px;border-radius:9px;background:var(--out);color:#fff;font:700 .68rem/18px var(--body);padding:0 5px;font-style:normal}
-.fab{justify-self:center;width:66px;height:66px;border-radius:22px;border:0;margin-top:-26px;background:var(--out);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 22px color-mix(in srgb,var(--out) 45%,transparent);transition:transform .15s}
+.nb{position:absolute;top:6px;right:calc(50% - 20px);min-width:18px;height:18px;border-radius:9px;background:var(--out);color:#fff;font:600 .68rem/18px var(--body);padding:0 5px;font-style:normal}
+.fab{justify-self:center;width:66px;height:66px;border-radius:22px;border:0;margin-top:-26px;background:var(--in);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 22px color-mix(in srgb,var(--out) 45%,transparent);transition:transform .15s}
 .fab:active{transform:scale(.94)}
 
 /* Folha de lançamento */
 #folha{position:fixed;inset:0;z-index:45}
 .veu{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;transition:opacity .2s}
 #folha.on .veu{opacity:1}
-.sheet{position:absolute;left:0;right:0;bottom:0;max-height:96vh;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;padding:4px 16px calc(12px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .22s ease-out;box-shadow:var(--sombra);display:flex;flex-direction:column;overscroll-behavior:contain}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:96vh;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;padding:4px 16px calc(12px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .2s ease-out;box-shadow:var(--sombra);display:flex;flex-direction:column;overscroll-behavior:contain}
 #folha.on .sheet{transform:none}
 .alca{display:grid;place-items:center;height:20px;cursor:grab;touch-action:none}
 .alca i{width:44px;height:5px;border-radius:5px;background:var(--line)}
@@ -250,7 +257,7 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
 .shcorpo{flex:1}
 .valorbox{text-align:center;padding:2px 0 6px}
 .valorbox label{margin:0}
-.money.grande{font:800 2.5rem/1.1 var(--display)!important;text-align:center;border:0!important;background:transparent!important;min-height:58px;padding:0;letter-spacing:-.03em;caret-color:transparent}
+.money.grande{font:600 2.5rem/1.1 var(--display)!important;text-align:center;border:0!important;background:transparent!important;min-height:58px;padding:0;letter-spacing:-.03em;caret-color:transparent}
 #fGasto .money.grande{color:var(--out)}#fRec .money.grande{color:var(--in)}
 .sheet .row2{margin-top:10px;gap:10px}
 .sheet input,.sheet select{min-height:44px;padding:8px 10px}
@@ -261,7 +268,7 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
 .quando{display:flex;gap:6px;margin-top:8px}
 .quando button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .tecl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.tecl button{height:50px;border-radius:14px;border:0;background:var(--bg);color:var(--ink);font:700 1.35rem var(--display);cursor:pointer;touch-action:manipulation}
+.tecl button{height:50px;border-radius:14px;border:0;background:var(--bg);color:var(--ink);font:600 1.35rem var(--display);cursor:pointer;touch-action:manipulation}
 .tecl button:active{background:var(--line)}
 .sheet .btn{margin-top:10px}
 .lanca-out{background:var(--out)!important;color:#fff!important}
@@ -287,7 +294,7 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
  .colB{position:sticky;top:120px}
  .listap{max-height:calc(100vh - 140px);overflow:auto}
  .tabs{grid-template-columns:repeat(4,1fr)}
- .sheet{left:50%;right:auto;bottom:50%;width:440px;border-radius:24px;transform:translate(-50%,60%);opacity:0;transition:.2s}
+ .sheet{left:50%;right:auto;bottom:50%;width:440px;border-radius:24px;transform:translate(-50%,60%);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out}
  #folha.on .sheet{transform:translate(-50%,50%);opacity:1}
  #toast{bottom:28px}
 }
@@ -320,14 +327,14 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
 <main>
   <header class="barra" id="topo">
     <div class="barra1">
-      <button class="home" id="home" type="button" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="home" id="home" type="button" aria-label="Voltar ao menu" data-tip="Abrir menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
       <div class="tit"><span class="kicker">Controle de gastos</span><h2 id="topoT">Lançamentos</h2><small id="sync">Salvo só neste aparelho</small></div>
-      <button class="home" id="olho" type="button" aria-label="Esconder valores" aria-pressed="false"></button><button class="home" id="gear" type="button" aria-label="Configurações"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <button class="home" id="olho" type="button" aria-label="Esconder valores" data-tip="Esconder valores" aria-pressed="false"></button><button class="home" id="gear" type="button" aria-label="Abrir configurações" data-tip="Abrir configurações"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
     <div class="mesnav">
-      <button class="home" id="mAnt" type="button" aria-label="Mês anterior">‹</button>
+      <button class="home" id="mAnt" type="button" aria-label="Ir para o mês anterior" data-tip="Mês anterior">‹</button>
       <div class="mesbox"><span id="mesTxt"></span><label for="mes" class="sr" style="position:absolute;left:-9999px">Mês</label><input type="month" id="mes"></div>
-      <button class="home" id="mProx" type="button" aria-label="Próximo mês">›</button>
+      <button class="home" id="mProx" type="button" aria-label="Ir para o próximo mês" data-tip="Próximo mês">›</button>
     </div>
     <button id="online" class="ghost" type="button" hidden style="display:block;width:100%;margin-top:8px;color:var(--in);border-color:var(--in)">Internet voltou – sincronizar agora</button>
   </header>
@@ -432,8 +439,8 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
   <div id="vE" hidden>
     <section class="panel"><h2>Categorias</h2><p class="meta" style="margin:0 0 12px">Toque na bolinha para mudar a cor.</p><div class="ed" id="eCat"></div>
       <div class="addrow"><input id="nCat" maxlength="30" placeholder="Nova categoria" aria-label="Nova categoria"><button class="ghost" id="aCat" type="button">Adicionar</button></div></section>
-    <section class="panel" style="margin-top:16px;border-top:4px solid var(--out)"><h2 class="out">Gastos</h2><h3 style="font:700 1rem var(--display);margin:16px 0 8px">Formas de pagamento</h3><div class="ed" id="ePag"></div><div class="addrow"><input id="nPag" maxlength="30" placeholder="Nova forma de pagamento" aria-label="Nova forma de pagamento"><button class="ghost" id="aPag" type="button">Adicionar</button></div><h3 style="font:700 1rem var(--display);margin:16px 0 8px">Estabelecimentos</h3><p class="meta" style="margin:0 0 8px">Os estabelecimentos onde você já comprou também aparecem, do mais comprado para o menos.</p><div class="ed" id="eSug"></div><div class="addrow"><input id="nSug" maxlength="60" placeholder="Novo estabelecimento" aria-label="Novo estabelecimento"><button class="ghost" id="aSug" type="button">Adicionar</button></div></section>
-    <section class="panel" style="margin-top:16px;border-top:4px solid var(--in)"><h2 class="in">Receitas</h2><h3 style="font:700 1rem var(--display);margin:16px 0 8px">Formas de recebimento</h3><div class="ed" id="ePagR"></div><div class="addrow"><input id="nPagR" maxlength="30" placeholder="Nova forma de recebimento" aria-label="Nova forma de recebimento"><button class="ghost" id="aPagR" type="button">Adicionar</button></div><h3 style="font:700 1rem var(--display);margin:16px 0 8px">Sugestões de descrição</h3><p class="meta" style="margin:0 0 8px">As descrições que você já usou também aparecem, além destas.</p><div class="ed" id="eSugR"></div><div class="addrow"><input id="nSugR" maxlength="60" placeholder="Nova sugestão" aria-label="Nova sugestão"><button class="ghost" id="aSugR" type="button">Adicionar</button></div></section>
+    <section class="panel" style="margin-top:16px;border-top:4px solid var(--out)"><h2 class="out">Gastos</h2><h3 style="font:600 1rem var(--display);margin:16px 0 8px">Formas de pagamento</h3><div class="ed" id="ePag"></div><div class="addrow"><input id="nPag" maxlength="30" placeholder="Nova forma de pagamento" aria-label="Nova forma de pagamento"><button class="ghost" id="aPag" type="button">Adicionar</button></div><h3 style="font:600 1rem var(--display);margin:16px 0 8px">Estabelecimentos</h3><p class="meta" style="margin:0 0 8px">Os estabelecimentos onde você já comprou também aparecem, do mais comprado para o menos.</p><div class="ed" id="eSug"></div><div class="addrow"><input id="nSug" maxlength="60" placeholder="Novo estabelecimento" aria-label="Novo estabelecimento"><button class="ghost" id="aSug" type="button">Adicionar</button></div></section>
+    <section class="panel" style="margin-top:16px;border-top:4px solid var(--in)"><h2 class="in">Receitas</h2><h3 style="font:600 1rem var(--display);margin:16px 0 8px">Formas de recebimento</h3><div class="ed" id="ePagR"></div><div class="addrow"><input id="nPagR" maxlength="30" placeholder="Nova forma de recebimento" aria-label="Nova forma de recebimento"><button class="ghost" id="aPagR" type="button">Adicionar</button></div><h3 style="font:600 1rem var(--display);margin:16px 0 8px">Sugestões de descrição</h3><p class="meta" style="margin:0 0 8px">As descrições que você já usou também aparecem, além destas.</p><div class="ed" id="eSugR"></div><div class="addrow"><input id="nSugR" maxlength="60" placeholder="Nova sugestão" aria-label="Nova sugestão"><button class="ghost" id="aSugR" type="button">Adicionar</button></div></section>
     <section class="panel" style="margin-top:16px"><h2>Descrições ocultas</h2><p class="meta" style="margin:0 0 12px">Não aparecem nas sugestões. Toque no × para voltar a mostrar. Na lista de sugestões, o × ao lado de cada uma esconde ela.</p><div class="ed" id="eOc"></div></section>
     <p class="meta" id="eMsg" role="status"></p>
     <button class="ghost" id="eReset" type="button" style="margin-top:8px">Voltar às listas padrão</button>
@@ -446,7 +453,7 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
         <button class="ghost" id="rAnt" type="button" aria-label="Período anterior" style="width:44px;min-height:44px">‹</button>
-        <div style="text-align:center"><b id="rTit" style="font:700 1.1rem var(--display)"></b><br><small id="rSub" style="color:var(--muted)"></small></div>
+        <div style="text-align:center"><b id="rTit" style="font:600 1.1rem var(--display)"></b><br><small id="rSub" style="color:var(--muted)"></small></div>
         <button class="ghost" id="rProx" type="button" aria-label="Próximo período" style="width:44px;min-height:44px">›</button>
       </div>
       <button class="ghost" id="rHoje" type="button" style="display:block;margin:8px auto 0">Voltar para hoje</button>
@@ -501,7 +508,7 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
     <div id="cbBox" hidden style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
       <p class="meta" style="margin:0 0 8px">Digite o saldo que aparece no app do banco agora. O app compara com o saldo de todos os seus lançamentos até hoje.</p>
       <div class="row2" style="margin:0"><div><label for="cbVal">Saldo no banco</label><input id="cbVal" class="money" type="text" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
-      <div><label>Saldo no app</label><div id="cbApp" style="font:700 1.2rem var(--display);padding:10px 0"></div></div></div>
+      <div><label>Saldo no app</label><div id="cbApp" style="font:600 1.2rem var(--display);padding:10px 0"></div></div></div>
       <div id="cbRes" style="margin-top:8px"></div>
     </div>
   </section>
@@ -671,7 +678,7 @@ $("add").onclick=()=>lanca("out");$("addR").onclick=()=>lanca("in");
 const NOMES={L:"Lançamentos",R:"Resumo",P:"Painel",A:"Aprovar transações",E:"Listas",C:"Configurações",B:"Buscar",X:"Relatório"};
 function aba(x){
   const menu=x==="M"||!NOMES[x];
-  $("menu").hidden=!menu;$("home").hidden=menu;if(menu)$("topoT").textContent="Controle de gastos";
+  $("menu").hidden=!menu;$("home").hidden=menu;if(menu)$("topoT").textContent="Mais";
   ["L","R","P","A","E","C","B","X"].forEach(k=>$("v"+k).hidden=menu||k!==x);$("gear").hidden=x==="C";$("lupa").hidden=x==="B";if(x==="B"){busca();setTimeout(()=>$("bQ").focus(),50)}if(x==="X"&&!$("xMes").value)$("xMes").value=$("mes").value;
   if(!menu){$("topoT").textContent=NOMES[x];if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor();if(x==="C")telaConfig()}
   try{localStorage.setItem(KEY+"-aba",menu?"M":x)}catch(e){}
@@ -714,7 +721,7 @@ function painel(mes){
     cats.forEach(([n,v])=>{const a1=a0+v/cur.g*Math.PI*2;
       if(cats.length===1)d+=`<circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${CATS[n]}" stroke-width="22"/>`;
       else d+=`<path d="M${c+R*Math.cos(a0)} ${c+R*Math.sin(a0)} A${R} ${R} 0 ${a1-a0>Math.PI?1:0} 1 ${c+R*Math.cos(a1)} ${c+R*Math.sin(a1)}" fill="none" stroke="${CATS[n]}" stroke-width="22"><title>${esc(n)}: ${brl(v)}</title></path>`;a0=a1});
-    $("cCat").innerHTML=`<svg viewBox="0 0 150 150" role="img" aria-label="Gastos por categoria">${d}<text x="75" y="80" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">${curto(cur.g)}</text></svg><ul>${cats.map(([n,v])=>`<li><span class="dot" style="background:${CATS[n]}"></span><span class="d">${esc(n)}</span><span class="v">${Math.round(v/cur.g*100)}%</span></li>`).join("")}</ul>`;
+    $("cCat").innerHTML=`<svg viewBox="0 0 150 150" role="img" aria-label="Gastos por categoria">${d}<text x="75" y="80" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink)">${curto(cur.g)}</text></svg><ul>${cats.map(([n,v])=>`<li><span class="dot" style="background:${CATS[n]}"></span><span class="d">${esc(n)}</span><span class="v">${Math.round(v/cur.g*100)}%</span></li>`).join("")}</ul>`;
   }else $("cCat").innerHTML='<p class="empty">Nenhum gasto neste mês.</p>';
   // pagamento
   const porPag={};gastos.forEach(i=>{const k=i.pag||"Não informado";porPag[k]=(porPag[k]||0)+i.valor});
@@ -751,7 +758,7 @@ const PREFS_PADRAO={tema:"escuro",inicio:"L",pagPadrao:"Cartão de débito",pagP
 let PREFS={...PREFS_PADRAO};
 const OLHO='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const OLHO_X='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>';
-function iconeOlho(){const b=document.getElementById("olho");if(!b)return;b.innerHTML=PREFS.privado?OLHO_X:OLHO;b.setAttribute("aria-pressed",!!PREFS.privado);b.setAttribute("aria-label",PREFS.privado?"Mostrar valores":"Esconder valores")}
+function iconeOlho(){const b=document.getElementById("olho");if(!b)return;b.innerHTML=PREFS.privado?OLHO_X:OLHO;b.setAttribute("aria-pressed",!!PREFS.privado);b.setAttribute("aria-label",PREFS.privado?"Mostrar valores":"Esconder valores");b.dataset.tip=PREFS.privado?"Mostrar valores":"Esconder valores"}
 function telasMenu(){const t=PREFS.telas||{};["R","P","A","E","B","X"].forEach(k=>{const b=document.getElementById("tab"+k);if(b)b.hidden=t[k]===false})}
 function aplicaTema(){iconeOlho();document.documentElement.classList.toggle("privado",!!PREFS.privado);document.documentElement.style.fontSize=PREFS.fonte==="grande"?"18px":PREFS.fonte==="pequena"?"14.5px":"";const t=PREFS.tema==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"claro":"escuro"):PREFS.tema;document.documentElement.classList.toggle("claro",t==="claro")}
 try{const p=JSON.parse(localStorage.getItem(KEY+"-prefs")||"null");if(p)PREFS={...PREFS_PADRAO,...p}}catch(e){}
@@ -763,7 +770,8 @@ function chip(txt,onDel,cor,onCor){
   const c=document.createElement("span");c.className="chip";
   if(cor){const i=document.createElement("input");i.type="color";i.value=cor;i.setAttribute("aria-label","Cor de "+txt);i.onchange=()=>onCor(i.value);c.appendChild(i)}
   const t=document.createElement("span");t.textContent=txt;c.appendChild(t);
-  const b=document.createElement("button");b.type="button";b.textContent="×";b.setAttribute("aria-label","Remover "+txt);b.onclick=onDel;c.appendChild(b);
+  const b=document.createElement("button");b.type="button";b.textContent="×";b.setAttribute("aria-label","Remover "+txt);
+  let cf=false;b.onclick=()=>{if(!cf&&onDel.length===0&&c.closest("#eCat,#ePag,#ePagR")){cf=true;t.textContent="Remover “"+txt+"”?";c.style.borderColor="var(--out)";setTimeout(()=>{cf=false;t.textContent=txt;c.style.borderColor=""},4000);return}onDel()};c.appendChild(b);
   return c;
 }
 function editor(){
@@ -1048,7 +1056,7 @@ window.atualizaAprovar=function(){
       <div><label>${it.tipo==="in"?"Forma de recebimento":"Forma de pagamento"}</label><select class="aPag">${opts(L,it.pag)}</select></div>
       <div style="display:flex;gap:8px"><button type="button" class="btn aOk" style="margin:0;background:var(--in);color:#fff">Confirmar</button><button type="button" class="ghost aNo" style="min-height:46px;padding:0 16px;color:var(--out);border-color:var(--out)">Excluir</button></div>
       <p class="meta aMsg" style="margin:0"></p>`;
-    const q=k=>c.querySelector(k);
+    ligaLabels(c);const q=k=>c.querySelector(k);
     if(it.catAuto&&q(".aCat"))q(".aCat").insertAdjacentHTML("afterend",'<small style="color:var(--muted)">Categoria automática</small>');
     q(".raw").textContent=(it.fonte==="gmail"?"E-mail (Gmail): ":it.fonte==="carteira"?"Carteira do Google: ":"Notificação PicPay: ")+it.raw+(it.jaLancado?"  ⚠ Já existe um lançamento com esse valor nesse dia.":"");q(".aDesc").value=it.desc;q(".aData").value=it.data;q(".aVal").value=it.valor?brl(it.valor):"";
     const v=q(".aVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v);it.valor=centavos(v.value)/100});
@@ -1061,7 +1069,7 @@ window.atualizaAprovar=function(){
       const novo={id:Date.now()+Math.random(),tipo:it.tipo,desc:it.desc,valor:it.valor,data:it.data,hora:it.hora||"",cat:it.tipo==="in"?"Receita":(q(".aCat")?q(".aCat").value:it.cat),pag:q(".aPag").value};
       S.items.push(novo);grava(novo);tira();delete aEdit[n.id];render();atualizaAprovar();
     };
-    let cf=false;q(".aNo").onclick=()=>{if(!cf){cf=true;q(".aNo").textContent="Confirmar exclusão";setTimeout(()=>{cf=false;q(".aNo").textContent="Excluir"},4000);return}tira();delete aEdit[n.id];atualizaAprovar()};
+    let cf=false;q(".aNo").onclick=()=>{if(!cf){cf=true;q(".aNo").textContent="Excluir “"+(it.desc||"transação").slice(0,18)+"”";setTimeout(()=>{cf=false;q(".aNo").textContent="Excluir"},4000);return}tira();delete aEdit[n.id];atualizaAprovar()};
     box.appendChild(c);
   });
 };
@@ -1080,7 +1088,7 @@ function estabelecimentos(){
   if(!top.length){ul.innerHTML='<li class="empty">Nenhum gasto '+(estP==="m"?"neste mês":"ainda")+'.</li>';return}
   const mx=top[0].n;
   top.forEach((o,k)=>{const li=document.createElement("li");li.style.cursor="pointer";li.setAttribute("role","button");li.tabIndex=0;
-    li.innerHTML=`<span style="width:22px;color:var(--muted);font-weight:700;flex:none">${k+1}</span><div class="d"><span></span><small>${o.n} compra(s) · média ${brl(o.v/o.n)}</small><div class="bar" style="height:6px;margin-top:6px"><i style="width:${o.n/mx*100}%;background:${CATS[o.cat]||"var(--accent)"}"></i></div></div><span class="v out">${brl(o.v)}</span>`;
+    li.innerHTML=`<span style="width:22px;color:var(--muted);font-weight:600;flex:none">${k+1}</span><div class="d"><span></span><small>${o.n} compra(s) · média ${brl(o.v/o.n)}</small><div class="bar" style="height:6px;margin-top:6px"><i style="width:${o.n/mx*100}%;background:${CATS[o.cat]||"var(--accent)"}"></i></div></div><span class="v out">${brl(o.v)}</span>`;
     li.querySelector(".d span").textContent=o.nome;
     li.onclick=()=>{$("desc").value=o.nome;const it=ultDesc["out|"+o.nome];if(it){if(CATS[it.cat])$("cat").value=it.cat;if(it.pag&&PAGS.includes(it.pag))$("pag").value=it.pag}$("desc").scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>$("valor").focus(),300)};
     li.onkeydown=e=>{if(e.key==="Enter")li.click()};ul.appendChild(li)});
@@ -1181,7 +1189,7 @@ function busca(){
   $("bKpis").innerHTML=[["Encontrados",String(res.length),""],["Gastos",brl(g),"out"],["Receitas",brl(rc),"in"],["Média por gasto",brl(g/Math.max(1,res.filter(i=>i.tipo==="out").length)),""]].map(([a,b,c])=>`<div class="kpi" style="padding:12px"><span>${a}</span><b class="${c}" style="font-size:1.1rem">${b}</b></div>`).join("");
   $("bTit").textContent=q?`Resultados para "${$("bQ").value.trim()}"`:"Todos os lançamentos";
   const ul=$("bLista");ul.innerHTML="";
-  if(!res.length){ul.innerHTML='<li class="empty">Nada encontrado.</li>';return}
+  if(!res.length){ul.innerHTML='<li class="empty" style="display:block">Nada encontrado para essa busca. <button class="ghost" type="button" id="bLimpa" style="margin-top:8px">Limpar busca</button></li>';document.getElementById("bLimpa").onclick=()=>{$("bQ").value="";$("bPer").value="tudo";$("bTipo").value="";busca();$("bQ").focus()};return}
   res.slice(0,300).forEach(i=>{const li=document.createElement("li");const [y,m,d]=i.data.split("-");
     li.innerHTML=`<span class="dot" style="background:${i.tipo==="in"?"var(--in)":(CATS[i.cat]||"#888")}"></span><div class="d"><span></span><small></small></div><span class="v ${i.tipo}">${i.tipo==="in"?"+":"−"} ${brl(i.valor)}</span>`;
     li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"")+" · "+d+"/"+m+"/"+y;ul.appendChild(li)});
@@ -1276,6 +1284,14 @@ function mesTexto(){const v=$("mes").value;if(!v)return;const [y,m]=v.split("-")
 function mudaMes(n){const [y,m]=$("mes").value.split("-").map(Number);const d=new Date(y,m-1+n,1);$("mes").value=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");$("mes").dispatchEvent(new Event("change"))}
 $("mAnt").onclick=()=>mudaMes(-1);$("mProx").onclick=()=>mudaMes(1);
 $("mes").addEventListener("click",()=>{try{$("mes").showPicker()}catch(e){}});
+function ligaLabels(root){root.querySelectorAll("label").forEach(l=>{if(l.htmlFor||l.querySelector("input,select"))return;const c=l.nextElementSibling;if(c&&/INPUT|SELECT|TEXTAREA/.test(c.tagName)){if(!c.id)c.id="f"+Math.random().toString(36).slice(2,9);l.htmlFor=c.id}})}
+// validação ao sair do campo; some ao corrigir
+[["valor",""],["desc",""],["valorR","R"],["descR","R"]].forEach(([id,R])=>{const el=$(id);if(!el)return;
+  el.addEventListener("input",()=>{el.dataset.mexeu="1";el.removeAttribute("aria-invalid");$("msg"+R).textContent=""});
+  el.addEventListener("blur",()=>{if(!el.dataset.mexeu)return;const vazio=id.startsWith("valor")?!(centavos(el.value)>0):!el.value.trim();
+    if(vazio){el.setAttribute("aria-invalid","true");$("msg"+R).textContent=id.startsWith("valor")?"Digite um valor maior que zero.":(R?"Digite a descrição.":"Digite o estabelecimento.")}});
+  el.addEventListener("focus",()=>{if(el.getAttribute("aria-invalid")){el.removeAttribute("aria-invalid");$("msg"+R).textContent=""}});
+});
 function render(){
   mesTexto();
   try{resumoSemana()}catch(e){}
@@ -1306,7 +1322,9 @@ function render(){
   const lista=doMes.filter(i=>(!fc||i.cat===fc)&&(!fp||i.pag===fp)&&(!ft||i.tipo===ft)).sort(PREFS.ordem==="antigos"?(a,b)=>(a.data+(a.hora||"")).localeCompare(b.data+(b.hora||"")):PREFS.ordem==="valor"?(a,b)=>b.valor-a.valor:(a,b)=>(b.data+(b.hora||"")).localeCompare(a.data+(a.hora||"")));
   atual=lista;
   const ul=$("lista");ul.innerHTML="";
-  if(!lista.length){ul.innerHTML='<li class="empty">Nenhum lançamento encontrado. Toque no + para adicionar o primeiro.</li>';return}
+  if(!lista.length){const filtrado=!!($("fcat").value||$("fpag").value||$("ftipo").value);ul.innerHTML=filtrado?'<li class="empty" style="display:block">Nenhum lançamento com esses filtros. <button class="ghost" type="button" id="limpaF" style="margin-top:8px">Limpar filtros</button></li>':'<li class="empty" style="display:block"><b style="color:var(--ink)">Nenhum lançamento neste mês</b><br>Registre gastos e receitas para ver seu saldo. <br><button class="btn" type="button" id="primeiro" style="width:auto;padding:0 18px">Lançar gasto</button></li>';
+    const lf=document.getElementById("limpaF");if(lf)lf.onclick=()=>{$("fcat").value=$("fpag").value=$("ftipo").value="";render()};
+    const pr=document.getElementById("primeiro");if(pr)pr.onclick=()=>abrirFolha("out");return}
   lista.forEach(i=>{
     const li=document.createElement("li");
     if(editId===i.id){li.appendChild(formEdit(i));ul.appendChild(li);return}
@@ -1316,7 +1334,7 @@ function render(){
     const b=document.createElement("button");b.className="ghost";b.textContent="Excluir";b.setAttribute("aria-label","Excluir "+i.desc);
     let conf=false,tc=null;
     b.onclick=()=>{
-      if(!conf&&PREFS.confirma){conf=true;b.textContent="Confirmar exclusão";b.style.cssText="background:var(--out);color:#fff;border-color:var(--out)";b.setAttribute("aria-label","Confirmar exclusão de "+i.desc);
+      if(!conf&&PREFS.confirma){conf=true;b.textContent="Excluir “"+(i.desc.length>18?i.desc.slice(0,17)+"…":i.desc)+"”";b.style.cssText="background:var(--out);color:#fff;border-color:var(--out)";b.setAttribute("aria-label","Confirmar exclusão de "+i.desc);
         tc=setTimeout(()=>{conf=false;b.textContent="Excluir";b.style.cssText="";b.setAttribute("aria-label","Excluir "+i.desc)},4000);return}
       clearTimeout(tc);S.items=S.items.filter(x=>x.id!==i.id);apaga(i.id);render();
     };
@@ -1337,7 +1355,7 @@ function formEdit(i){
     <div class="row2" style="margin:0">${i.tipo==="out"?`<div><label>Categoria</label><select class="eCat">${opts(Object.keys(CATS),i.cat)}</select></div>`:""}<div><label>${i.tipo==="in"?"Forma de recebimento":"Forma de pagamento"}</label><select class="ePag">${opts(L,i.pag)}</select></div></div>
     <div style="display:flex;gap:8px"><button type="button" class="btn eOk" style="margin:0;background:var(--${i.tipo});color:#fff">Salvar</button><button type="button" class="ghost eNo" style="min-height:46px;padding:0 16px">Cancelar</button></div>
     <p class="meta eMsg" style="margin:0"></p>`;
-  const q=c=>f.querySelector(c);
+  ligaLabels(f);const q=c=>f.querySelector(c);
   q(".eDesc").value=i.desc;q(".eData").value=i.data;q(".eVal").value=brl(i.valor);
   const v=q(".eVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v)});
   v.addEventListener("keydown",e=>{if(e.key==="Backspace"&&v.selectionStart===v.value.length){e.preventDefault();v.value=String(centavos(v.value)).slice(0,-1);mascara(v)}});
@@ -1504,7 +1522,7 @@ let atual=[],confirmaLimpar=false,tLimpar=null;
 function resetLimpar(){confirmaLimpar=false;clearTimeout(tLimpar);$("limpar").textContent="Limpar extrato"}
 $("limpar").onclick=async()=>{
   if(!atual.length){$("expMsg").textContent="Não há lançamentos para limpar neste filtro.";return}
-  if(!confirmaLimpar){confirmaLimpar=true;$("limpar").textContent="Confirmar: apagar "+atual.length+" lançamento(s)";$("expMsg").textContent="Isso apaga os lançamentos mostrados abaixo (mês e filtros atuais). Toque de novo para confirmar.";tLimpar=setTimeout(()=>{resetLimpar();$("expMsg").textContent=""},6000);return}
+  if(!confirmaLimpar){confirmaLimpar=true;$("limpar").textContent="Apagar "+atual.length+" lançamento(s)";$("expMsg").textContent="Isso apaga os lançamentos mostrados abaixo (mês e filtros atuais). Toque de novo para confirmar.";tLimpar=setTimeout(()=>{resetLimpar();$("expMsg").textContent=""},6000);return}
   const fora=atual.slice(),ids=new Set(fora.map(i=>i.id));resetLimpar();
   S.items=S.items.filter(x=>!ids.has(x.id));render();
   $("expMsg").textContent=fora.length+" lançamento(s) apagado(s).";
