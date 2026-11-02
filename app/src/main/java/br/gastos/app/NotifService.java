@@ -27,11 +27,22 @@ public class NotifService extends NotificationListenerService {
       if (!picpay && !gmail) return;
       Bundle ex = sbn.getNotification().extras;
       String titulo = String.valueOf(ex.getCharSequence(Notification.EXTRA_TITLE, ""));
+      StringBuilder sb = new StringBuilder();
       CharSequence big = ex.getCharSequence(Notification.EXTRA_BIG_TEXT);
-      String texto = String.valueOf(big != null ? big : ex.getCharSequence(Notification.EXTRA_TEXT, ""));
+      CharSequence txt = ex.getCharSequence(Notification.EXTRA_TEXT);
+      if (big != null) sb.append(big); else if (txt != null) sb.append(txt);
+      if (big != null && txt != null && !big.toString().contains(txt)) sb.append(" ").append(txt);
+      CharSequence[] linhas = ex.getCharSequenceArray(Notification.EXTRA_TEXT_LINES);
+      if (linhas != null) for (CharSequence l : linhas) sb.append(" ").append(l);
+      CharSequence sub = ex.getCharSequence(Notification.EXTRA_SUB_TEXT);
+      if (sub != null) sb.append(" ").append(sub);
+      String texto = sb.toString().trim();
       String tudo = (titulo + " " + texto);
-      if (!tudo.contains("R$")) return;
-      if (gmail && !tudo.toLowerCase().contains("pix")) return;
+      if (gmail) {
+        String low = tudo.toLowerCase();
+        if (!low.contains("pix")) return;
+        if ((sbn.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0 && linhas == null) return;
+      } else if (!tudo.contains("R$")) return;
       SharedPreferences p = getSharedPreferences("gastos", MODE_PRIVATE);
       synchronized (NotifService.class) {
         JSONArray arr = new JSONArray(p.getString("notifs", "[]"));

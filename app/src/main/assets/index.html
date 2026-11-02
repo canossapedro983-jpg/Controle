@@ -652,8 +652,9 @@ function parseNotif(n){
   const gm=/gmail|android\.gm/i.test(n.pkg||"");
   const pag=gm&&/pix/i.test(t)?"Pix":/cr[eé]dito/i.test(t)?"Cartão de crédito":/pix/i.test(t)&&!/cart[aã]o/i.test(t)?"Pix":"Cartão de débito";
   const tipo=/recebe|recebid|caiu|dep[oó]sito/i.test(t)&&!/compra/i.test(t)?"in":"out";
+  if(gm){const m=t.match(/Pix (?:para|de)\s+(.+?)\s+Valor/i);if(m)loja=m[1].trim();else if(/R\$/.test(loja)||/^(?:picpay|no-reply)/i.test(loja))loja=""}
   const d=new Date(Number(n.ts)||Date.now());
-  const desc=(loja||n.titulo||"Compra PicPay").slice(0,60);
+  const desc=(loja||(gm?(/devolu/i.test(t)?"Devolução Pix":"Pix"):n.titulo)||"Compra PicPay").slice(0,60);
   const ant=ultDesc&&ultDesc[tipo+"|"+desc];
   return{id:n.id,fonte:gm?"gmail":"picpay",tipo,desc,valor,data:iso(d),hora:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),cat:tipo==="in"?"Receita":(ant&&CATS[ant.cat]?ant.cat:"Outros"),pag,raw:(n.titulo?n.titulo+" — ":"")+n.texto};
 }
