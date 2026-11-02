@@ -155,14 +155,20 @@ public class MainActivity extends Activity {
     @JavascriptInterface public void salvarCache(String s) { prefs.edit().putString("cache", s).apply(); }
     @JavascriptInterface public void irOnline() { runOnUiThread(() -> { if (temInternet()) abrirOnline(); }); }
 
+    @JavascriptInterface public boolean salvarBase64(String nome, String b64, String mime) {
+      try { return gravar(nome, android.util.Base64.decode(b64, android.util.Base64.DEFAULT), mime); } catch (Exception e) { return false; }
+    }
     @JavascriptInterface public boolean salvar(String nome, String texto) {
+      String mime = nome.endsWith(".html") ? "text/html" : nome.endsWith(".json") ? "application/json" : "text/csv";
+      return gravar(nome, texto.getBytes(StandardCharsets.UTF_8), mime);
+    }
+    boolean gravar(String nome, byte[] bytes, String mime) {
       try {
-        byte[] bytes = texto.getBytes(StandardCharsets.UTF_8);
         OutputStream out;
         if (Build.VERSION.SDK_INT >= 29) {
           ContentValues cv = new ContentValues();
           cv.put(MediaStore.Downloads.DISPLAY_NAME, nome);
-          cv.put(MediaStore.Downloads.MIME_TYPE, "text/csv");
+          cv.put(MediaStore.Downloads.MIME_TYPE, mime);
           Uri u = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
           out = getContentResolver().openOutputStream(u);
         } else {
