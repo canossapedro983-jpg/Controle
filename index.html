@@ -140,7 +140,7 @@ li:first-child{border-top:0}
     <button id="tabL" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><b>Lançamentos</b><small>Novo gasto, receita e extrato</small></button>
     <button id="tabR" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Resumo</b><small>Dia, semana, mês e ano</small></button>
     <button id="tabP" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg><b>Painel</b><small>Gráficos do mês</small></button>
-    <button id="tabA" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg><b>Aprovar</b><small>Compras do PicPay e Pix do Gmail</small><span id="aBadge" class="badge" hidden></span></button>
+    <button id="tabA" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg><b>Aprovar</b><small>Cartão (Carteira do Google), PicPay e Pix</small><span id="aBadge" class="badge" hidden></span></button>
     <button id="tabE" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><b>Listas</b><small>Categorias e sugestões</small></button>
   </nav>
   <div class="topo" id="topo"><button class="home" id="home" type="button" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button><h2 id="topoT">Lançamentos</h2></div>
@@ -654,11 +654,13 @@ function parseNotif(n){
   const gm=/gmail|android\.gm/i.test(n.pkg||"");
   const pag=gm&&/pix/i.test(t)?"Pix":/cr[eé]dito/i.test(t)?"Cartão de crédito":/pix/i.test(t)&&!/cart[aã]o/i.test(t)?"Pix":"Cartão de débito";
   const tipo=/recebe|recebid|caiu|dep[oó]sito/i.test(t)&&!/compra/i.test(t)?"in":"out";
+  const wl=/wallet|nbu\.paisa/i.test(n.pkg||"");
+  if(wl){const ti=(n.titulo||"").trim();if(ti&&!/R\$/.test(ti)&&!/^(google|carteira|wallet)/i.test(ti))loja=ti;else{const m=(n.texto||"").match(/(?:em|no|na)\s+(.+?)(?:\s+com\b|[.,!]|$)/i);if(m)loja=m[1].trim()}}
   if(gm){const m=t.match(/Pix (?:para|de)\s+(.+?)\s+Valor/i);if(m)loja=m[1].trim();else if(/R\$/.test(loja)||/^(?:picpay|no-reply)/i.test(loja))loja=""}
   const d=new Date(Number(n.ts)||Date.now());
   const desc=(loja||(gm?(/devolu/i.test(t)?"Devolução Pix":"Pix"):n.titulo)||"Compra PicPay").slice(0,60);
   const ant=ultDesc&&ultDesc[tipo+"|"+desc];
-  return{id:n.id,fonte:gm?"gmail":"picpay",tipo,desc,valor,data:iso(d),hora:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),cat:tipo==="in"?"Receita":(ant&&CATS[ant.cat]?ant.cat:"Outros"),pag,raw:(n.titulo?n.titulo+" — ":"")+n.texto};
+  return{id:n.id,fonte:gm?"gmail":wl?"carteira":"picpay",tipo,desc,valor,data:iso(d),hora:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),cat:tipo==="in"?"Receita":(ant&&CATS[ant.cat]?ant.cat:"Outros"),pag,raw:(n.titulo?n.titulo+" — ":"")+n.texto};
 }
 function lerNotifs(){if(!TEM_NOTIF)return[];let a=[];try{a=JSON.parse(AND.getNotifs()||"[]")}catch(e){return[]}
   // Pix do Gmail agora vem direto do Gmail; descarta as notificações do app Gmail para não duplicar.
@@ -724,7 +726,7 @@ window.atualizaAprovar=function(){
       <div style="display:flex;gap:8px"><button type="button" class="btn aOk" style="margin:0;background:var(--in);color:#fff">Confirmar</button><button type="button" class="ghost aNo" style="min-height:46px;padding:0 16px;color:var(--out);border-color:var(--out)">Excluir</button></div>
       <p class="meta aMsg" style="margin:0"></p>`;
     const q=k=>c.querySelector(k);
-    q(".raw").textContent=(it.fonte==="gmail"?"E-mail (Gmail): ":"Notificação PicPay: ")+it.raw+(it.jaLancado?"  ⚠ Já existe um lançamento com esse valor nesse dia.":"");q(".aDesc").value=it.desc;q(".aData").value=it.data;q(".aVal").value=it.valor?brl(it.valor):"";
+    q(".raw").textContent=(it.fonte==="gmail"?"E-mail (Gmail): ":it.fonte==="carteira"?"Carteira do Google: ":"Notificação PicPay: ")+it.raw+(it.jaLancado?"  ⚠ Já existe um lançamento com esse valor nesse dia.":"");q(".aDesc").value=it.desc;q(".aData").value=it.data;q(".aVal").value=it.valor?brl(it.valor):"";
     const v=q(".aVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v);it.valor=centavos(v.value)/100});
     q(".aDesc").oninput=()=>{it.desc=q(".aDesc").value};q(".aData").onchange=()=>{it.data=q(".aData").value};
     q(".aPag").onchange=()=>{it.pag=q(".aPag").value};if(q(".aCat"))q(".aCat").onchange=()=>{it.cat=q(".aCat").value};
