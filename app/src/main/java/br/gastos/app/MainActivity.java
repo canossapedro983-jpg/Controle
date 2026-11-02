@@ -99,6 +99,8 @@ public class MainActivity extends Activity {
 
   @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 
+  void responderBio(boolean ok) { runOnUiThread(() -> web.evaluateJavascript("window.bioResultado&&bioResultado(" + ok + ")", null)); }
+
   class Ponte {
     @JavascriptInterface public String getNotifs() { return prefs.getString("notifs", "[]"); }
     @JavascriptInterface public void removerNotif(String id) {
@@ -118,6 +120,33 @@ public class MainActivity extends Activity {
     }
     @JavascriptInterface public void abrirPermissaoNotif() {
       runOnUiThread(() -> { try { startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")); } catch (Exception e) { } });
+    }
+    @JavascriptInterface public void lembrete(boolean ligado, int h, int m) {
+      prefs.edit().putBoolean("lembrete", ligado).putInt("lembreteH", h).putInt("lembreteM", m).apply();
+      if (ligado && Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED)
+        runOnUiThread(() -> requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 5));
+      LembreteReceiver.reagendar(MainActivity.this);
+    }
+    @JavascriptInterface public boolean temBiometria() {
+      if (Build.VERSION.SDK_INT < 29) return false;
+      try {
+        android.hardware.biometrics.BiometricManager bm = (android.hardware.biometrics.BiometricManager) getSystemService(Context.BIOMETRIC_SERVICE);
+        return bm != null && bm.canAuthenticate() == android.hardware.biometrics.BiometricManager.BIOMETRIC_SUCCESS;
+      } catch (Exception e) { return false; }
+    }
+    @JavascriptInterface public void biometria() {
+      if (Build.VERSION.SDK_INT < 29) { responderBio(false); return; }
+      runOnUiThread(() -> {
+        try {
+          android.hardware.biometrics.BiometricPrompt.Builder b = new android.hardware.biometrics.BiometricPrompt.Builder(MainActivity.this)
+            .setTitle("Controle de gastos").setSubtitle("Desbloqueie para ver seus gastos");
+          b.setNegativeButton("Usar PIN", getMainExecutor(), (d, w) -> responderBio(false));
+          b.build().authenticate(new android.os.CancellationSignal(), getMainExecutor(), new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+            @Override public void onAuthenticationSucceeded(android.hardware.biometrics.BiometricPrompt.AuthenticationResult r) { responderBio(true); }
+            @Override public void onAuthenticationError(int c, CharSequence s) { responderBio(false); }
+          });
+        } catch (Exception e) { responderBio(false); }
+      });
     }
     @JavascriptInterface public boolean modoOffline() { return offline; }
     @JavascriptInterface public String getFila() { return prefs.getString("fila", "{}"); }
