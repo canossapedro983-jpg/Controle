@@ -148,6 +148,30 @@ public class MainActivity extends Activity {
         } catch (Exception e) { responderBio(false); }
       });
     }
+    @JavascriptInterface public String getDiag() { return prefs.getString("diag", "[]"); }
+    @JavascriptInterface public void limparDiag() { prefs.edit().putString("diag", "[]").apply(); }
+    @JavascriptInterface public void reconectarNotif() {
+      try {
+        android.content.ComponentName cn = new android.content.ComponentName(MainActivity.this, NotifService.class);
+        android.content.pm.PackageManager pm = getPackageManager();
+        pm.setComponentEnabledSetting(cn, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED, android.content.pm.PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(cn, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED, android.content.pm.PackageManager.DONT_KILL_APP);
+        if (Build.VERSION.SDK_INT >= 24) android.service.notification.NotificationListenerService.requestRebind(cn);
+      } catch (Exception e) { }
+    }
+    @JavascriptInterface public boolean notifTeste() {
+      try {
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+          runOnUiThread(() -> requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 6)); return false;
+        }
+        android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(new android.app.NotificationChannel("teste", "Teste de leitura", android.app.NotificationManager.IMPORTANCE_DEFAULT));
+        android.app.Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new android.app.Notification.Builder(MainActivity.this, "teste") : new android.app.Notification.Builder(MainActivity.this);
+        b.setSmallIcon(R.mipmap.ic_launcher).setContentTitle(NotifService.TESTE + " " + (System.currentTimeMillis() % 1000)).setContentText("Compra de R$ 1,23 aprovada em LOJA TESTE").setAutoCancel(true);
+        nm.notify((int) (System.currentTimeMillis() % 100000), b.build());
+        return true;
+      } catch (Exception e) { return false; }
+    }
     @JavascriptInterface public boolean modoOffline() { return offline; }
     @JavascriptInterface public String getFila() { return prefs.getString("fila", "{}"); }
     @JavascriptInterface public void setFila(String s) { prefs.edit().putString("fila", s).commit(); }

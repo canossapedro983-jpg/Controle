@@ -449,7 +449,10 @@ html.privado #pdN,html.privado #pdSub b,html.privado .pdConta b,html.privado .fx
       <div class="cfg" id="cGmailRow"><div><b>Buscar Pix no Gmail</b><small>Procura e-mails de Pix ao abrir o app</small></div><label class="sw"><input type="checkbox" id="cGmail"><span></span></label></div>
       <p class="meta" id="cMsg" role="status"></p>
     </section>
-    <section class="panel" style="margin-top:16px" id="cNotif" hidden><h2>Leitura de notificações</h2><p class="meta" id="cNotifTxt" style="margin:0 0 12px"></p><button class="ghost" id="cNotifBtn" type="button" style="min-height:44px">Abrir configuração do Android</button></section>
+    <section class="panel" style="margin-top:16px" id="cNotif" hidden><h2>Leitura de notificações</h2><p class="meta" id="cNotifTxt" style="margin:0 0 12px"></p><button class="ghost" id="cNotifBtn" type="button" style="min-height:44px">Abrir configuração do Android</button><div id="cDiag" hidden style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+      <b>Diagnóstico</b><p class="meta" style="margin:4px 0 10px">Mostra as últimas notificações com valor que o app viu e o que fez com cada uma. Fica só neste celular.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" id="dTeste" type="button">Enviar notificação de teste</button><button class="ghost" id="dRecon" type="button">Reconectar leitor</button><button class="ghost" id="dAtual" type="button">Atualizar</button><button class="ghost" id="dLimpa" type="button">Limpar</button></div>
+      <p class="meta" id="dMsg" role="status"></p><ul id="dLista" style="font-size:.85rem"></ul></div></section>
     <section class="panel" style="margin-top:16px"><h2>Backup e conta</h2><p class="meta" style="margin:0 0 12px">Guarda todos os lançamentos e listas num arquivo. Serve para levar seus dados para outro lugar.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" id="bkExp" type="button" style="min-height:44px">Baixar backup</button>
       <label class="ghost" style="display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:0;cursor:pointer;color:var(--muted)">Importar backup<input id="bkImp" type="file" accept=".json,application/json" style="display:none"></label></div>
@@ -1029,7 +1032,7 @@ function parseNotif(n){
   const gm=/gmail|android\.gm/i.test(n.pkg||"");
   const pag=gm&&/pix/i.test(t)?"Pix":/cr[eé]dito/i.test(t)?"Cartão de crédito":/pix/i.test(t)&&!/cart[aã]o/i.test(t)?"Pix":"Cartão de débito";
   const tipo=/recebe|recebid|caiu|dep[oó]sito/i.test(t)&&!/compra/i.test(t)?"in":"out";
-  const wl=/wallet|nbu\.paisa/i.test(n.pkg||"");
+  const wl=/wallet|nbu\.paisa|android\.gms$/i.test(n.pkg||"");
   if(wl){const ti=(n.titulo||"").trim();if(ti&&!/R\$/.test(ti)&&!/^(google|carteira|wallet)/i.test(ti))loja=ti;else{const m=(n.texto||"").match(/(?:em|no|na)\s+(.+?)(?:\s+com\b|[.,!]|$)/i);if(m)loja=m[1].trim()}}
   if(gm){const m=t.match(/Pix (?:para|de)\s+(.+?)\s+Valor/i);if(m)loja=m[1].trim();else if(/R\$/.test(loja)||/^(?:picpay|no-reply)/i.test(loja))loja=""}
   const d=new Date(Number(n.ts)||Date.now());
@@ -1040,7 +1043,7 @@ function parseNotif(n){
 function lerNotifs(){if(!TEM_NOTIF)return[];let a=[];try{a=JSON.parse(AND.getNotifs()||"[]")}catch(e){return[]}
   return a.filter(n=>{if(!fonteOk(fonteNotif(n.pkg))){try{AND.removerNotif(n.id)}catch(e){}return false}return true})}
 const GMAIL_NOTIF=true; // no claude.ai o Pix vem pela busca direta no Gmail
-function fonteNotif(pkg){pkg=pkg||"";return/android\.gm/i.test(pkg)?"gmail":/wallet|nbu\.paisa/i.test(pkg)?"carteira":"picpay"}
+function fonteNotif(pkg){pkg=pkg||"";return/android\.gm$/i.test(pkg)?"gmail":/wallet|nbu\.paisa|android\.gms$/i.test(pkg)?"carteira":"picpay"}
 function fonteOk(f){return f==="gmail"?(GMAIL_NOTIF&&PREFS.fGmail):f==="carteira"?PREFS.fCarteira:PREFS.fPicpay}
 let gBuscando=false;
 function parsePixEmail(m){
@@ -1209,7 +1212,7 @@ function resumoSemana(){
   $("semX").onclick=()=>{try{localStorage.setItem(KEY+"-semX",a0)}catch(e){}$("semBox").hidden=true};
   $("semVer").onclick=()=>{aba("R");irPara("s",a0)};
 }
-function telaConfig(){
+function telaConfig(){try{diagTela()}catch(e){}
   const fill=(id,arr,v)=>{$(id).innerHTML="";arr.forEach(x=>{const o=document.createElement("option");o.value=o.textContent=x;$(id).appendChild(o)});$(id).value=v};
   fill("cfgPag",PAGS,PREFS.pagPadrao);fill("cfgPagR",PAGS_IN,PREFS.pagPadraoR);
   $("cTema").value=PREFS.tema;$("cOcAbrir").checked=PREFS.ocultaAbrir;$("cFPic").checked=PREFS.fPicpay;$("cFCart").checked=PREFS.fCarteira;$("cFGm").checked=PREFS.fGmail;
@@ -1385,6 +1388,21 @@ function ligaLabels(root){root.querySelectorAll("label").forEach(l=>{if(l.htmlFo
     if(vazio){el.setAttribute("aria-invalid","true");$("msg"+R).textContent=id.startsWith("valor")?"Digite um valor maior que zero.":(R?"Digite a descrição.":"Digite o estabelecimento.")}});
   el.addEventListener("focus",()=>{if(el.getAttribute("aria-invalid")){el.removeAttribute("aria-invalid");$("msg"+R).textContent=""}});
 });
+function diagTela(){
+  const ok=!!(window.Android&&typeof Android.getDiag==="function");$("cDiag").hidden=!ok;if(!ok)return;
+  let a=[];try{a=JSON.parse(Android.getDiag()||"[]")}catch(e){}
+  const ul=$("dLista");ul.innerHTML="";
+  if(!a.length){ul.innerHTML='<li class="empty" style="display:block">Nada registrado ainda. Toque em "Enviar notificação de teste" ou faça uma compra.</li>';return}
+  a.forEach(d=>{const li=document.createElement("li");li.style.cssText="display:block;padding:8px 0";const h=new Date(d.ts);
+    const ok=/Guardada/.test(d.res);li.innerHTML=`<b style="color:${ok?"var(--in)":/Erro|desconectado/.test(d.res)?"var(--out)":"var(--muted)"}"></b><br><small></small><br><small></small>`;
+    li.children[0].textContent=d.res;li.children[2].textContent=String(h.getDate()).padStart(2,"0")+"/"+String(h.getMonth()+1).padStart(2,"0")+" "+String(h.getHours()).padStart(2,"0")+":"+String(h.getMinutes()).padStart(2,"0")+" · "+d.pkg;
+    li.children[4].textContent=[d.titulo,d.texto].filter(Boolean).join(" — ");ul.appendChild(li)});
+}
+if($("dTeste")){
+  $("dTeste").onclick=()=>{const ok=Android.notifTeste();$("dMsg").textContent=ok?"Notificação enviada. Em 2 segundos ela deve aparecer abaixo como \"Guardada para Aprovar\".":"Permita as notificações do app e toque de novo.";setTimeout(diagTela,2500)};
+  $("dRecon").onclick=()=>{Android.reconectarNotif();$("dMsg").textContent="Leitor reconectado. Faça o teste de novo.";setTimeout(diagTela,1500)};
+  $("dAtual").onclick=diagTela;$("dLimpa").onclick=()=>{Android.limparDiag();diagTela()};
+}
 function render(){
   mesTexto();
   try{resumoSemana()}catch(e){}
