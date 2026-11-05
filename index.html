@@ -325,6 +325,15 @@ html.privado #pdN,html.privado #pdSub b,html.privado .pdConta b,html.privado .fx
 .est{font:600 .75rem var(--body);border-radius:99px;padding:2px 8px;white-space:nowrap}.est.pago{background:color-mix(in srgb,var(--in) 18%,transparent);color:var(--in)}.est.pend{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .fx .bts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.fx .bts button{flex:1 1 120px;min-height:44px}
 .fxAv{font-size:.85rem;color:var(--warn);margin-top:6px}
+html.privado .iv,html.privado .ivK b,html.privado #invHeroV,html.privado .ivRV{filter:blur(7px);user-select:none}
+.invH{display:flex;align-items:center;gap:6px;min-height:44px;margin:-8px 0 12px;padding:0;background:none;border:0;color:var(--muted);font:inherit;font-size:.9rem;cursor:pointer}.invH b{color:var(--ink,inherit)}
+.ivK{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ivC{display:block!important}.ivC .l1{display:flex;align-items:center;gap:10px}.ivC .l1 .d{flex:1;min-width:0}.ivC .d small,.ivC .d span{white-space:normal;overflow:visible;text-overflow:clip}.ivTx{font:600 .8rem var(--body);white-space:nowrap;color:var(--muted)}
+.ivG{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;margin-top:10px;font-size:.85rem}.ivG div{display:flex;flex-direction:column}.ivG span{color:var(--muted);font-size:.78rem}
+.ivM{margin:10px 0 0;font-size:.9rem}.ivF{margin:4px 0 0;font-size:.78rem;color:var(--muted)}
+.ivC .bts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.ivC .bts button{flex:1 1 90px;min-height:44px}
+.ivRes{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.ivChk{display:flex;align-items:center;gap:8px;min-height:44px}
+#ivResBox summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600}
 </style>
 </head>
 <body>
@@ -370,6 +379,7 @@ html.privado #pdN,html.privado #pdSub b,html.privado .pdConta b,html.privado .fx
     <button id="tabP" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg><b>Painel</b><small>Gráficos do mês</small></button>
     <button id="tabA" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg><b>Aprovar</b><small>Cartão (Carteira do Google), PicPay e Pix</small><span id="aBadge" class="badge" hidden></span></button>
     <button id="tabF" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18M8 15h3"/></svg><b>Contas fixas</b><small>Aluguel, luz, assinaturas</small></button>
+    <button id="tabI" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><b>Investimentos</b><small>Cofrinho, caixinha, poupança</small></button>
     <button id="tabE" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><b>Listas</b><small>Categorias e sugestões</small></button>
     <button id="tabB" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><b>Buscar</b><small>Ache qualquer lançamento</small></button>
     <button id="tabX" type="button"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg><b>Relatório</b><small>Mês em HTML ou PDF</small></button>
@@ -430,6 +440,7 @@ html.privado #pdN,html.privado #pdSub b,html.privado .pdConta b,html.privado .fx
       <div class="cfg"><div><b>Painel</b></div><label class="sw"><input type="checkbox" id="cTP"><span></span></label></div>
       <div class="cfg"><div><b>Aprovar</b></div><label class="sw"><input type="checkbox" id="cTA"><span></span></label></div>
       <div class="cfg"><div><b>Contas fixas</b></div><label class="sw"><input type="checkbox" id="cTF"><span></span></label></div>
+      <div class="cfg"><div><b>Investimentos</b></div><label class="sw"><input type="checkbox" id="cTI"><span></span></label></div>
       <div class="cfg"><div><b>Listas</b></div><label class="sw"><input type="checkbox" id="cTE"><span></span></label></div>
       <div class="cfg"><div><b>Buscar</b></div><label class="sw"><input type="checkbox" id="cTB"><span></span></label></div>
       <div class="cfg"><div><b>Relatório</b></div><label class="sw"><input type="checkbox" id="cTX"><span></span></label></div>
@@ -479,6 +490,27 @@ html.privado #pdN,html.privado #pdSub b,html.privado .pdConta b,html.privado .fx
       <div class="row2"><div><label for="fxCat">Categoria</label><select id="fxCat"></select></div><div><label for="fxPag">Pagamento</label><select id="fxPag"></select></div></div>
       <button class="btn" id="fxAdd" type="button">Salvar conta fixa</button>
       <p class="meta" id="fxMsg" role="status"></p>
+    </section>
+  </div>
+  <div id="vI" hidden>
+    <section class="panel"><h2>Dinheiro investido</h2><p class="meta" style="margin:-6px 0 12px">Valores são estimativas. Confira o saldo exato no app do banco.</p><div class="kpis ivK" id="ivKpis"></div></section>
+    <section class="panel" style="margin-top:16px"><h2>Aplicações</h2><ul id="ivLista"></ul>
+      <details id="ivResBox" hidden style="margin-top:12px"><summary>Resgatadas (<span id="ivResN">0</span>)</summary><ul id="ivResL"></ul></details></section>
+    <section class="panel" id="ivForm" style="margin-top:16px"><h2 id="ivFTit">Nova aplicação</h2>
+      <label for="ivProd">Onde está o dinheiro</label><select id="ivProd"></select>
+      <p class="meta" id="ivNota" style="margin:6px 0 0"></p>
+      <div class="row2"><div><label for="ivVal">Valor aplicado</label><input id="ivVal" type="text" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div><div><label for="ivData">Data da aplicação</label><input id="ivData" type="date"></div></div>
+      <div class="row2"><div id="ivPctBox"><label for="ivPct" id="ivPctL">Percentual do CDI (%)</label><input id="ivPct" type="text" inputmode="decimal" autocomplete="off"></div><div><label for="ivApel">Apelido (opcional)</label><input id="ivApel" maxlength="40" placeholder="Ex.: Reserva, Viagem" autocomplete="off"></div></div>
+      <button class="btn" id="ivAdd" type="button">Salvar aplicação</button><button class="ghost" id="ivCanc" type="button" hidden style="width:100%;min-height:44px;margin-top:8px">Cancelar edição</button>
+      <p class="meta" id="ivMsg" role="status"></p>
+      <p class="meta" style="margin:4px 0 0">Dica: colocou mais dinheiro? Cadastre como uma nova aplicação com a data do aporte, porque cada valor rende (e paga IR) a partir do dia em que entrou.</p>
+    </section>
+    <section class="panel" style="margin-top:16px"><h2>Taxas de referência</h2><p class="meta" id="ivTEm" style="margin:-6px 0 8px"></p>
+      <div class="row2"><div><label for="ivT_selic">Selic (% ao ano)</label><input id="ivT_selic" type="text" inputmode="decimal"></div><div><label for="ivT_cdi">CDI (% ao ano)</label><input id="ivT_cdi" type="text" inputmode="decimal"></div></div>
+      <label for="ivT_tr">TR (% ao mês)</label><input id="ivT_tr" type="text" inputmode="decimal">
+      <button class="ghost" id="ivTBcb" type="button" style="width:100%;min-height:44px;margin-top:12px">Atualizar com o Banco Central</button>
+      <p class="meta" id="ivTMsg" role="status"></p>
+      <p class="meta" style="margin:4px 0 0">Cálculo aproximado: considera dias úteis de segunda a sexta (sem feriados) quando não há CDI real do Banco Central, IR regressivo e IOF nos primeiros 29 dias. Poupança é isenta e rende só no aniversário mensal.</p>
     </section>
   </div>
   <div id="vE" hidden>
@@ -546,6 +578,7 @@ html.privado #pdN,html.privado #pdSub b,html.privado .pdConta b,html.privado .fx
     <div style="color:var(--muted)" id="saldoLbl">Saldo</div>
     <div class="saldo" id="saldo">R$ 0,00</div>
     <div class="meta" id="saldoAnt" style="margin:-8px 0 16px"></div>
+    <button type="button" class="invH" id="invHero" hidden aria-label="Abrir investimentos">Investido: <b id="invHeroV">R$ 0,00</b><span aria-hidden="true">›</span></button>
     <div class="duo">
       <div><span style="color:var(--muted)">Receitas</span><b class="in" id="rec">R$ 0,00</b></div>
       <div><span style="color:var(--muted)">Gastos</span><b class="out" id="gas">R$ 0,00</b></div>
@@ -725,12 +758,12 @@ function lanca(tp){
 $("add").onclick=()=>lanca(window._fTipo==="tr"?"tr":"out");$("addR").onclick=()=>lanca("in");
 ["mes","fcat","fpag","ftipo"].forEach(i=>$(i).onchange=render);
 
-const NOMES={L:"Lançamentos",R:"Resumo",P:"Painel",A:"Aprovar",E:"Listas",C:"Configurações",B:"Buscar",X:"Relatório",F:"Contas fixas"};
+const NOMES={L:"Lançamentos",R:"Resumo",P:"Painel",A:"Aprovar",E:"Listas",C:"Configurações",B:"Buscar",X:"Relatório",F:"Contas fixas",I:"Investimentos"};
 function aba(x){
   const menu=x==="M"||!NOMES[x];
   $("menu").hidden=!menu;$("home").hidden=menu;if(menu)$("topoT").textContent="Mais";
-  ["L","R","P","A","E","C","B","X","F"].forEach(k=>$("v"+k).hidden=menu||k!==x);$("gear").hidden=x==="C";$("lupa").hidden=x==="B";if(x==="B"){busca();setTimeout(()=>$("bQ").focus(),50)}if(x==="X"&&!$("xMes").value)$("xMes").value=$("mes").value;
-  if(!menu){$("topoT").textContent=NOMES[x];if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor();if(x==="C")telaConfig();if(x==="F")telaFixas()}
+  ["L","R","P","A","E","C","B","X","F","I"].forEach(k=>$("v"+k).hidden=menu||k!==x);$("gear").hidden=x==="C";$("lupa").hidden=x==="B";if(x==="B"){busca();setTimeout(()=>$("bQ").focus(),50)}if(x==="X"&&!$("xMes").value)$("xMes").value=$("mes").value;
+  if(!menu){$("topoT").textContent=NOMES[x];if(x==="A")setTimeout(()=>atualizaAprovar());if(x==="E")editor();if(x==="C")telaConfig();if(x==="F")telaFixas();if(x==="I"){telaInvest();carregaSeries()}}
   try{localStorage.setItem(KEY+"-aba",menu?"M":x)}catch(e){}
   window.scrollTo(0,0);
 }
@@ -802,22 +835,26 @@ function aplicaListas(l){
   if(Array.isArray(l.ocultas))OCULTAS=l.ocultas.map(String);
   if(Array.isArray(l.fixas))FIXAS=l.fixas.filter(f=>f&&f.nome).map(f=>({...f,valor:Number(f.valor)||0,dia:Number(f.dia)||1}));
   if(Array.isArray(l.fixasIgn))FIXAS_IGN=l.fixasIgn.map(String);
+  if(Array.isArray(l.invest))INVEST=l.invest.filter(a=>a&&a.data&&Number(a.valor)>0).map(a=>({...a,valor:Number(a.valor),pct:Number(a.pct)||0,resg:a.resg&&a.resg.data?{data:a.resg.data,valor:Number(a.resg.valor)||0}:null}));
+  if(l.taxas&&typeof l.taxas==="object"){const t={...TAXAS_PADRAO,...l.taxas};["selic","cdi","tr"].forEach(k=>{t[k]=Number(t[k]);if(!isFinite(t[k]))t[k]=TAXAS_PADRAO[k]});TAXAS=t}
   if(l.prefs&&typeof l.prefs==="object"){const pv=PREFS.privado;PREFS={...PREFS_PADRAO,...l.prefs};if(window._privIni)PREFS.privado=pv;try{localStorage.setItem(KEY+"-prefs",JSON.stringify(PREFS))}catch(e){}aplicaTema()}
   montaSelects();
 }
 let OCULTAS=["Compra realiza"];
 let FIXAS=[],FIXAS_IGN=[];
+const TAXAS_PADRAO={selic:13.75,cdi:13.65,tr:0.1616,em:"2026-11-04",obs:"Copom manteve a Selic em 13,75% em 04/11/2026"};
+let INVEST=[],TAXAS={...TAXAS_PADRAO};
 const PREFS_PADRAO={tema:"escuro",inicio:"L",pagPadrao:"Cartão de débito",pagPadraoR:"Pix",semana:true,auto:true,confirma:true,iniSemana:"seg",privado:false,fonte:"normal",acumula:true,onde:true,ordem:"recentes",importa:"mes",gmail:true,ocultaAbrir:false,fPicpay:true,fCarteira:true,fGmail:true,telas:{R:true,P:true,A:true,E:true},lembrete:false,lembreteHora:"20:00",autoAprova:false,meuNome:"",porDia:true};
 let PREFS={...PREFS_PADRAO};
 const OLHO='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const OLHO_X='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>';
 function iconeOlho(){const b=document.getElementById("olho");if(!b)return;b.innerHTML=PREFS.privado?OLHO_X:OLHO;b.setAttribute("aria-pressed",!!PREFS.privado);b.setAttribute("aria-label",PREFS.privado?"Mostrar valores":"Esconder valores");b.dataset.tip=PREFS.privado?"Mostrar valores":"Esconder valores"}
-function telasMenu(){const t=PREFS.telas||{};["R","P","A","E","B","X","F"].forEach(k=>{const b=document.getElementById("tab"+k);if(b)b.hidden=t[k]===false})}
+function telasMenu(){const t=PREFS.telas||{};["R","P","A","E","B","X","F","I"].forEach(k=>{const b=document.getElementById("tab"+k);if(b)b.hidden=t[k]===false})}
 function aplicaTema(){iconeOlho();document.documentElement.classList.toggle("privado",!!PREFS.privado);document.documentElement.style.fontSize=PREFS.fonte==="grande"?"18px":PREFS.fonte==="pequena"?"14.5px":"";const t=PREFS.tema==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"claro":"escuro"):PREFS.tema;document.documentElement.classList.toggle("claro",t==="claro")}
 try{const p=JSON.parse(localStorage.getItem(KEY+"-prefs")||"null");if(p)PREFS={...PREFS_PADRAO,...p}}catch(e){}
 aplicaTema();desdePadrao();telasMenu();
 const oculta=x=>{const n=semAc(x);return OCULTAS.some(h=>{const k=semAc(h);return k&&n.startsWith(k)})};
-function listasAtuais(){return{cats:{...CATS},pags:PAGS.slice(),sugs:SUG.slice(),pagsIn:PAGS_IN.slice(),sugsIn:SUG_IN.slice(),ocultas:OCULTAS.slice(),fixas:FIXAS.map(f=>({...f})),fixasIgn:FIXAS_IGN.slice(),prefs:{...PREFS}}}
+function listasAtuais(){return{cats:{...CATS},pags:PAGS.slice(),sugs:SUG.slice(),pagsIn:PAGS_IN.slice(),sugsIn:SUG_IN.slice(),ocultas:OCULTAS.slice(),fixas:FIXAS.map(f=>({...f})),fixasIgn:FIXAS_IGN.slice(),invest:INVEST.map(a=>({...a,resg:a.resg?{...a.resg}:null})),taxas:{...TAXAS},prefs:{...PREFS}}}
 async function gravaListas(){S.listas=listasAtuais();montaSelects();editor();render();if(OFFLINE){const f=lerFila();f.listas=S.listas;salvaFila(f);return}if(!COL){save();return}try{await COL.doc("config").set({budget:S.budget,listas:S.listas})}catch(e){syncMsg("Não foi possível sincronizar agora.")}}
 function chip(txt,onDel,cor,onCor){
   const c=document.createElement("span");c.className="chip";
@@ -1218,7 +1255,7 @@ function telaConfig(){try{diagTela()}catch(e){}
   const fill=(id,arr,v)=>{$(id).innerHTML="";arr.forEach(x=>{const o=document.createElement("option");o.value=o.textContent=x;$(id).appendChild(o)});$(id).value=v};
   fill("cfgPag",PAGS,PREFS.pagPadrao);fill("cfgPagR",PAGS_IN,PREFS.pagPadraoR);
   $("cTema").value=PREFS.tema;$("cOcAbrir").checked=PREFS.ocultaAbrir;$("cFPic").checked=PREFS.fPicpay;$("cFCart").checked=PREFS.fCarteira;$("cFGm").checked=PREFS.fGmail;
-  const tl=PREFS.telas||{};["R","P","A","E","B","X","F"].forEach(k=>$("cT"+k).checked=tl[k]!==false);
+  const tl=PREFS.telas||{};["R","P","A","E","B","X","F","I"].forEach(k=>$("cT"+k).checked=tl[k]!==false);
   const tv=travaCfg();$("cTrava").value=tv.modo||"";$("cPinBox").hidden=true;$("cTrocaRow").hidden=!tv.pin||!tv.modo;
   const temBio=!!(window.Android&&typeof Android.temBiometria==="function"&&Android.temBiometria());$("cTrava").querySelector('[value="bio"]').hidden=!temBio;
   const temLemb=!!(window.Android&&typeof Android.lembrete==="function");$("cLembBox").hidden=!temLemb;$("cLemb").checked=PREFS.lembrete;$("cLembH").value=PREFS.lembreteHora;$("cFonte").value=PREFS.fonte;$("cOrdem").value=PREFS.ordem;$("cSem").value=PREFS.iniSemana;$("cImp").value=PREFS.importa;$("cPriv").checked=PREFS.privado;$("cOnde").checked=PREFS.onde;$("cAcum").checked=PREFS.acumula;$("cGmail").checked=PREFS.gmail;$("cInicio").value=PREFS.inicio;$("cSemana").checked=PREFS.semana;$("cAuto").checked=PREFS.auto;$("cConf").checked=PREFS.confirma;$("cPorDia").checked=PREFS.porDia!==false;$("cAutoApr").checked=!!PREFS.autoAprova;$("cNome").value=PREFS.meuNome||"";
@@ -1226,7 +1263,7 @@ function telaConfig(){try{diagTela()}catch(e){}
   if(tn){let ok=true;try{ok=AND.notifPermitida()}catch(e){}$("cNotifTxt").textContent=ok?"Ativa: compras do PicPay e da Carteira do Google chegam na aba Aprovar.":"Desativada: ative para as compras chegarem sozinhas na aba Aprovar.";$("cNotifBtn").onclick=()=>AND.abrirPermissaoNotif()}
 }
 $("olho").onclick=()=>{PREFS.privado=!PREFS.privado;if($("cPriv"))$("cPriv").checked=PREFS.privado;salvaPrefs()};
-["R","P","A","E","B","X","F"].forEach(k=>$("cT"+k).onchange=()=>{PREFS.telas={...(PREFS.telas||{}),[k]:$("cT"+k).checked};telasMenu();salvaPrefs()});
+["R","P","A","E","B","X","F","I"].forEach(k=>$("cT"+k).onchange=()=>{PREFS.telas={...(PREFS.telas||{}),[k]:$("cT"+k).checked};telasMenu();salvaPrefs()});
 function agendaLembrete(){try{if(window.Android&&Android.lembrete){const [h,m]=(PREFS.lembreteHora||"20:00").split(":").map(Number);Android.lembrete(!!PREFS.lembrete,h,m)}}catch(e){}}
 $("cLemb").onchange=()=>{PREFS.lembrete=$("cLemb").checked;agendaLembrete();salvaPrefs()};
 $("cLembH").onchange=()=>{PREFS.lembreteHora=$("cLembH").value||"20:00";agendaLembrete();salvaPrefs()};
@@ -1783,7 +1820,7 @@ function telaLogin(SB){
 })();
 // ===== Redesenho: navegação inferior, folha de lançamento, teclado, lista por dia =====
 (function(){
-  const VIEWS=["L","R","P","A","E","C","B","X","F"];
+  const VIEWS=["L","R","P","A","E","C","B","X","F","I"];
   function telaAtual(){for(const k of VIEWS)if(!$("v"+k).hidden)return k;return "M"}
   function navSync(){
     const x=telaAtual();
@@ -2011,7 +2048,157 @@ function porDia(){
 $("pdBox").onclick=()=>{$("pdConta").hidden=!$("pdConta").hidden;$("pdBox").setAttribute("aria-expanded",String(!$("pdConta").hidden))};
 {const _r=render;render=function(){_r();try{porDia()}catch(e){}try{if(!$("vF").hidden)telaFixas()}catch(e){}}}
 ["mes","fcat","fpag","ftipo"].forEach(i=>$(i).onchange=()=>render());
+// ===== Investimentos =====
+const INV_PRESETS=[
+  {k:"picpay",nome:"PicPay Cofrinho",tipo:"cdi",pct:102,nota:"Cofrinho Turbinado até 121% para quem cumpre as condições"},
+  {k:"nubank",nome:"Nubank Caixinha",tipo:"cdi",pct:100,nota:"Turbo 120% para assinantes"},
+  {k:"mp",nome:"Mercado Pago Cofrinho",tipo:"cdi",pct:100,nota:"115% a 120% com condições, até um teto"},
+  {k:"inter",nome:"Inter Meu Porquinho",tipo:"cdi",pct:100,nota:""},
+  {k:"poup",nome:"Poupança",tipo:"poup",pct:0,nota:"Rende só no aniversário mensal da aplicação"},
+  {k:"cdb",nome:"CDB",tipo:"cdi",pct:100,nota:"Digite o percentual do CDI que o banco oferece"},
+  {k:"selic",nome:"Tesouro Selic",tipo:"selic",pct:100,nota:"Aproximação: ignora as taxas da B3 e do Tesouro"},
+  {k:"fixo",nome:"Outro (taxa fixa)",tipo:"fixo",pct:10,nota:"Digite a taxa em % ao ano"}];
+const IOF_T=[96,93,90,86,83,80,76,73,70,66,63,60,56,53,50,46,43,40,36,33,30,26,23,20,16,13,10,6,3];
+const presetDe=k=>INV_PRESETS.find(p=>p.k===k)||INV_PRESETS[5];
+const brC=d=>d?d.slice(8)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
+const diasEntre=(a,b)=>Math.round((dt0(b)-dt0(a))/864e5);
+const numBR=t=>{const n=Number(String(t).replace(/\s|%/g,"").replace(",","."));return isFinite(n)?n:NaN};
+const fmtPct=(n,c)=>Number(n).toLocaleString("pt-BR",{maximumFractionDigits:c==null?2:c});
+function irAliq(d){return d<=180?.225:d<=360?.2:d<=720?.175:.15}
+function iofAliq(d){return d>=1&&d<=29?IOF_T[d-1]/100:d<1?1:0}
+function addMes(d,n){const [y,m,dd]=d.split("-").map(Number);const ult=new Date(y,m-1+n+1,0).getDate();return iso(new Date(y,m-1+n,Math.min(dd,ult)))}
+// séries do Banco Central (CDI=12, Selic=11), % ao dia por data ISO
+const SERIES={12:null,11:null};
+function diaria(anual){return Math.pow(1+anual/100,1/252)-1}
+function fatorDiario(serie,anual,pct,de,ate){
+  const s=SERIES[serie];let f=1,real=0,ult="";
+  const fb=diaria(anual)*pct/100;
+  let d=somaDias(de,1);
+  const sDatas=s?s.map:null,sFim=s?s.fim:"";
+  while(d<=ate){
+    if(sDatas&&d<=sFim){if(sDatas[d]!=null){f*=1+sDatas[d]/100*pct/100;real++;ult=d}}
+    else{const w=dt0(d).getDay();if(w>0&&w<6)f*=1+fb}
+    d=somaDias(d,1)}
+  return{f,real,ult}
+}
+function calcInv(a,hoje){
+  hoje=hoje||today();const p=presetDe(a.prod),dc=Math.max(0,diasEntre(a.data,hoje));
+  let bruto=a.valor,mensal=0,prox="",fonte="";
+  if(p.tipo==="cdi"||p.tipo==="selic"){const sr=p.tipo==="cdi"?12:11,an=p.tipo==="cdi"?TAXAS.cdi:TAXAS.selic;
+    const r=fatorDiario(sr,an,a.pct,a.data,hoje);bruto=a.valor*r.f;
+    mensal=Math.pow(1+diaria(an)*a.pct/100,21)-1;
+    fonte=r.ult?(p.tipo==="cdi"?"CDI":"Selic")+" real do Banco Central até "+br(r.ult):(p.tipo==="cdi"?"CDI":"Selic")+" estimado em "+fmtPct(an)+"% a.a."}
+  else if(p.tipo==="poup"){
+    mensal=(TAXAS.selic>8.5?.005:Math.pow(1+TAXAS.selic*.7/100,1/12)-1)+TAXAS.tr/100;
+    let n=0;while(addMes(a.data,n+1)<=hoje)n++;
+    bruto=a.valor*Math.pow(1+mensal,n);prox=addMes(a.data,n+1);fonte="Poupança: "+(TAXAS.selic>8.5?"0,5%":"70% da Selic")+" + TR "+fmtPct(TAXAS.tr,4)+"% ao mês"}
+  else{bruto=a.valor*Math.pow(1+a.pct/100,dc/365);mensal=Math.pow(1+a.pct/100,1/12)-1;fonte="Taxa fixa de "+fmtPct(a.pct)+"% a.a."}
+  const rend=bruto-a.valor;let iof=0,ir=0;
+  if(p.tipo!=="poup"&&rend>0){iof=rend*iofAliq(dc);ir=(rend-iof)*irAliq(dc)}
+  const liq=bruto-iof-ir;
+  return{dias:dc,bruto,rend,iof,ir,liq,mensal,porMes:bruto*mensal,prox,fonte,tipo:p.tipo}
+}
+window.calcInv=calcInv;window.SERIES=SERIES;
+const ativas=()=>INVEST.filter(a=>!a.resg);
+function rotuloTaxa(a){const p=presetDe(a.prod);return p.tipo==="poup"?"Poupança":p.tipo==="fixo"?fmtPct(a.pct)+"% ao ano":fmtPct(a.pct)+"% "+(p.tipo==="selic"?"da Selic":"do CDI")}
+function totInv(){const t={apl:0,liq:0,mes:0};ativas().forEach(a=>{const c=calcInv(a);t.apl+=a.valor;t.liq+=c.liq;t.mes+=c.porMes});t.rend=t.liq-t.apl;return t}
+// --- busca no Banco Central ---
+async function bcb(url){const ac=typeof AbortController!=="undefined"?new AbortController():null;const tm=setTimeout(()=>{try{ac&&ac.abort()}catch(e){}},6000);
+  try{const r=await fetch(url,ac?{signal:ac.signal}:{});if(!r.ok)throw 0;const j=await r.json();if(!Array.isArray(j))throw 0;return j}finally{clearTimeout(tm)}}
+const dBR=d=>d.slice(8)+"/"+d.slice(5,7)+"/"+d.slice(0,4);
+const isoDeBR=s=>{const m=/^(\d\d)\/(\d\d)\/(\d{4})$/.exec(String(s));return m?m[3]+"-"+m[2]+"-"+m[1]:""};
+function usaSerie(n,dados){const map={};let fim="";dados.forEach(x=>{const d=isoDeBR(x.data),v=numBR(x.valor);if(d&&isFinite(v)){map[d]=v;if(d>fim)fim=d}});SERIES[n]=fim?{map,fim}:null}
+let _carregando=false;
+async function carregaSeries(){
+  if(_carregando)return;_carregando=true;
+  try{
+    for(const [n,tipo] of [[12,"cdi"],[11,"selic"]]){
+      const as=ativas().filter(a=>presetDe(a.prod).tipo===tipo);if(!as.length)continue;
+      const ini=as.map(a=>a.data).sort()[0];const ck=KEY+"-bcb"+n;
+      let c=null;try{c=JSON.parse(localStorage.getItem(ck)||"null")}catch(e){}
+      if(c&&c.ini<=ini&&Date.now()-c.t<12*36e5&&Array.isArray(c.dados)){usaSerie(n,c.dados);continue}
+      try{const dados=await bcb(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${n}/dados?formato=json&dataInicial=${dBR(ini)}&dataFinal=${dBR(today())}`);
+        usaSerie(n,dados);try{localStorage.setItem(ck,JSON.stringify({t:Date.now(),ini,dados}))}catch(e){}}
+      catch(e){if(c&&Array.isArray(c.dados))usaSerie(n,c.dados)}
+    }
+  }finally{_carregando=false}
+  try{heroInv();if(!$("vI").hidden)telaInvest()}catch(e){}
+}
+// --- tela ---
+let invEdit=null;
+function heroInv(){const b=$("invHero");if(!b)return;const n=ativas().length;b.hidden=!n;if(n)$("invHeroV").textContent=brl(totInv().liq)}
+function linha(r,v,cl){return `<div><span>${r}</span><b class="iv ${cl||""}">${v}</b></div>`}
+function telaInvest(){
+  const sel=$("ivProd");if(!sel.options.length){INV_PRESETS.forEach(p=>{const o=document.createElement("option");o.value=p.k;o.textContent=p.nome+(p.tipo==="poup"?"":p.tipo==="fixo"?" (% ao ano)":p.k==="cdb"?" / outro (% do CDI)":" — "+p.pct+"% "+(p.tipo==="selic"?"da Selic":"do CDI"));sel.appendChild(o)});prodMuda()}
+  if(!$("ivData").value)$("ivData").value=today();
+  const t=totInv(),as=ativas();
+  $("ivKpis").innerHTML=`<div class="kpi"><span>Total aplicado</span><b>${brl(t.apl)}</b></div><div class="kpi"><span>Total hoje (líquido)</span><b>${brl(t.liq)}</b></div><div class="kpi"><span>Rendimento líquido</span><b class="in">${brl(t.rend)}</b></div><div class="kpi"><span>Rende por mês</span><b>~${brl(t.mes)}</b></div>`;
+  const ul=$("ivLista");ul.innerHTML="";
+  if(!as.length)ul.innerHTML='<li class="empty" style="display:block">Nenhuma aplicação ainda. Cadastre abaixo onde está o seu dinheiro guardado (cofrinho, caixinha, poupança) para ver quanto ele já rendeu.</li>';
+  as.sort((x,y)=>x.data.localeCompare(y.data)).forEach(a=>{const c=calcInv(a),p=presetDe(a.prod);const li=document.createElement("li");li.className="ivC";li.dataset.id=a.id;
+    li.innerHTML=`<div class="l1"><div class="d"><span></span><small></small></div><span class="ivTx">${esc(rotuloTaxa(a))}</span></div>
+      <div class="ivG">${linha("Valor aplicado",brl(a.valor))}${linha("Bruto hoje",brl(c.bruto))}${linha("Rendimento",brl(c.rend),"in")}${c.iof>0?linha("IOF",brl(c.iof),"out"):""}${p.tipo!=="poup"?linha("IR ("+fmtPct(irAliq(c.dias)*100,1)+"%)",brl(c.ir),"out"):linha("IR","isento")}${linha("Líquido hoje",brl(c.liq))}</div>
+      <p class="ivM">Rende ~<b class="iv">${brl(c.porMes)}</b> por mês hoje${c.prox?` · próximo rendimento em ${br(c.prox)}`:""}</p>
+      <p class="ivF">Estimativa · ${esc(c.fonte)}</p>
+      <div class="bts"><button type="button" class="ghost ivEd">Editar</button><button type="button" class="ghost ivRs">Resgatar</button><button type="button" class="ghost ivDel">Excluir</button></div><div class="ivRes" hidden></div>`;
+    li.querySelector(".d span").textContent=a.apelido||a.nome;
+    li.querySelector(".d small").textContent=(a.apelido?a.nome+" · ":"")+"aplicado em "+brC(a.data)+" · "+c.dias+" dia"+(c.dias===1?"":"s");
+    li.querySelector(".ivEd").onclick=()=>editaInv(a);
+    li.querySelector(".ivRs").onclick=()=>abreResgate(li,a,c);
+    const bd=li.querySelector(".ivDel");let cf=false;const nm=a.apelido||a.nome;
+    bd.onclick=()=>{if(!cf){cf=true;bd.textContent="Excluir “"+(nm.length>18?nm.slice(0,17)+"…":nm)+"”";bd.style.cssText="background:var(--out);color:#fff;border-color:var(--out)";setTimeout(()=>{cf=false;bd.textContent="Excluir";bd.style.cssText=""},4000);return}
+      INVEST=INVEST.filter(x=>x!==a);if(invEdit===a.id)limpaForm();gravaListas();aviso("Aplicação excluída: "+nm)};
+    ul.appendChild(li)});
+  // resgatadas
+  const rs=INVEST.filter(a=>a.resg);$("ivResBox").hidden=!rs.length;$("ivResN").textContent=rs.length;
+  const ur=$("ivResL");ur.innerHTML="";
+  rs.sort((x,y)=>y.resg.data.localeCompare(x.resg.data)).forEach(a=>{const li=document.createElement("li");li.className="ivC";
+    li.innerHTML=`<div class="l1"><div class="d"><span></span><small></small></div><span class="iv fxV">${brl(a.resg.valor)}</span></div><div class="bts"><button type="button" class="ghost ivDel">Excluir do histórico</button></div>`;
+    li.querySelector(".d span").textContent=a.apelido||a.nome;li.querySelector(".d small").textContent="Aplicado "+brl(a.valor)+" em "+brC(a.data)+" · resgatado em "+brC(a.resg.data);
+    const bd=li.querySelector(".ivDel");let cf=false;const nm=a.apelido||a.nome;
+    bd.onclick=()=>{if(!cf){cf=true;bd.textContent="Excluir “"+(nm.length>18?nm.slice(0,17)+"…":nm)+"”";bd.style.cssText="background:var(--out);color:#fff;border-color:var(--out)";setTimeout(()=>{cf=false;bd.textContent="Excluir do histórico";bd.style.cssText=""},4000);return}
+      INVEST=INVEST.filter(x=>x!==a);gravaListas();aviso("Removida do histórico: "+nm)};
+    ur.appendChild(li)});
+  // taxas
+  ["selic","cdi","tr"].forEach(k=>{const el=$("ivT_"+k);if(document.activeElement!==el)el.value=fmtPct(TAXAS[k],4)});
+  $("ivTEm").textContent="Atualizadas em "+brC(TAXAS.em)+(TAXAS.obs?" ("+TAXAS.obs+")":"")+".";
+}
+function abreResgate(li,a,c){const box=li.querySelector(".ivRes");if(!box.hidden){box.hidden=true;return}
+  box.hidden=false;box.innerHTML=`<label>Valor resgatado</label><input class="money ivRV" type="text" inputmode="numeric" autocomplete="off"><label>Data do resgate</label><input type="date" class="ivRD"><label class="ivChk"><input type="checkbox" class="ivRT"> Lançar como transferência</label><div class="bts"><button type="button" class="btn ivRok" style="margin:0;min-height:44px">Confirmar resgate</button><button type="button" class="ghost ivRno">Cancelar</button></div><p class="meta ivRmsg" role="status"></p>`;
+  const v=box.querySelector(".ivRV");v.value=brl(Math.round(c.liq*100)/100);v.addEventListener("input",()=>mascara(v));box.querySelector(".ivRD").value=today();
+  box.querySelector(".ivRno").onclick=()=>{box.hidden=true};
+  box.querySelector(".ivRok").onclick=()=>{const val=centavos(v.value)/100,dt=box.querySelector(".ivRD").value||today();
+    if(!(val>0)){box.querySelector(".ivRmsg").textContent="Informe um valor maior que zero.";return}
+    a.resg={data:dt,valor:val};
+    if(box.querySelector(".ivRT").checked){const it={id:Date.now()+Math.random(),tipo:"tr",desc:"Resgate "+(a.apelido||a.nome),valor:val,data:dt,hora:"",cat:"Transferência",pag:PAGS.includes("Transferência")?"Transferência":PAGS[0]};S.items.push(it);grava(it)}
+    gravaListas();aviso("Resgate registrado: "+brl(val))};
+  v.focus()}
+function prodMuda(){const p=presetDe($("ivProd").value);$("ivPctBox").hidden=p.tipo==="poup";$("ivPctL").textContent=p.tipo==="fixo"?"Taxa (% ao ano)":p.tipo==="selic"?"Percentual da Selic (%)":"Percentual do CDI (%)";
+  $("ivPct").value=fmtPct(p.pct);$("ivNota").textContent=(p.nota?p.nota+". ":"")+"Confira no app do banco; o percentual pode depender de condições."}
+function limpaForm(){invEdit=null;$("ivVal").value="";$("ivApel").value="";$("ivData").value=today();$("ivAdd").textContent="Salvar aplicação";$("ivCanc").hidden=true;$("ivFTit").textContent="Nova aplicação"}
+function editaInv(a){invEdit=a.id;$("ivProd").value=a.prod;prodMuda();$("ivPct").value=fmtPct(a.pct);$("ivVal").value=brl(a.valor);$("ivData").value=a.data;$("ivApel").value=a.apelido||"";$("ivAdd").textContent="Salvar alterações";$("ivCanc").hidden=false;$("ivFTit").textContent="Editar aplicação";$("ivMsg").textContent="";$("ivForm").scrollIntoView({behavior:"smooth",block:"start"})}
+function salvaInv(){const p=presetDe($("ivProd").value),valor=centavos($("ivVal").value)/100,data=$("ivData").value,pct=p.tipo==="poup"?0:numBR($("ivPct").value);
+  if(!(valor>0)){$("ivMsg").textContent="Informe um valor maior que zero.";return}
+  if(!data||data>today()){$("ivMsg").textContent="Escolha a data da aplicação (hoje ou antes).";return}
+  if(p.tipo!=="poup"&&!(pct>0&&pct<1000)){$("ivMsg").textContent="Informe o percentual (ex.: 102).";return}
+  const dados={prod:p.k,nome:p.nome,pct,valor,data,apelido:$("ivApel").value.trim()};
+  if(invEdit){const a=INVEST.find(x=>x.id===invEdit);if(a)Object.assign(a,dados)}else INVEST.push({id:Date.now()+Math.random(),...dados,resg:null});
+  const ed=!!invEdit;limpaForm();$("ivMsg").textContent=ed?"Aplicação atualizada.":"Aplicação salva.";gravaListas();carregaSeries()}
+async function atualizaTaxas(){const b=$("ivTBcb"),m=$("ivTMsg");b.disabled=true;m.textContent="Buscando no Banco Central…";
+  try{const u=n=>`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${n}/dados/ultimos/1?formato=json`;
+    const [s,c,t]=await Promise.all([bcb(u(432)),bcb(u(4389)),bcb(u(226))]);
+    const v=x=>{const n=numBR(x&&x[0]&&x[0].valor);if(!isFinite(n))throw 0;return n};
+    TAXAS={selic:v(s),cdi:v(c),tr:v(t),em:isoDeBR(s[0].data)||today(),obs:"Banco Central"};m.textContent="Taxas atualizadas com o Banco Central.";gravaListas()}
+  catch(e){m.textContent="Não deu para falar com o Banco Central agora. As taxas salvas continuam valendo; tente de novo mais tarde ou edite os valores à mão."}
+  finally{b.disabled=false}}
+$("ivProd").onchange=prodMuda;$("ivAdd").onclick=salvaInv;$("ivCanc").onclick=()=>{limpaForm();$("ivMsg").textContent=""};
+$("ivVal").addEventListener("input",()=>{const d=$("ivVal").value.replace(/\D/g,"");if(d.length>11)$("ivVal").value=d.slice(0,11);mascara($("ivVal"));$("ivMsg").textContent=""});
+["selic","cdi","tr"].forEach(k=>$("ivT_"+k).onchange=()=>{const n=numBR($("ivT_"+k).value);if(!(n>=0&&n<100)){$("ivTMsg").textContent="Use um número, por exemplo 13,75.";telaInvest();return}TAXAS={...TAXAS,[k]:n,em:today(),obs:"editado por você"};$("ivTMsg").textContent="Taxa salva.";gravaListas()});
+$("ivTBcb").onclick=atualizaTaxas;$("invHero").onclick=()=>aba("I");
+$("tabI").onclick=()=>aba("I");
+{const _r=render;render=function(){_r();try{heroInv()}catch(e){}try{if(!$("vI").hidden)telaInvest()}catch(e){}}}
 render();try{atualizaAprovar()}catch(e){}
+if(ativas().length)carregaSeries();
 
 </script>
 </body>
