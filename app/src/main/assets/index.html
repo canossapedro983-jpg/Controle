@@ -623,7 +623,7 @@ html.privado #pdN,html.privado #pdSub b,html.privado .pdConta b,html.privado .fx
       <div class="valorbox"><label for="valor">Valor do gasto</label><input id="valor" class="money grande" type="text" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
       <label for="desc">Estabelecimento</label>
       <div class="ac"><input id="desc" maxlength="60" placeholder="Escolha da lista ou digite" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="descs"><ul id="descs" class="sugs" role="listbox" hidden></ul></div>
-      <div class="rapidos" id="rapG" aria-label="Estabelecimentos frequentes"></div>
+      <div class="rapidos" id="rapG" aria-label="Últimos estabelecimentos"></div>
       <button class="ghost" id="trSug" type="button" hidden style="width:100%;margin-top:8px">Marcar como transferência (parece ser para você mesmo)</button>
       <p class="meta" id="trDica" hidden style="margin:6px 0 0">Transferência entre suas contas não conta como gasto nem receita.</p>
       <div class="row2">
@@ -1812,7 +1812,11 @@ function telaLogin(SB){
   }
   function rapidos(){
     const box=$(fTipo==="in"?"rapR":"rapG");box.innerHTML="";
-    (todasDesc[fTipo==="tr"?"out":fTipo]||[]).slice(0,8).forEach(x=>{const b=document.createElement("button");b.type="button";b.textContent=x;b.onclick=()=>escolhe(fTipo,x);box.appendChild(b)});
+    const tp=fTipo==="tr"?"out":fTipo,vist=new Set(),rec=[];
+    S.items.filter(i=>i.tipo===(fTipo==="tr"?"tr":tp)&&i.desc&&!oculta(i.desc)).sort((a,b)=>(b.data+(b.hora||"")).localeCompare(a.data+(a.hora||""))||b.id-a.id)
+      .forEach(i=>{const k=semAc(i.desc.trim());if(!vist.has(k)&&rec.length<10){vist.add(k);rec.push(i.desc.trim())}});
+    (todasDesc[tp]||[]).forEach(x=>{const k=semAc(x);if(rec.length<10&&!vist.has(k)){vist.add(k);rec.push(x)}});
+    rec.forEach(x=>{const b=document.createElement("button");b.type="button";b.textContent=x;b.onclick=()=>escolhe(fTipo,x);box.appendChild(b)});
     box.hidden=!box.childElementCount;
   }
   function marcaQuando(){const v=$("data"+R()).value;document.querySelectorAll("#quando button").forEach(b=>b.setAttribute("aria-pressed",somaDias(today(),Number(b.dataset.n))===v))}
