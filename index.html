@@ -479,7 +479,7 @@ html.privado .iv,html.privado .ivK b,html.privado #invHeroV,html.privado .ivRV{f
       <p class="meta" style="margin:0 0 12px">Para as compras do PicPay e os Pix do Gmail aparecerem aqui sozinhos, permita que o Controle de gastos leia as notificações. Na tela que abrir, ative "Controle de gastos".</p>
       <button class="btn" id="aAtivar" type="button" style="margin:0">Abrir configuração</button>
     </section>
-    <section class="panel"><h2>Aprovar transações</h2><p class="meta" style="margin:-6px 0 12px">Compras avisadas pelo PicPay e Pix que chegam no Gmail. Confira, ajuste se precisar e confirme para virar lançamento.</p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="gBusca" type="button" style="min-height:40px">Buscar Pix no Gmail</button><small id="gMsg" style="color:var(--muted)"></small></div><div id="aLista"></div></section>
+    <section class="panel"><h2>Aprovar transações</h2><p class="meta" style="margin:-6px 0 12px">Compras avisadas pelo PicPay e Pix que chegam no Gmail. Confira, ajuste se precisar e confirme para virar lançamento.</p><div id="aFerr" hidden style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="aAtual" type="button">Atualizar</button><button class="ghost" id="aRecon" type="button">Reconectar leitor</button><button class="ghost" id="aAut" type="button">Autorizar notificações</button></div><p class="meta" id="aFMsg" role="status" style="margin:-4px 0 8px"></p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="gBusca" type="button" style="min-height:40px">Buscar Pix no Gmail</button><small id="gMsg" style="color:var(--muted)"></small></div><div id="aLista"></div></section>
   </div>
   <div id="vF" hidden>
     <section class="panel" id="fxSugBox" hidden style="margin-bottom:16px;border-top:4px solid var(--warn)"><h2>Virar conta fixa?</h2><p class="meta" style="margin:-6px 0 4px">Gastos que se repetem todo mês com valor e dia parecidos.</p><ul id="fxSug"></ul></section>
@@ -1441,6 +1441,11 @@ if($("dTeste")){
   $("dTeste").onclick=()=>{const ok=Android.notifTeste();$("dMsg").textContent=ok?"Notificação enviada. Em 2 segundos ela deve aparecer abaixo como \"Guardada para Aprovar\".":"Permita as notificações do app e toque de novo.";setTimeout(diagTela,2500)};
   $("dRecon").onclick=()=>{Android.reconectarNotif();$("dMsg").textContent="Leitor reconectado. Faça o teste de novo.";setTimeout(diagTela,1500)};
   $("dAtual").onclick=diagTela;$("dLimpa").onclick=()=>{Android.limparDiag();diagTela()};
+}
+if(window.Android&&typeof Android.getNotifs==="function"){$("aFerr").hidden=false;
+  $("aAtual").onclick=()=>{try{subirNotifs()}catch(e){}try{pedirBuscaGmail&&(gsUlt=0,pedirBuscaGmail())}catch(e){}atualizaAprovar();$("aFMsg").textContent="Atualizado.";setTimeout(()=>$("aFMsg").textContent="",2000)};
+  $("aRecon").onclick=()=>{try{Android.reconectarNotif()}catch(e){}$("aFMsg").textContent="Leitor reconectado. As próximas compras devem aparecer aqui.";setTimeout(atualizaAprovar,1500)};
+  $("aAut").onclick=()=>{try{Android.abrirPermissaoNotif()}catch(e){}};
 }
 function render(){
   mesTexto();
