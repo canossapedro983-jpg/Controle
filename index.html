@@ -1744,19 +1744,33 @@ if(OFFLINE){msgFila();$("online").onclick=()=>AND.irOnline()}
 const SB_URL="https://gpjsvrvuchmicyiuczcf.supabase.co",SB_KEY="sb_publishable_WahALizhzR61l4AJniCPdA_Hcdeg3QP";
 function carregaSB(){return new Promise((ok,err)=>{if(window.supabase)return ok();const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js";s.onload=ok;s.onerror=err;document.head.appendChild(s)})}
 function colSupabase(SB,uid){
-  const snapOf=rows=>({docs:rows.map(r=>({id:r.id,data:()=>r.data}))});
+  // Lançamentos ("i_...") ficam na tabela "lancamentos"; o resto (config, pendentes) fica em "docs".
+  const ehLanc=id=>/^i_/.test(id);
+  const paraLinha=(id,v)=>{const {tipo,desc,valor,data,hora,cat,pag,...extra}=v||{};return{user_id:uid,id,tipo:tipo||"out",descricao:desc||"",valor:Math.round((Number(valor)||0)*100)/100,data,hora:hora||"",categoria:cat||"",pagamento:pag||"",extra,atualizado_em:new Date().toISOString()}};
+  const deLinha=r=>{const ex=r.extra||{};return{...ex,id:ex.id!==undefined?ex.id:r.id,tipo:r.tipo,desc:r.descricao,valor:Number(r.valor),data:r.data,hora:r.hora||"",cat:r.categoria||"",pag:r.pagamento||""}};
+  const tudo=async(tab,cols)=>{let rows=[],k=0;for(;;){const {data,error}=await SB.from(tab).select(cols).range(k,k+999);if(error)throw error;rows=rows.concat(data);if(data.length<1000)break;k+=1000}return rows};
   const col={
     doc:id=>({
-      async set(v){const {error}=await SB.from("docs").upsert({user_id:uid,id,data:v,updated_at:new Date().toISOString()});if(error)throw error},
-      async delete(){const {error}=await SB.from("docs").delete().eq("id",id);if(error)throw error},
-      async get(){const {data}=await SB.from("docs").select("data").eq("id",id).maybeSingle();return{exists:!!data,data:()=>data?data.data:undefined}}
+      async set(v){const {error}=ehLanc(id)?await SB.from("lancamentos").upsert(paraLinha(id,v)):await SB.from("docs").upsert({user_id:uid,id,data:v,updated_at:new Date().toISOString()});if(error)throw error},
+      async delete(){const {error}=await SB.from(ehLanc(id)?"lancamentos":"docs").delete().eq("id",id);if(error)throw error},
+      async get(){if(ehLanc(id)){const {data}=await SB.from("lancamentos").select("*").eq("id",id).maybeSingle();return{exists:!!data,data:()=>data?deLinha(data):undefined}}
+        const {data}=await SB.from("docs").select("data").eq("id",id).maybeSingle();return{exists:!!data,data:()=>data?data.data:undefined}}
     }),
-    async get(){let rows=[],k=0;for(;;){const {data,error}=await SB.from("docs").select("id,data").range(k,k+999);if(error)throw error;rows=rows.concat(data);if(data.length<1000)break;k+=1000}return snapOf(rows)},
+    async get(){
+      const [docs,lanc]=await Promise.all([tudo("docs","id,data"),tudo("lancamentos","*")]);
+      const vistos=new Set(lanc.map(r=>r.id));
+      const out=lanc.map(r=>({id:r.id,data:()=>deLinha(r)}));
+      // documentos antigos de lançamento (antes da tabela) continuam aparecendo até serem migrados
+      docs.forEach(r=>{if(ehLanc(r.id)&&vistos.has(r.id))return;out.push({id:r.id,data:()=>r.data})});
+      return{docs:out};
+    },
     onSnapshot(cb,err){
       let t=null,ocupado=false;
       const load=async()=>{if(ocupado)return;ocupado=true;try{cb(await col.get())}catch(e){err&&err(e)}ocupado=false};
       load();
-      SB.channel("docs-"+uid).on("postgres_changes",{event:"*",schema:"public",table:"docs",filter:"user_id=eq."+uid},()=>{clearTimeout(t);t=setTimeout(load,500)}).subscribe();
+      const ch=SB.channel("dados-"+uid);
+      ["docs","lancamentos"].forEach(tb=>ch.on("postgres_changes",{event:"*",schema:"public",table:tb,filter:"user_id=eq."+uid},()=>{clearTimeout(t);t=setTimeout(load,500)}));
+      ch.subscribe();
       document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
       setInterval(()=>{if(!document.hidden)load()},60000);
     }
