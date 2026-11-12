@@ -477,7 +477,7 @@ html.privado .iv,html.privado .ivK b,html.privado #invHeroV,html.privado .ivRV{f
       <p class="meta" style="margin:0 0 12px">Para as compras do PicPay e os Pix do Gmail aparecerem aqui sozinhos, permita que o Controle de gastos leia as notificações. Na tela que abrir, ative "Controle de gastos".</p>
       <button class="btn" id="aAtivar" type="button" style="margin:0">Abrir configuração</button>
     </section>
-    <section class="panel"><h2>Aprovar transações</h2><p class="meta" style="margin:-6px 0 12px">Compras avisadas pelo PicPay e Pix que chegam no Gmail. Confira, ajuste se precisar e confirme para virar lançamento.</p><div id="aFerr" hidden style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="aAtual" type="button">Atualizar</button><button class="ghost" id="aRecon" type="button">Reconectar leitor</button><button class="ghost" id="aAut" type="button">Autorizar notificações</button></div><p class="meta" id="aFMsg" role="status" style="margin:-4px 0 8px"></p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="gBusca" type="button" style="min-height:40px">Buscar Pix no Gmail</button><small id="gMsg" style="color:var(--muted)"></small></div><div id="aLista"></div></section>
+    <section class="panel"><h2>Aprovar transações</h2><p class="meta" style="margin:-6px 0 12px">Compras avisadas pelo PicPay e Pix que chegam no Gmail. Confira, ajuste se precisar e confirme para virar lançamento.</p><div id="aFerr" hidden style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="aAtual" type="button">Atualizar</button><button class="ghost" id="aRecon" type="button">Reconectar leitor</button><button class="ghost" id="aAut" type="button">Autorizar notificações</button></div><div id="aBat" hidden style="border:1px solid var(--warn);border-radius:12px;padding:12px;margin-bottom:12px"><b>As compras estão demorando para aparecer?</b><p class="meta" style="margin:4px 0 10px">O Android pausa o app para economizar bateria e a leitura atrasa. Libere o app para funcionar em segundo plano.</p><button class="ghost" id="aBatBtn" type="button">Liberar uso em segundo plano</button></div><p class="meta" id="aFMsg" role="status" style="margin:-4px 0 8px"></p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><button class="ghost" id="gBusca" type="button" style="min-height:40px">Buscar Pix no Gmail</button><small id="gMsg" style="color:var(--muted)"></small></div><div id="aLista"></div></section>
   </div>
   <div id="vF" hidden>
     <section class="panel" id="fxSugBox" hidden style="margin-bottom:16px;border-top:4px solid var(--warn)"><h2>Virar conta fixa?</h2><p class="meta" style="margin:-6px 0 4px">Gastos que se repetem todo mês com valor e dia parecidos.</p><ul id="fxSug"></ul></section>
@@ -1153,10 +1153,12 @@ function aprovaSozinho(lista){
   },8000);
   return true;
 }
+function batTela(){try{const ok=!(window.Android&&typeof Android.bateriaOk==="function")||Android.bateriaOk();$("aBat").hidden=ok}catch(e){}}
+if(window.Android&&typeof Android.pedirBateria==="function")$("aBatBtn").onclick=()=>{Android.pedirBateria();setTimeout(batTela,4000)};
 const GS_URL="https://script.google.com/macros/s/AKfycbwtGNCrC2WN4B2wEWQyyxsw8n2b2UidlgdYbjlH0xGh7LcDqJL0txD40FOC70dGpeDF/exec";
 let gsUlt=0;function pedirBuscaGmail(){if(OFFLINE||!PREFS.gmail||Date.now()-gsUlt<20000)return;gsUlt=Date.now();try{fetch(GS_URL,{mode:"no-cors"}).catch(()=>{})}catch(e){}}
 window.atualizaAprovar=function(){
-  if(!$("vA").hidden)pedirBuscaGmail();
+  if(!$("vA").hidden)pedirBuscaGmail();batTela();
   let todos=pendencias();
   if(aprovaSozinho(todos))todos=pendencias();
   const b=$("aBadge");b.hidden=!todos.length;b.textContent=todos.length;
@@ -1208,7 +1210,7 @@ window.atualizaAprovar=function(){
 };
 $("gBusca").onclick=()=>buscarGmail(true);if(!(window.claude&&claude.use))$("gBusca").hidden=true;
 setInterval(()=>{if(!document.hidden&&COL)buscarGmail(false)},10*60*1000);
-if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEventListener("visibilitychange",()=>{if(!document.hidden){subirNotifs();atualizaAprovar()}});setInterval(()=>{if(document.hidden)return;const n=lerNotifs().length+PEND.length;if(n&&COL&&lerNotifs().length)subirNotifs();if(String(n)!==($("aBadge").hidden?"0":$("aBadge").textContent))atualizaAprovar()},5000)}
+if(TEM_NOTIF){$("aAtivar").onclick=()=>AND.abrirPermissaoNotif();document.addEventListener("visibilitychange",()=>{if(!document.hidden){subirNotifs();atualizaAprovar()}});setInterval(()=>{if(document.hidden)return;const n=lerNotifs().length+PEND.length;if(n&&COL&&lerNotifs().length)subirNotifs();if(String(n)!==($("aBadge").hidden?"0":$("aBadge").textContent))atualizaAprovar()},2000)}
 let estP="m";
 document.querySelectorAll("#estPer button").forEach(b=>b.onclick=()=>{estP=b.dataset.v;document.querySelectorAll("#estPer button").forEach(o=>o.setAttribute("aria-pressed",o===b));estabelecimentos()});
 function estabelecimentos(){

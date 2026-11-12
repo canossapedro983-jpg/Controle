@@ -82,11 +82,18 @@ public class MainActivity extends Activity {
   private void abrirOffline() { offline = true; web.loadUrl(URL_OFFLINE); }
 
   @Override protected void onDestroy() {
+    if (atual == this) atual = null;
     try { cm.unregisterNetworkCallback(redeCb); } catch (Exception e) { }
     super.onDestroy();
   }
 
-  @Override protected void onResume() { super.onResume(); if (web != null) web.evaluateJavascript("window.atualizaAprovar&&atualizaAprovar()", null); }
+  static volatile MainActivity atual;
+  void avisarPagina() { runOnUiThread(() -> { if (web != null) web.evaluateJavascript("try{window.subirNotifs&&subirNotifs();window.atualizaAprovar&&atualizaAprovar()}catch(e){}", null); }); }
+  @Override protected void onResume() {
+    super.onResume(); atual = this;
+    try { if (Build.VERSION.SDK_INT >= 24) android.service.notification.NotificationListenerService.requestRebind(new android.content.ComponentName(this, NotifService.class)); } catch (Exception e) { }
+    avisarPagina();
+  }
 
   @Override protected void onPause() { super.onPause(); CookieManager.getInstance().flush(); }
 
@@ -146,6 +153,15 @@ public class MainActivity extends Activity {
             @Override public void onAuthenticationError(int c, CharSequence s) { responderBio(false); }
           });
         } catch (Exception e) { responderBio(false); }
+      });
+    }
+    @JavascriptInterface public boolean bateriaOk() {
+      try { return ((android.os.PowerManager) getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(getPackageName()); } catch (Exception e) { return true; }
+    }
+    @JavascriptInterface public void pedirBateria() {
+      runOnUiThread(() -> {
+        try { startActivity(new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()))); }
+        catch (Exception e) { try { startActivity(new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)); } catch (Exception e2) { } }
       });
     }
     @JavascriptInterface public String getDiag() { return prefs.getString("diag", "[]"); }

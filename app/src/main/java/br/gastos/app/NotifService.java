@@ -69,7 +69,9 @@ public class NotifService extends NotificationListenerService {
         arr.put(o);
         p.edit().putString("notifs", arr.toString()).commit();
       }
-      diag(pkg, titulo, texto, "Guardada para Aprovar");
+      long atraso = Math.max(0, (System.currentTimeMillis() - sbn.getPostTime()) / 1000);
+      diag(pkg, titulo, texto, "Guardada para Aprovar" + (atraso > 5 ? " (lida " + (atraso > 120 ? (atraso / 60) + " min" : atraso + " s") + " depois de chegar)" : ""));
+      try { MainActivity a = MainActivity.atual; if (a != null) a.avisarPagina(); } catch (Exception e) { }
     } catch (Exception e) { diag(pkg == null ? "?" : pkg, titulo, texto, "Erro: " + e); }
   }
 
