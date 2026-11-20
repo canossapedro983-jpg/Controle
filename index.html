@@ -663,6 +663,7 @@ html.privado .iv,html.privado .ivK b,html.privado #invHeroV,html.privado .ivRV{f
         <div><label for="cat">Categoria</label><select id="cat"></select></div>
         <div><label for="pag">Pagamento</label><select id="pag"></select></div>
       </div>
+      <div id="obsBox" hidden><label for="obs">Descrição (o que você comprou)</label><input id="obs" maxlength="80" placeholder="Ex.: almoço, remédio, presente" autocomplete="off"></div>
       <div class="diarow"><div><label for="data">Data</label><input id="data" type="date"></div></div>
     </section>
     <section id="fRec" aria-label="Nova receita" hidden>
@@ -743,13 +744,16 @@ document.querySelectorAll(".money").forEach(el=>{
   el.addEventListener("focus",()=>setTimeout(()=>{try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}));
   el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&el.selectionStart===el.value.length){e.preventDefault();const c=String(centavos(el.value)).slice(0,-1);el.value=c;mascara(el)}});
 });
+$("pag").addEventListener("change",()=>obsTela());
+const ehCartao=p=>/cart[aã]o/i.test(p||"");
 function lanca(tp){
   const R=tp==="in"?"R":"";
   const desc=$("desc"+R).value.trim(),valor=centavos($("valor"+R).value)/100,data=$("data"+R).value;
   if(!desc||!(valor>0)||!data){$("msg"+R).textContent="Preencha descrição, valor maior que zero e data.";return}
   const it={id:Date.now()+Math.random(),tipo:tp,desc,valor,data,cat:tp==="in"?"Receita":tp==="tr"?"Transferência":$("cat").value,pag:$("pag"+R).value};
+  if(tp==="out"&&ehCartao(it.pag)&&$("obs").value.trim())it.obs=$("obs").value.trim();
   S.items.push(it);grava(it);
-  $("desc"+R).value="";$("valor"+R).value="";if(tp==="out")padraoPag();$("msg"+R).textContent=tp==="in"?"Receita adicionada.":tp==="tr"?"Transferência adicionada.":"Gasto adicionado.";
+  $("desc"+R).value="";$("valor"+R).value="";if(tp==="out"){$("obs").value="";padraoPag();obsTela()}$("msg"+R).textContent=tp==="in"?"Receita adicionada.":tp==="tr"?"Transferência adicionada.":"Gasto adicionado.";
   if(data.slice(0,7)!==$("mes").value)$("mes").value=data.slice(0,7);
   render();$("desc"+R).focus();
 }
@@ -900,7 +904,8 @@ $("eReset").onclick=()=>{
 };
 aplicaListas(S.listas);montaSelects();
 if(PREFS.ocultaAbrir)PREFS.privado=true;window._privIni=true;aplicaTema();telasMenu();
-function padraoPag(){if(PAGS.includes(PREFS.pagPadrao))$("pag").value=PREFS.pagPadrao;if(PAGS_IN.includes(PREFS.pagPadraoR))$("pagR").value=PREFS.pagPadraoR}
+function obsTela(){$("obsBox").hidden=!ehCartao($("pag").value)}
+function padraoPag(){if(PAGS.includes(PREFS.pagPadrao))$("pag").value=PREFS.pagPadrao;obsTela();if(PAGS_IN.includes(PREFS.pagPadraoR))$("pagR").value=PREFS.pagPadraoR}
 padraoPag();
 if(PREFS.inicio&&PREFS.inicio!=="L")setTimeout(()=>aba(PREFS.inicio));
 let todasDesc={out:[],in:[]},ultDesc={};
@@ -1054,7 +1059,7 @@ function resumo(){
   if(!ord.length){ul.innerHTML='<li class="empty">Nenhum lançamento.</li>';return}
   ord.slice(0,200).forEach(i=>{const li=document.createElement("li");
     li.innerHTML=`<span class="dot" style="background:${i.tipo==="in"?"var(--in)":i.tipo==="tr"?"var(--muted)":(CATS[i.cat]||"#888")}"></span><div class="d"><span></span><small></small></div><span class="v ${i.tipo}">${SIN(i.tipo)} ${brl(i.valor)}</span>`;
-    li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"")+" · "+br(i.data);ul.appendChild(li)});
+    li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"")+" · "+br(i.data)+(i.obs?" · "+i.obs:"");ul.appendChild(li)});
   if(ord.length>200){const li=document.createElement("li");li.className="empty";li.textContent="Mostrando os 200 mais recentes de "+ord.length+".";ul.appendChild(li)}
 }
 const TEM_NOTIF=!!(AND&&typeof AND.getNotifs==="function");
@@ -1131,7 +1136,7 @@ function pendencias(){
     return{n,it,doc,base:base||null,tira};
   });
 }
-function novoDePend(it){return{id:Date.now()+Math.random(),tipo:it.tipo,desc:String(it.desc||"").trim(),valor:it.valor,data:it.data,hora:it.hora||"",cat:it.tipo==="in"?"Receita":it.tipo==="tr"?"Transferência":(it.cat&&CATS[it.cat]?it.cat:"Outros"),pag:it.pag||""}}
+function novoDePend(it){return{id:Date.now()+Math.random(),tipo:it.tipo,desc:String(it.desc||"").trim(),valor:it.valor,data:it.data,hora:it.hora||"",cat:it.tipo==="in"?"Receita":it.tipo==="tr"?"Transferência":(it.cat&&CATS[it.cat]?it.cat:"Outros"),pag:it.pag||"",...(it.obs&&ehCartao(it.pag)?{obs:it.obs}:{})}}
 function pendValida(it){return !!(String(it.desc||"").trim()&&it.valor>0&&it.data)}
 // lança uma pendência (sem checar duplicado); devolve o lançamento criado
 function lancaPend(p,extra){const novo={...novoDePend(p.it),...(extra||{})};S.items.push(novo);grava(novo);p.tira();delete aEdit[p.n.id];return novo}
@@ -1187,6 +1192,7 @@ window.atualizaAprovar=function(){
       <div class="row2" style="margin:0"><div><label>Valor</label><input class="aVal money" type="text" inputmode="numeric" autocomplete="off"></div><div><label>Data</label><input class="aData" type="date"></div></div>
       <div class="row2" style="margin:0"><div><label>Tipo</label><select class="aTipo"><option value="out"${it.tipo==="out"?" selected":""}>Gasto</option><option value="in"${it.tipo==="in"?" selected":""}>Receita</option><option value="tr"${it.tipo==="tr"?" selected":""}>Transferência</option></select></div>${it.tipo==="out"?`<div><label>Categoria</label><select class="aCat">${opts(Object.keys(CATS),it.cat)}</select></div>`:""}</div>
       <div><label>${it.tipo==="in"?"Forma de recebimento":"Forma de pagamento"}</label><select class="aPag">${opts(L,it.pag)}</select></div>
+      <div class="aObsB"${it.tipo==="out"&&ehCartao(it.pag)?"":" hidden"}><label>Descrição (o que você comprou)</label><input class="aObs" maxlength="80" placeholder="Ex.: almoço, remédio, presente" autocomplete="off"></div>
       <div class="aDup" hidden><span></span><div class="bts"><button type="button" class="ghost aMesmo">É o mesmo (descartar)</button><button type="button" class="ghost aAssim">Lançar mesmo assim</button></div></div>
       <div class="aBts" style="display:flex;gap:8px"><button type="button" class="btn aOk" style="margin:0;background:var(--in);color:#fff">Confirmar</button><button type="button" class="ghost aNo" style="min-height:46px;padding:0 16px;color:var(--out);border-color:var(--out)">Excluir</button></div>
       <p class="meta aMsg" style="margin:0"></p>`;
@@ -1197,7 +1203,7 @@ window.atualizaAprovar=function(){
     if(dup){q(".aDup").hidden=false;q(".aBts").style.display="none";q(".aDup span").textContent="Parece já lançado: "+dup.desc+" em "+br(dup.data)+"/"+dup.data.slice(0,4)+" ("+brl(dup.valor)+")"}
     const v=q(".aVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v);it.valor=centavos(v.value)/100});
     q(".aDesc").oninput=()=>{it.desc=q(".aDesc").value};q(".aData").onchange=()=>{it.data=q(".aData").value};
-    q(".aPag").onchange=()=>{it.pag=q(".aPag").value};if(q(".aCat"))q(".aCat").onchange=()=>{it.cat=q(".aCat").value;it.catAuto=false};
+    q(".aObs").value=it.obs||"";q(".aObs").oninput=()=>{it.obs=q(".aObs").value.trim()};q(".aPag").onchange=()=>{it.pag=q(".aPag").value;q(".aObsB").hidden=!(it.tipo==="out"&&ehCartao(it.pag))};if(q(".aCat"))q(".aCat").onchange=()=>{it.cat=q(".aCat").value;it.catAuto=false};
     q(".aTipo").onchange=()=>{it.tipo=q(".aTipo").value;it.trSug=false;it.cat=it.tipo==="in"?"Receita":it.tipo==="tr"?"Transferência":catDe(it.desc);it.pag=(it.tipo==="in"?PAGS_IN:PAGS)[0];atualizaAprovar()};
     const le=()=>{it.desc=q(".aDesc").value.trim();it.valor=centavos(v.value)/100;it.data=q(".aData").value;if(q(".aCat"))it.cat=q(".aCat").value;it.pag=q(".aPag").value;
       if(!pendValida(it)){q(".aMsg").textContent="Preencha descrição, valor e data.";return false}return true};
@@ -1318,7 +1324,7 @@ function busca(){
     if(i.data<ini||i.data>fim||(tp&&i.tipo!==tp))return false;if(!q)return true;
     if(valorQ!==null&&Math.abs(i.valor-valorQ)<.005)return true;
     if(dataQ){const [,d,m,a]=dataQ;const dd=d.padStart(2,"0"),mm=m.padStart(2,"0");if(i.data.slice(5)===mm+"-"+dd&&(!a||i.data.slice(0,4).endsWith(a)))return true}
-    return semAc(i.desc+" "+(i.cat||"")+" "+(i.pag||"")).includes(q);
+    return semAc(i.desc+" "+(i.obs||"")+" "+(i.cat||"")+" "+(i.pag||"")).includes(q);
   }).sort((a,b)=>(b.data+(b.hora||"")).localeCompare(a.data+(a.hora||"")));
   const g=res.filter(i=>i.tipo==="out").reduce((s,i)=>s+i.valor,0),rc=res.filter(i=>i.tipo==="in").reduce((s,i)=>s+i.valor,0);
   $("bKpis").innerHTML=[["Encontrados",String(res.length),""],["Gastos",brl(g),"out"],["Receitas",brl(rc),"in"],["Média por gasto",brl(g/Math.max(1,res.filter(i=>i.tipo==="out").length)),""]].map(([a,b,c])=>`<div class="kpi" style="padding:12px"><span>${a}</span><b class="${c}" style="font-size:1.1rem">${b}</b></div>`).join("");
@@ -1327,7 +1333,7 @@ function busca(){
   if(!res.length){ul.innerHTML='<li class="empty" style="display:block">Nada encontrado para essa busca. <button class="ghost" type="button" id="bLimpa" style="margin-top:8px">Limpar busca</button></li>';document.getElementById("bLimpa").onclick=()=>{$("bQ").value="";$("bPer").value="tudo";$("bTipo").value="";busca();$("bQ").focus()};return}
   res.slice(0,300).forEach(i=>{const li=document.createElement("li");const [y,m,d]=i.data.split("-");
     li.innerHTML=`<span class="dot" style="background:${i.tipo==="in"?"var(--in)":i.tipo==="tr"?"var(--muted)":(CATS[i.cat]||"#888")}"></span><div class="d"><span></span><small></small></div><span class="v ${i.tipo}">${SIN(i.tipo)} ${brl(i.valor)}</span>`;
-    li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"")+" · "+d+"/"+m+"/"+y;ul.appendChild(li)});
+    li.querySelector(".d span").textContent=i.desc;li.querySelector(".d small").textContent=(i.tipo==="in"?"Receita":i.cat)+(i.pag?" · "+i.pag:"")+" · "+d+"/"+m+"/"+y+(i.obs?" · "+i.obs:"");ul.appendChild(li)});
   if(res.length>300){const li=document.createElement("li");li.className="empty";li.textContent="Mostrando 300 de "+res.length+". Refine a busca.";ul.appendChild(li)}
 }
 $("bQ").addEventListener("input",busca);$("bPer").onchange=busca;$("bTipo").onchange=busca;
@@ -1486,6 +1492,7 @@ function render(){
     const [y,m,d]=i.data.split("-");
     li.innerHTML=`<span class="dot" style="background:${i.tipo==="in"?"var(--in)":i.tipo==="tr"?"var(--muted)":(CATS[i.cat]||"#888")}"></span><div class="d"><span></span><small>${i.cat}${i.pag?" · "+i.pag:""} · ${d}/${m}/${y}</small></div><span class="v ${i.tipo}">${SIN(i.tipo)} ${brl(i.valor)}</span>`;
     li.querySelector(".d span").textContent=i.desc;
+    if(i.obs)li.querySelector(".d small").appendChild(document.createTextNode(" · "+i.obs));
     if(i.auto)li.querySelector(".d span").insertAdjacentHTML("beforeend",' <span class="selo" title="Aprovado automaticamente">auto</span>');
     if(i.fontes&&i.fontes.length)li.querySelector(".d span").insertAdjacentHTML("beforeend",' <span class="selo" title="Confirmado por mais de uma fonte">'+(i.fontes.length+1)+' fontes</span>');
     const b=document.createElement("button");b.className="ghost";b.textContent="Excluir";b.setAttribute("aria-label","Excluir "+i.desc);
@@ -1512,10 +1519,11 @@ function formEdit(i){
     <div><label>${i.tipo==="out"?"Estabelecimento":"Descrição"}</label><input class="eDesc" maxlength="60"></div>
     <div class="row2" style="margin:0"><div><label>Valor</label><input class="eVal money" type="text" inputmode="numeric" autocomplete="off"></div><div><label>Data</label><input class="eData" type="date"></div></div>
     <div class="row2" style="margin:0">${i.tipo==="out"?`<div><label>Categoria</label><select class="eCat">${opts(Object.keys(CATS),i.cat)}</select></div>`:""}<div><label>${i.tipo==="in"?"Forma de recebimento":"Forma de pagamento"}</label><select class="ePag">${opts(L,i.pag)}</select></div></div>
+    <div class="eObsB"${i.tipo==="out"&&ehCartao(i.pag)?"":" hidden"}><label>Descrição (o que você comprou)</label><input class="eObs" maxlength="80" autocomplete="off"></div>
     <div style="display:flex;gap:8px"><button type="button" class="btn eOk" style="margin:0;background:var(--${i.tipo==="tr"?"muted":i.tipo});color:${i.tipo==="tr"?"var(--bg)":"#fff"}">Salvar</button><button type="button" class="ghost eNo" style="min-height:46px;padding:0 16px">Cancelar</button></div>
     <p class="meta eMsg" style="margin:0"></p>`;
   ligaLabels(f);const q=c=>f.querySelector(c);
-  q(".eDesc").value=i.desc;q(".eData").value=i.data;q(".eVal").value=brl(i.valor);
+  q(".eDesc").value=i.desc;q(".eObs").value=i.obs||"";q(".ePag").onchange=()=>{q(".eObsB").hidden=!(i.tipo==="out"&&ehCartao(q(".ePag").value))};q(".eData").value=i.data;q(".eVal").value=brl(i.valor);
   const v=q(".eVal");v.addEventListener("input",()=>{const d=v.value.replace(/\D/g,"");if(d.length>11)v.value=d.slice(0,11);mascara(v)});
   v.addEventListener("keydown",e=>{if(e.key==="Backspace"&&v.selectionStart===v.value.length){e.preventDefault();v.value=String(centavos(v.value)).slice(0,-1);mascara(v)}});
   q(".eNo").onclick=()=>{editId=null;render()};
@@ -1525,7 +1533,7 @@ function formEdit(i){
   q(".eOk").onclick=()=>{
     const desc=q(".eDesc").value.trim(),valor=centavos(v.value)/100,data=q(".eData").value;
     if(!desc||!(valor>0)||!data){q(".eMsg").textContent="Preencha descrição, valor maior que zero e data.";return}
-    const novo={...i,desc,valor,data,pag:q(".ePag").value};if(i.tipo==="out")novo.cat=q(".eCat").value;if(i.tipo==="tr")novo.cat="Transferência";
+    const novo={...i,desc,valor,data,pag:q(".ePag").value};{const o=q(".eObs").value.trim();if(o&&i.tipo==="out"&&ehCartao(novo.pag))novo.obs=o;else delete novo.obs}if(i.tipo==="out")novo.cat=q(".eCat").value;if(i.tipo==="tr")novo.cat="Transferência";
     S.items=S.items.map(x=>x.id===i.id?novo:x);editId=null;
     if(data.slice(0,7)!==$("mes").value)$("mes").value=data.slice(0,7);
     grava(novo);render();$("msg").textContent="";
