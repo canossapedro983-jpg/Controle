@@ -1,0 +1,39 @@
+{
+  "brand": {
+    "accent": "#E8DFB2",
+    "bg": null,
+    "primary": "#3B2A8C",
+    "text": null
+  },
+  "code_theme": "auto",
+  "company_name": "Controle de gastos",
+  "default_output_dir": "./site/",
+  "derived_palette": {
+    "--md-accent": "#E8DFB2",
+    "--md-accent-soft": "rgba(232, 223, 178, 0.14)",
+    "--md-bg": "#3B2A8C",
+    "--md-border": "#4E38BB",
+    "--md-code-bg": "#412E9B",
+    "--md-link": "#E8DFB2",
+    "--md-link-hover": "#F1ECD1",
+    "--md-success": "#10A85C",
+    "--md-surface": "#4431A3",
+    "--md-text": "#F7F7F2",
+    "--md-text-muted": "rgba(247, 247, 242, 0.68)",
+    "--md-warn": "#C87C10"
+  },
+  "design_style": "minimal",
+  "logo_url": "",
+  "setup_completed_at": "2026-11-20T00:33:03.346303+00:00",
+  "skill": "design-system",
+  "toc": {
+    "behavior": "none",
+    "max_depth": 3
+  },
+  "typography": {
+    "body_font": "Inter",
+    "heading_font": "Inter",
+    "scale_ratio": 1.25
+  },
+  "version": 1
+}

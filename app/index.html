@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Controle de gastos</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0F1713">
+<meta name="theme-color" content="#3B2A8C">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0F1713;--surface:#18231D;--ink:#E8F0EB;--muted:#9AA9A1;--line:#2B3A32;
-  --in:#4CC388;--out:#F0786F;--accent:#E8F0EB;--accent-ink:#0F1713;--warn:#E3B14F;
-  --track:#22302A;color-scheme:dark;
-  --display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
-  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  /* Design system: .markdown-html/design-system.json (roxo #3B2A8C + creme #E8DFB2, Inter, minimal) */
+  --bg:#3B2A8C;--surface:#4431A3;--ink:#F7F7F2;--muted:#C9BFF0;--line:#4E38BB;
+  --in:#7BE3A8;--out:#FF9B91;--accent:#E8DFB2;--accent-ink:#241A5C;--warn:#FFD27A;
+  --track:#412E9B;--on-color:#241A5C;color-scheme:dark;
+  --display:"Inter","Segoe UI",system-ui,sans-serif;
+  --body:"Inter","Segoe UI",system-ui,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
 html{font-size:16px;scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -42,8 +43,8 @@ label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}
 .seg button{border:0;background:transparent;min-height:44px;cursor:pointer;font-weight:500}
-.seg button[aria-pressed="true"].s-out{background:var(--out);color:#fff}
-.seg button[aria-pressed="true"].s-in{background:var(--in);color:#fff}
+.seg button[aria-pressed="true"].s-out{background:var(--out);color:var(--on-color)}
+.seg button[aria-pressed="true"].s-in{background:var(--in);color:var(--on-color)}
 .btn{width:100%;margin-top:16px;min-height:46px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-weight:600;cursor:pointer}
 .ghost{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;min-height:36px;padding:0 10px;cursor:pointer}
 .bar{height:10px;border-radius:99px;background:var(--track);overflow:hidden}
@@ -118,9 +119,9 @@ html.privado .saldo,html.privado .semN b,html.privado .v,html.privado .kpi b,htm
 .sw input{opacity:0;width:0;height:0;position:absolute}
 .sw span{position:absolute;inset:0;border-radius:99px;background:var(--track);border:1px solid var(--line);cursor:pointer}
 .sw span:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:transform .15s ease-out}
-.sw input:checked+span{background:var(--in)}.sw input:checked+span:before{transform:translateX(22px);background:#fff}
+.sw input:checked+span{background:var(--in)}.sw input:checked+span:before{transform:translateX(22px);background:var(--on-color)}
 .sw input:focus-visible+span{outline:3px solid var(--in);outline-offset:2px}
-html.claro:root{--bg:#EEF2EF;--surface:#FFFFFF;--ink:#16241D;--muted:#5D6B64;--line:#D6DED9;--in:#1B7F4F;--out:#C23B32;--accent:#16241D;--accent-ink:#FFFFFF;--warn:#B7791F;--track:#E1E8E3;color-scheme:light}
+html.claro:root{--bg:#F4F2FA;--surface:#FFFFFF;--ink:#1E1546;--muted:#5E5785;--line:#E2DEF2;--in:#127A47;--out:#C0362C;--accent:#3B2A8C;--accent-ink:#FFFFFF;--warn:#8A5A00;--track:#EAE6F7;--on-color:#FFFFFF;color-scheme:light}
 .money{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .sugs{overscroll-behavior:contain;touch-action:pan-y;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:222px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sugs li{padding:0 14px;min-height:44px;border-top:1px solid var(--line);cursor:pointer;gap:0}
@@ -177,8 +178,7 @@ textarea{width:100%;background:var(--surface);border:1px solid var(--line);paddi
 body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-R .mesnav{display:none}
 
 /* Saldo (hero) */
-.hero{position:relative;overflow:hidden;padding:22px 20px 18px;background:
- radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--in) 22%,transparent),transparent 60%),var(--surface)}
+.hero{position:relative;overflow:hidden;padding:22px 20px 18px;background:var(--surface)}
 
 #saldoLbl{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
 .saldo{font-size:clamp(2.5rem,12vw,3.6rem);margin:6px 0 14px}
@@ -242,7 +242,7 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
 .bn[aria-current="page"] svg{color:var(--in)}
 .bn[aria-current="page"]:before{content:"";position:absolute;top:2px;width:24px;height:3px;border-radius:3px;background:var(--in)}
 .nb{position:absolute;top:6px;right:calc(50% - 20px);min-width:18px;height:18px;border-radius:9px;background:var(--out);color:#fff;font:600 .68rem/18px var(--body);padding:0 5px;font-style:normal}
-.fab{justify-self:center;width:66px;height:66px;border-radius:22px;border:0;margin-top:-26px;background:var(--in);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 22px color-mix(in srgb,var(--out) 45%,transparent);transition:transform .15s}
+.fab{justify-self:center;width:66px;height:66px;border-radius:22px;border:0;margin-top:-26px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 22px rgba(20,12,60,.35);transition:transform .15s}
 .fab:active{transform:scale(.94)}
 
 /* Folha de lançamento */
@@ -273,8 +273,8 @@ body.em-C .mesnav,body.em-E .mesnav,body.em-A .mesnav,body.em-M .mesnav,body.em-
 .tecl button{height:50px;border-radius:14px;border:0;background:var(--bg);color:var(--ink);font:600 1.35rem var(--display);cursor:pointer;touch-action:manipulation}
 .tecl button:active{background:var(--line)}
 .sheet .btn{margin-top:10px}
-.lanca-out{background:var(--out)!important;color:#fff!important}
-.lanca-in{background:var(--in)!important;color:#fff!important}
+.lanca-out{background:var(--out)!important;color:var(--on-color)!important}
+.lanca-in{background:var(--in)!important;color:var(--on-color)!important}
 .sheet .meta:empty{display:none}
 .sheet .sugs{max-height:190px}
 
@@ -334,6 +334,25 @@ html.privado .iv,html.privado .ivK b,html.privado #invHeroV,html.privado .ivRV{f
 .ivC .bts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.ivC .bts button{flex:1 1 90px;min-height:44px}
 .ivRes{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.ivChk{display:flex;align-items:center;gap:8px;min-height:44px}
 #ivResBox summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600}
+
+/* ===== Design system minimal (roxo + creme, Inter) ===== */
+html{-webkit-font-smoothing:antialiased}
+body{font-feature-settings:"cv11","ss01"}
+.saldo,.v,.money,.duo b,.kpi b,.semN b,.pdia>b,.fxV,#lista li.dia span{font-variant-numeric:tabular-nums}
+h1,h2,.saldo,.tit h2{font-weight:700;letter-spacing:-.025em}
+.saldo{font-weight:700;letter-spacing:-.04em}
+.panel,.hero,.kpi,.tabs button,.mesbox,.home,.pdia{border-color:transparent}
+.duo>div,.semN div,.pdConta,.info,.apr .raw{background:color-mix(in srgb,var(--bg) 70%,var(--surface))}
+html.claro .panel,html.claro .hero,html.claro .kpi,html.claro .tabs button,html.claro .mesbox,html.claro .home{box-shadow:0 1px 2px rgba(30,21,70,.06),0 4px 16px rgba(30,21,70,.05)}
+.tit .kicker{color:var(--accent)}
+.bn[aria-current="page"] svg{color:var(--accent)}
+.bn[aria-current="page"]:before{background:var(--accent)}
+.tabs button svg{color:var(--accent)}
+:focus-visible{outline-color:var(--accent)}
+.btn{font-weight:600}
+#lista li.it .dot{border-radius:50%}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:.7}
+#fGasto .money.grande::placeholder{color:var(--out);opacity:.45}#fRec .money.grande::placeholder{color:var(--in);opacity:.45}
 </style>
 </head>
 <body>
